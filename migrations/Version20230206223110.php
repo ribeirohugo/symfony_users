@@ -19,6 +19,8 @@ final class Version20230206223110 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
+        $schema->createSequence("users_id_seq");
+
         $table = $schema->createTable("users");
 
         $table->addColumn("id", "integer")->setLength(16)->setNotnull(true);
@@ -36,5 +38,6 @@ final class Version20230206223110 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $schema->dropTable("users");
+        $schema->dropSequence("users_id_seq");
     }
 }
