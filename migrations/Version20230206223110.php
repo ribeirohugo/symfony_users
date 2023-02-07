@@ -26,6 +26,8 @@ final class Version20230206223110 extends AbstractMigration
         $table->addColumn("email", "string")->setLength(255)->setNotnull(true);
         $table->addColumn("password", "string")->setLength(255)->setNotnull(true);
         $table->addColumn("phone", "string")->setLength(20);
+        $table->addColumn("created_at", "datetime");
+        $table->addColumn("updated_at", "datetime");
 
         $table->addIndex(["id"]);
         $table->addUniqueIndex(["email"]);
