@@ -5,7 +5,9 @@ namespace App\Tests\Repository;
 use App\Entity\User;
 
 use Doctrine\ORM\EntityManager;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Console\Tester\CommandTester;
 
 class UserRepositoryTest extends KernelTestCase
 {
@@ -19,6 +21,11 @@ class UserRepositoryTest extends KernelTestCase
      */
     private $entityManager;
 
+    /**
+     * @var Application
+     */
+    private $application;
+
     protected function setUp(): void
     {
         $kernel = self::bootKernel();
@@ -27,14 +34,13 @@ class UserRepositoryTest extends KernelTestCase
             ->get('doctrine')
             ->getManager();
 
-//        $this->entityManager->run
-//
-//        self::runCommand('doctrine:database:drop --force');
-//        self::runCommand('doctrine:database:create');
-//        self::runCommand('doctrine:schema:create');
-//        self::runCommand('doctrine:fixtures:load --append --no-interaction --fixtures=tests/AppBundle/DataFixtures/ORM');
-//
-//        self::runCommand('doctrine:database:drop --force');
+        $this->application = new Application($kernel);
+
+        $command = $this->application->find('doctrine:migrations:migrate');
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['n']);
+
+        $commandTester->assertCommandIsSuccessful();
     }
 
     public function testSave()
@@ -67,18 +73,20 @@ class UserRepositoryTest extends KernelTestCase
         $this->entityManager->remove($user);
     }
 
-//    public function testSearchByName()
-//    {
-//        $user = $this->entityManager
-//            ->getRepository(User::class)
-//            ->findOneBy(['name' => 'user name'])
-//        ;
-//
-//        $this->assertSame(self::USER_NAME_TEST, $user->getName());
-//        $this->assertSame(self::USER_EMAIL_TEST, $user->getEmail());
-//        $this->assertSame(self::USER_PASSWORD_TEST, $user->getPassword());
-//        $this->assertSame(self::USER_PHONE_TEST, $user->getPhone());
-//    }
+    public function testSearchByName()
+    {
+        $this->addUser();
+
+        $user = $this->entityManager
+            ->getRepository(User::class)
+            ->findOneBy(['email' => self::USER_EMAIL_TEST])
+        ;
+
+        $this->assertSame(self::USER_NAME_TEST, $user->getName());
+        $this->assertSame(self::USER_EMAIL_TEST, $user->getEmail());
+        $this->assertSame(self::USER_PASSWORD_TEST, $user->getPassword());
+        $this->assertSame(self::USER_PHONE_TEST, $user->getPhone());
+    }
 
     protected function tearDown(): void
     {
@@ -87,5 +95,21 @@ class UserRepositoryTest extends KernelTestCase
         // doing this is recommended to avoid memory leaks
         $this->entityManager->close();
         $this->entityManager = null;
+    }
+
+    protected function addUser(): void {
+        $user = new User(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+        $user->setCreatedAt(new \DateTime());
+        $user->setUpdatedAt(new \DateTime());
+
+        $this->entityManager
+            ->getRepository(User::class)
+            ->save($user, true)
+        ;
     }
 }
