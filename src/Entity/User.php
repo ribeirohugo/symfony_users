@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Table(name: 'users')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User
 {
@@ -24,11 +25,20 @@ class User
 
     #[ORM\Column(length: 20)]
     private ?string $phone = null;
+
+    #[ORM\Column(length: 255)]
+    private \DateTime $createdAt;
+
+    #[ORM\Column(length: 255)]
+    private ?\DateTime $updatedAt = null;
+
     public function __construct(string $name, string $email, string $password, string $phone) {
         $this->name = $name;
         $this->email = $email;
         $this->password = $password;
         $this->phone = $phone;
+
+        $this->createdAt = new \DateTime();
     }
 
     public function getId(): ?int {
@@ -65,5 +75,21 @@ class User
 
     public function setPassword(string $password): void {
         $this->password = $password;
+    }
+
+    public function getCreatedAt(): \DateTime {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTime $createdAt): void {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): \DateTime {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTime $updatedAt): void {
+        $this->updatedAt = $updatedAt;
     }
 }

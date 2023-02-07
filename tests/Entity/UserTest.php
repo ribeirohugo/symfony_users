@@ -51,4 +51,24 @@ class UserTest extends TestCase{
 
         $this->assertEquals(self::USER_PHONE_TEST, $user->getPhone());
     }
+
+    public function testUserCreatedAt() {
+        $user = new User("", "", "", "");
+
+        $createdAt = new \DateTime();
+
+        $user->setCreatedAt($createdAt);
+
+        $this->assertEquals($createdAt, $user->getCreatedAt());
+    }
+
+    public function testUserUpdatedAt() {
+        $user = new User("", "", "", "");
+
+        $updatedAt = new \DateTime();
+
+        $user->setUpdatedAt($updatedAt);
+
+        $this->assertEquals($updatedAt, $user->getUpdatedAt());
+    }
 }
