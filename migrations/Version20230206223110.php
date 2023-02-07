@@ -23,7 +23,7 @@ final class Version20230206223110 extends AbstractMigration
 
         $table = $schema->createTable("users");
 
-        $table->addColumn("id", "integer")->setLength(16)->setNotnull(true);
+        $table->addColumn("id", "integer")->setLength(16)->setNotnull(true)->setAutoincrement(true);
         $table->addColumn("name", "string")->setLength(255)->setNotnull(true);
         $table->addColumn("email", "string")->setLength(255)->setNotnull(true);
         $table->addColumn("password", "string")->setLength(255)->setNotnull(true);
