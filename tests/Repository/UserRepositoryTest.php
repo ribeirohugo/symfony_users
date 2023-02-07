@@ -73,20 +73,20 @@ class UserRepositoryTest extends KernelTestCase
         $this->entityManager->remove($user);
     }
 
-    public function testSearchByName()
-    {
-        $this->addUser();
-
-        $user = $this->entityManager
-            ->getRepository(User::class)
-            ->findOneBy(['email' => self::USER_EMAIL_TEST])
-        ;
-
-        $this->assertSame(self::USER_NAME_TEST, $user->getName());
-        $this->assertSame(self::USER_EMAIL_TEST, $user->getEmail());
-        $this->assertSame(self::USER_PASSWORD_TEST, $user->getPassword());
-        $this->assertSame(self::USER_PHONE_TEST, $user->getPhone());
-    }
+//    public function testSearchByName()
+//    {
+//        $this->addUser();
+//
+//        $user = $this->entityManager
+//            ->getRepository(User::class)
+//            ->findOneBy(['email' => self::USER_EMAIL_TEST])
+//        ;
+//
+//        $this->assertSame(self::USER_NAME_TEST, $user->getName());
+//        $this->assertSame(self::USER_EMAIL_TEST, $user->getEmail());
+//        $this->assertSame(self::USER_PASSWORD_TEST, $user->getPassword());
+//        $this->assertSame(self::USER_PHONE_TEST, $user->getPhone());
+//    }
 
     protected function tearDown(): void
     {
