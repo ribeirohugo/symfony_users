@@ -24,6 +24,12 @@ class User
 
     #[ORM\Column(length: 20)]
     private ?string $phone = null;
+    public function __construct(string $name, string $email, string $password, string $phone) {
+        $this->name = $name;
+        $this->email = $email;
+        $this->password = $password;
+        $this->phone = $phone;
+    }
 
     public function getId(): ?int {
         return $this->id;
@@ -45,8 +51,8 @@ class User
         $this->email = $email;
     }
 
-    public function getPhone(string $phone): string {
-        return $this->phone = $phone;
+    public function getPhone(): string {
+        return $this->phone;
     }
 
     public function setPhone(string $phone): void {
