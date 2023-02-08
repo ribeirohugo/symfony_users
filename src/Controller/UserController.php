@@ -37,7 +37,7 @@ class UserController extends AbstractController
         }
 
         return new Response(
-            $this->serializer->serialize($users, JsonEncoder::FORMAT),
+            $serializer->serialize($users, JsonEncoder::FORMAT),
             Response::HTTP_OK,
             ['Content-Type' => 'application/json;charset=UTF-8']
         );
