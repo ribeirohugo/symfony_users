@@ -19,12 +19,7 @@ class UserRepositoryTest extends KernelTestCase
     /**
      * @var EntityManager
      */
-    private $entityManager;
-
-    /**
-     * @var Application
-     */
-    private $application;
+    private EntityManager $entityManager;
 
     protected function setUp(): void
     {
@@ -34,59 +29,66 @@ class UserRepositoryTest extends KernelTestCase
             ->get('doctrine')
             ->getManager();
 
-        $this->application = new Application($kernel);
+        $application = new Application($kernel);
 
-        $command = $this->application->find('doctrine:migrations:migrate');
+        $command = $application->find('doctrine:migrations:migrate');
         $commandTester = new CommandTester($command);
         $commandTester->execute(['n']);
 
         $commandTester->assertCommandIsSuccessful();
     }
 
-    public function testSave()
-    {
-        $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
-        );
-        $user->setCreatedAt(new \DateTime());
-        $user->setUpdatedAt(new \DateTime());
+    public function testFind() {
+        $user = $this->addUser();
 
-        $this->entityManager
+        $this->assertIsObject($user);
+
+        $user = $this->entityManager
             ->getRepository(User::class)
-            ->save($user, true)
+            ->find($user->getId())
         ;
 
-        $createdUser = $this->entityManager
+        $this->assertSame(self::USER_NAME_TEST, $user->getName());
+        $this->assertSame(self::USER_EMAIL_TEST, $user->getEmail());
+        $this->assertSame(self::USER_PASSWORD_TEST, $user->getPassword());
+        $this->assertSame(self::USER_PHONE_TEST, $user->getPhone());
+
+        $this->removeUser($user);
+    }
+
+    public function testFindOneByName()
+    {
+        $this->addUser();
+
+        $user = $this->entityManager
+            ->getRepository(User::class)
+            ->findOneBy(['name' => self::USER_NAME_TEST])
+        ;
+
+        $this->assertSame(self::USER_NAME_TEST, $user->getName());
+        $this->assertSame(self::USER_EMAIL_TEST, $user->getEmail());
+        $this->assertSame(self::USER_PASSWORD_TEST, $user->getPassword());
+        $this->assertSame(self::USER_PHONE_TEST, $user->getPhone());
+
+        $this->removeUser($user);
+    }
+
+    public function testFindOneByEmail()
+    {
+        $this->addUser();
+
+        $user = $this->entityManager
             ->getRepository(User::class)
             ->findOneBy(['email' => self::USER_EMAIL_TEST])
         ;
 
-        $this->assertIsObject($createdUser);
-        $this->assertSame(self::USER_NAME_TEST, $createdUser->getName());
-        $this->assertSame(self::USER_EMAIL_TEST, $createdUser->getEmail());
-        $this->assertSame(self::USER_PASSWORD_TEST, $createdUser->getPassword());
-        $this->assertSame(self::USER_PHONE_TEST, $createdUser->getPhone());
+        $this->assertSame(self::USER_NAME_TEST, $user->getName());
+        $this->assertSame(self::USER_EMAIL_TEST, $user->getEmail());
+        $this->assertSame(self::USER_PASSWORD_TEST, $user->getPassword());
+        $this->assertSame(self::USER_PHONE_TEST, $user->getPhone());
 
-        $this->entityManager->remove($user);
+        $this->removeUser($user);
     }
-
-//    public function testSearchByName()
-//    {
-//        $this->addUser();
-//
-//        $user = $this->entityManager
-//            ->getRepository(User::class)
-//            ->findOneBy(['email' => self::USER_EMAIL_TEST])
-//        ;
-//
-//        $this->assertSame(self::USER_NAME_TEST, $user->getName());
-//        $this->assertSame(self::USER_EMAIL_TEST, $user->getEmail());
-//        $this->assertSame(self::USER_PASSWORD_TEST, $user->getPassword());
-//        $this->assertSame(self::USER_PHONE_TEST, $user->getPhone());
-//    }
 
     protected function tearDown(): void
     {
@@ -97,7 +99,7 @@ class UserRepositoryTest extends KernelTestCase
         $this->entityManager = null;
     }
 
-    protected function addUser(): void {
+    protected function addUser(): ?User {
         $user = new User(
             self::USER_NAME_TEST,
             self::USER_EMAIL_TEST,
@@ -107,9 +109,16 @@ class UserRepositoryTest extends KernelTestCase
         $user->setCreatedAt(new \DateTime());
         $user->setUpdatedAt(new \DateTime());
 
-        $this->entityManager
+        return $this->entityManager
             ->getRepository(User::class)
             ->save($user, true)
+        ;
+    }
+
+    protected function removeUser(User $user): void {
+        $this->entityManager
+            ->getRepository(User::class)
+            ->remove($user, true)
         ;
     }
 }
