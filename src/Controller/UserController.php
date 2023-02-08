@@ -44,7 +44,7 @@ class UserController extends AbstractController
         );
     }
 
-    #[Route('/users/{userId}', name: 'removeUser', methods: ['DELETE'])]
+    #[Route('/users/{userId}', name: 'remove_user', methods: ['DELETE'])]
     public function removeUser(int $userId, UserRepositoryInterface $userRepository): Response
     {
         $user = $userRepository->find($userId);
@@ -58,7 +58,7 @@ class UserController extends AbstractController
         return new Response("",Response::HTTP_NO_CONTENT);
     }
 
-    #[Route('/users', name: 'createUser', methods: ['POST'])]
+    #[Route('/users', name: 'create_user', methods: ['POST'])]
     public function createUser(Request $request, UserRepositoryInterface $userRepository, SerializerInterface $serializer): Response
     {
         try {
