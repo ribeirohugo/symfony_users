@@ -65,6 +65,8 @@
         }
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.0"
+        "dama/doctrine-test-bundle": "^7.2",
+        "phpunit/phpunit": "^10.0",
+      "ext-pdo": "*"
     }
 }
