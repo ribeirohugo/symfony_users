@@ -2,8 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
+use App\Entity\UserCreate;
 use App\Repository\UserRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -53,5 +56,26 @@ class UserController extends AbstractController
         $userRepository->remove($user);
 
         return new Response("",Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route('/users', name: 'createUser', methods: ['POST'])]
+    public function createUser(Request $request, UserRepositoryInterface $userRepository, SerializerInterface $serializer): Response
+    {
+        $userCreate = $serializer->deserialize($request->getContent(), UserCreate::class, "json");
+
+        $user = new User(
+            $userCreate->getName(),
+            $userCreate->getEmail(),
+            $userCreate->getPassword(),
+            $userCreate->getPhone(),
+        );
+
+        $userRepository->save($user, true);
+
+        return new Response(
+            $serializer->serialize($user, JsonEncoder::FORMAT),
+            Response::HTTP_OK,
+            ['Content-Type' => 'application/json;charset=UTF-8']
+        );
     }
 }
