@@ -89,6 +89,42 @@ class UserControllerTest extends TestCase
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
 
+    public function testRemoveUserSuccess(): void
+    {
+        $userId = 1;
+        $user = new User(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+
+        $userRepository = $this->createMock(UserRepositoryInterface::class);
+        $userRepository->expects(self::once())
+            ->method('find')
+            ->willReturn($user);
+        $userRepository->expects(self::once())
+            ->method('remove');
+
+        $response = $this->userController->removeUser($userId, $userRepository);
+
+        $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
+    public function testRemoveUserNotFound(): void
+    {
+        $userId = 1;
+
+        $userRepository = $this->createMock(UserRepositoryInterface::class);
+        $userRepository->expects(self::once())
+            ->method('find')
+            ->willReturn(null);
+
+        $response = $this->userController->removeUser($userId, $userRepository);
+
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
     protected function tearDown(): void
     {
         parent::tearDown();
