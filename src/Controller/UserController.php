@@ -61,7 +61,11 @@ class UserController extends AbstractController
     #[Route('/users', name: 'createUser', methods: ['POST'])]
     public function createUser(Request $request, UserRepositoryInterface $userRepository, SerializerInterface $serializer): Response
     {
-        $userCreate = $serializer->deserialize($request->getContent(), UserCreate::class, "json");
+        try {
+            $userCreate = $serializer->deserialize($request->getContent(), UserCreate::class, "json");
+        } catch (\Exception) {
+            return new Response("",Response::HTTP_BAD_REQUEST);
+        };
 
         $user = new User(
             $userCreate->getName(),

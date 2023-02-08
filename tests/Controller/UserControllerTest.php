@@ -4,8 +4,10 @@ namespace App\Tests\Controller;
 
 use App\Controller\UserController;
 use App\Entity\User;
+use App\Entity\UserCreate;
 use App\Repository\UserRepositoryInterface;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -123,6 +125,60 @@ class UserControllerTest extends TestCase
         $response = $this->userController->removeUser($userId, $userRepository);
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    public function testCreateUserSuccess(): void
+    {
+        $userCreate = new UserCreate(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+        $user = new User(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+
+        $userRepository = $this->createMock(UserRepositoryInterface::class);
+        $userRepository->expects(self::once())
+            ->method('save')
+            ->willReturn($user);
+
+        $request = Request::create(
+            "users",
+            Request::METHOD_POST,
+            [],
+            [],
+            [],
+            [],
+            $this->serializer->serialize($userCreate, JsonEncoder::FORMAT),
+        );
+
+        $response = $this->userController->createUser($request, $userRepository, $this->serializer);
+
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals($this->serializer->serialize($user, JsonEncoder::FORMAT), $response->getContent());
+    }
+
+    public function testCreateUserInvalidBody(): void
+    {
+        $user = new User(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+
+        $userRepository = $this->createMock(UserRepositoryInterface::class);
+
+        $request = Request::createFromGlobals();
+
+        $response = $this->userController->createUser($request, $userRepository, $this->serializer);
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
 
     protected function tearDown(): void
