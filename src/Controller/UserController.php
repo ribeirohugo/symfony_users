@@ -28,16 +28,30 @@ class UserController extends AbstractController
     #[Route('/users/{userId}', name: 'singleUser', methods: ['GET'])]
     public function singleUser(int $userId, UserRepositoryInterface $userRepository, SerializerInterface $serializer): Response
     {
-        $users = $userRepository->find($userId);
+        $user = $userRepository->find($userId);
 
-        if(empty($users)) {
+        if(empty($user)) {
             return new Response("", Response::HTTP_NOT_FOUND);
         }
 
         return new Response(
-            $serializer->serialize($users, JsonEncoder::FORMAT),
+            $serializer->serialize($user, JsonEncoder::FORMAT),
             Response::HTTP_OK,
             ['Content-Type' => 'application/json;charset=UTF-8']
         );
+    }
+
+    #[Route('/users/{userId}', name: 'removeUser', methods: ['DELETE'])]
+    public function removeUser(int $userId, UserRepositoryInterface $userRepository): Response
+    {
+        $user = $userRepository->find($userId);
+
+        if(empty($user)) {
+            return new Response("", Response::HTTP_NOT_FOUND);
+        }
+
+        $userRepository->remove($user);
+
+        return new Response("",Response::HTTP_NO_CONTENT);
     }
 }
