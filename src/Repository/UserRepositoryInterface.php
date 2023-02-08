@@ -4,7 +4,7 @@ namespace App\Repository;
 
 use App\Entity\User;
 
-interface UserRepositoryInterface extends RepositoryInterface
+interface UserRepositoryInterface
 {
     function find(int $userId);
     function findAll();
