@@ -4,6 +4,7 @@ namespace App\Tests\Repository;
 
 use App\Entity\User;
 
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -86,6 +87,51 @@ class UserRepositoryTest extends KernelTestCase
         $this->assertSame(self::USER_EMAIL_TEST, $user->getEmail());
         $this->assertSame(self::USER_PASSWORD_TEST, $user->getPassword());
         $this->assertSame(self::USER_PHONE_TEST, $user->getPhone());
+
+        $this->removeUser($user);
+    }
+
+    public function testSaveUser() {
+        $user = new User(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+        $user->setCreatedAt(new \DateTime());
+        $user->setUpdatedAt(new \DateTime());
+
+        $createdUser = $this->entityManager
+            ->getRepository(User::class)
+            ->save($user, true)
+        ;
+
+        $this->assertSame(self::USER_NAME_TEST, $user->getName());
+        $this->assertSame(self::USER_EMAIL_TEST, $user->getEmail());
+        $this->assertSame(self::USER_PASSWORD_TEST, $user->getPassword());
+        $this->assertSame(self::USER_PHONE_TEST, $user->getPhone());
+
+        $this->removeUser($user);
+    }
+
+    public function testSaveUserFailWithDuplicatedEmail() {
+        $user = $this->addUser();
+
+        $conflictingUser = new User(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+        $conflictingUser->setCreatedAt(new \DateTime());
+        $conflictingUser->setUpdatedAt(new \DateTime());
+
+        $this->expectException(UniqueConstraintViolationException::class);
+
+        $this->entityManager
+            ->getRepository(User::class)
+            ->save($conflictingUser, true)
+        ;
 
         $this->removeUser($user);
     }
