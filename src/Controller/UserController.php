@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Repository\UserRepository;
+use App\Repository\UserRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 class UserController extends AbstractController
 {
     #[Route('/users', name: 'listUsers', methods: ['GET'])]
-    public function listUsers(UserRepository $userRepository, SerializerInterface $serializer): Response
+    public function listUsers(UserRepositoryInterface $userRepository, SerializerInterface $serializer): Response
     {
         $users = $userRepository->findAll();
 
@@ -26,7 +26,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/users/{userId}', name: 'singleUser', methods: ['GET'])]
-    public function singleUser(int $userId, UserRepository $userRepository, SerializerInterface $serializer): Response
+    public function singleUser(int $userId, UserRepositoryInterface $userRepository, SerializerInterface $serializer): Response
     {
         $users = $userRepository->find($userId);
 
