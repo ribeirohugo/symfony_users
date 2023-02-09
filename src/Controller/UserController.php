@@ -63,7 +63,9 @@ class UserController extends AbstractController
     {
         try {
             $userCreate = $serializer->deserialize($request->getContent(), UserCreate::class, "json");
-        } catch (\Exception) {
+        } catch (\Exception $e) {
+            error_log($e);
+
             return new Response("",Response::HTTP_BAD_REQUEST);
         };
 
@@ -76,7 +78,9 @@ class UserController extends AbstractController
 
         try {
             $userRepository->save($user, true);
-        } catch (\Exception) {
+        } catch (\Exception $e) {
+            error_log($e);
+
             return new Response("",Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
