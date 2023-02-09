@@ -82,7 +82,7 @@ class User
     }
 
     public function setCreatedAt(\DateTime|string $createdAt): void {
-        // Fix deserialize error
+        // Fix: deserialize set datetime error
         if(gettype($createdAt) == "string") {
             $this->createdAt = date_create_from_format(\DateTimeInterface::RFC3339, $createdAt);
             return;
@@ -96,7 +96,7 @@ class User
     }
 
     public function setUpdatedAt(\DateTime|string $updatedAt): void {
-        // Fix deserialize error
+        // Fix: deserialize set datetime error
         if(gettype($updatedAt) == "string") {
             $this->createdAt = date_create_from_format(\DateTimeInterface::RFC3339, $updatedAt);
             return;

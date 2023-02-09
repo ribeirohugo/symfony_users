@@ -119,6 +119,7 @@ class UserControllerTest extends KernelTestCase
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
+        // Fix: get user from response
         $normalizedUser = json_decode($response->getContent(), true);
         if($normalizedUser["id"] != null) {
             $createdUser = $userRepository->find($normalizedUser["id"]);
