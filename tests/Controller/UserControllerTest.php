@@ -197,6 +197,122 @@ class UserControllerTest extends TestCase
         $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
     }
 
+    public function testUpdateUserSuccess(): void
+    {
+        $userId = 1;
+        $userCreate = new UserCreate(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+        $user = new User(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+
+        $userRepository = $this->createMock(UserRepositoryInterface::class);
+        $userRepository->expects(self::once())
+            ->method('find')
+            ->willReturn($user);
+        $userRepository->expects(self::once())
+            ->method('save')
+            ->willReturn($user);
+
+        $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
+        $request = $this->createRequest("users/1", Request::METHOD_PUT, $content);
+
+        $response = $this->userController->updateUser($userId, $request, $userRepository, $this->serializer);
+
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals($this->serializer->serialize($user, JsonEncoder::FORMAT), $response->getContent());
+    }
+
+    public function testUpdateUserNotfound(): void
+    {
+        $userId = 1;
+        $userCreate = new UserCreate(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+
+        $userRepository = $this->createMock(UserRepositoryInterface::class);
+        $userRepository->expects(self::once())
+            ->method('find');
+
+        $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
+        $request = $this->createRequest("users/1", Request::METHOD_PUT, $content);
+
+        $response = $this->userController->updateUser($userId, $request, $userRepository, $this->serializer);
+
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    public function testUpdateUserRepositoryFindError(): void
+    {
+        $userId = 1;
+        $userCreate = new UserCreate(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+        $user = new User(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+
+        $userRepository = $this->createMock(UserRepositoryInterface::class);
+        $userRepository->expects(self::once())
+            ->method('find')
+            ->willThrowException(new \Exception());
+
+        $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
+        $request = $this->createRequest("users/1", Request::METHOD_PUT, $content);
+
+        $response = $this->userController->updateUser($userId, $request, $userRepository, $this->serializer);
+
+        $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
+    }
+
+    public function testUpdateUserRepositorySaveError(): void
+    {
+        $userId = 1;
+        $userCreate = new UserCreate(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+        $user = new User(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+
+        $userRepository = $this->createMock(UserRepositoryInterface::class);
+        $userRepository->expects(self::once())
+            ->method('find')
+            ->willReturn($user);
+        $userRepository->expects(self::once())
+            ->method('save')
+            ->willThrowException(new \Exception());
+
+        $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
+        $request = $this->createRequest("users/1", Request::METHOD_PUT, $content);
+
+        $response = $this->userController->updateUser($userId, $request, $userRepository, $this->serializer);
+
+        $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
+    }
+
     protected function tearDown(): void
     {
         parent::tearDown();
