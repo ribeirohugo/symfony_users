@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Tests\Repository;
+namespace App\Tests\Unit\Repository;
 
 use App\Entity\User;
-
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;

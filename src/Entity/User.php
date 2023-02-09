@@ -81,7 +81,13 @@ class User
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): void {
+    public function setCreatedAt(\DateTime|string $createdAt): void {
+        // Fix: deserialize set datetime error
+        if(gettype($createdAt) == "string") {
+            $this->createdAt = date_create_from_format(\DateTimeInterface::RFC3339, $createdAt);
+            return;
+        }
+
         $this->createdAt = $createdAt;
     }
 
@@ -89,7 +95,13 @@ class User
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): void {
+    public function setUpdatedAt(\DateTime|string $updatedAt): void {
+        // Fix: deserialize set datetime error
+        if(gettype($updatedAt) == "string") {
+            $this->createdAt = date_create_from_format(\DateTimeInterface::RFC3339, $updatedAt);
+            return;
+        }
+
         $this->updatedAt = $updatedAt;
     }
 }

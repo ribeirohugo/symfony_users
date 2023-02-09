@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Controller;
+namespace App\Tests\Unit\Controller;
 
 use App\Controller\UserController;
 use App\Entity\User;
@@ -20,9 +20,9 @@ class UserControllerTest extends TestCase
     const USER_PASSWORD_TEST = "password";
     const USER_PHONE_TEST = "910123123";
 
-    private $userController;
+    private UserController $userController;
 
-    private $serializer;
+    private Serializer $serializer;
 
     protected function setUp(): void
     {
