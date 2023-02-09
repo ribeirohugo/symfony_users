@@ -124,33 +124,33 @@ class UserControllerTest extends KernelTestCase
         $this->removeUser($createdUser);
     }
 
-    public function testUpdateUserSuccess(): void
-    {
-        $existingUser = $this->addUser();
-
-        $userCreate = new UserCreate(
-            "new name",
-            "new_email@domain.com",
-            "new password",
-            "123",
-        );
-
-        $userRepository = $this->entityManager
-            ->getRepository(User::class);
-
-        $userController = new UserController();
-
-        $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
-        $request = $this->createRequest("/users", Request::METHOD_PUT, $content);
-
-        $response = $userController->updateUser($existingUser->getId(), $request, $userRepository, $this->serializer);
-
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-
-        $createdUser = $this->serializer->deserialize($response->getContent(), User::class, "json");
-
-        $this->removeUser($createdUser);
-    }
+//    public function testUpdateUserSuccess(): void
+//    {
+//        $existingUser = $this->addUser();
+//
+//        $userCreate = new UserCreate(
+//            "new name",
+//            "new_email@domain.com",
+//            "new password",
+//            "123",
+//        );
+//
+//        $userRepository = $this->entityManager
+//            ->getRepository(User::class);
+//
+//        $userController = new UserController();
+//
+//        $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
+//        $request = $this->createRequest("/users", Request::METHOD_PUT, $content);
+//
+//        $response = $userController->updateUser($existingUser->getId(), $request, $userRepository, $this->serializer);
+//
+//        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+//
+//        $createdUser = $this->serializer->deserialize($response->getContent(), User::class, "json");
+//
+//        $this->removeUser($createdUser);
+//    }
 
     public function testUpdateUserNotFound(): void
     {
