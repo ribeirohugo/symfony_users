@@ -27,6 +27,10 @@ class UserService implements UserServiceInterface {
         return $this->userRepository->findAll();
     }
 
+    public function removeUser(User $user): void {
+        $this->userRepository->remove($user, true);
+    }
+
     public function updateUser(int $userId, UserCreate $userCreate): User {
         $user = $this->userRepository->find($userId);
         if(empty($user)) {

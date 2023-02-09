@@ -116,6 +116,47 @@ class UserServiceTest extends TestCase
         }
     }
 
+    public function testRemoveUserSuccess(): void
+    {
+        $user = new User(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+
+        $userRepository = $this->createMock(UserRepository::class);
+        $userRepository->expects(self::once())
+            ->method('remove');
+
+        $userService = new UserService($userRepository);
+        $userService->removeUser($user);
+    }
+
+    public function testRemoveUserRepositoryError(): void
+    {
+        $user = new User(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+        $expectedException = new \Exception();
+
+        $userRepository = $this->createMock(UserRepository::class);
+        $userRepository->expects(self::once())
+            ->method('remove')
+            ->willThrowException($expectedException);
+
+        $userService = new UserService($userRepository);
+
+        try {
+            $userService->removeUser($user);
+        } catch (\Exception $e) {
+            $this->assertEquals($expectedException, $e);
+        }
+    }
+
     public function testUpdateUserSuccess(): void
     {
         $userId = 1;
