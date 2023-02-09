@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Unit\Repository;
+namespace App\Tests\Integration\Repository;
 
 use App\Entity\User;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
