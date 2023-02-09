@@ -96,7 +96,11 @@ class UserController extends AbstractController
             return new Response("",Response::HTTP_BAD_REQUEST);
         };
 
+        try {
         $user = $userRepository->find($userId);
+        } catch (\Exception) {
+            return new Response("",Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
 
         if(empty($user)) {
             return new Response("", Response::HTTP_NOT_FOUND);
