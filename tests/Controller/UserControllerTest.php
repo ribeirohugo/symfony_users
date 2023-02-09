@@ -147,15 +147,8 @@ class UserControllerTest extends TestCase
             ->method('save')
             ->willReturn($user);
 
-        $request = Request::create(
-            "users",
-            Request::METHOD_POST,
-            [],
-            [],
-            [],
-            [],
-            $this->serializer->serialize($userCreate, JsonEncoder::FORMAT),
-        );
+        $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
+        $request = $this->createRequest("users", Request::METHOD_POST, $content);
 
         $response = $this->userController->createUser($request, $userRepository, $this->serializer);
 
@@ -181,8 +174,35 @@ class UserControllerTest extends TestCase
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
 
+    public function testCreateUserRepositoryError(): void
+    {
+        $userCreate = new UserCreate(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+
+        $userRepository = $this->createMock(UserRepositoryInterface::class);
+        $userRepository->expects(self::once())
+            ->method('save')
+            ->willThrowException(new \Exception());
+
+
+        $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
+        $request = $this->createRequest("users", Request::METHOD_POST, $content);
+
+        $response = $this->userController->createUser($request, $userRepository, $this->serializer);
+
+        $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
+    }
+
     protected function tearDown(): void
     {
         parent::tearDown();
+    }
+
+    protected function createRequest(string $uri, string $method, string $content) {
+        return Request::create($uri, $method, [], [], [], [], $content);
     }
 }

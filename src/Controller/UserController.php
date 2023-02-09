@@ -74,7 +74,11 @@ class UserController extends AbstractController
             $userCreate->getPhone(),
         );
 
-        $userRepository->save($user, true);
+        try {
+            $userRepository->save($user, true);
+        } catch (\Exception) {
+            return new Response("",Response::HTTP_INTERNAL_SERVER_ERROR);
+        };
 
         return new Response(
             $serializer->serialize($user, JsonEncoder::FORMAT),
