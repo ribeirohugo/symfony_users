@@ -5,6 +5,7 @@ namespace App\Tests\Integration\Controller;
 use App\Controller\UserController;
 use App\Entity\User;
 use App\Entity\UserCreate;
+use App\Service\UserService;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -141,13 +142,14 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager
             ->getRepository(User::class);
+        $userService = new UserService($userRepository);
 
         $userController = new UserController();
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = $this->createRequest("/users", Request::METHOD_PUT, $content);
 
-        $response = $userController->updateUser($existingUser->getId(), $request, $userRepository, $this->serializer);
+        $response = $userController->updateUser($existingUser->getId(), $request, $userService, $this->serializer);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
@@ -165,13 +167,14 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager
             ->getRepository(User::class);
+        $userService = new UserService($userRepository);
 
         $userController = new UserController();
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
-        $request = $this->createRequest("/users", Request::METHOD_PUT, $content);
+        $request = $this->createRequest("/users/1", Request::METHOD_PUT, $content);
 
-        $response = $userController->updateUser(1, $request, $userRepository, $this->serializer);
+        $response = $userController->updateUser(1, $request, $userService, $this->serializer);
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
