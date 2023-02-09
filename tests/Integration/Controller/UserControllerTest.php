@@ -152,6 +152,28 @@ class UserControllerTest extends KernelTestCase
         $this->removeUser($createdUser);
     }
 
+    public function testUpdateUserNotFound(): void
+    {
+        $userCreate = new UserCreate(
+            "new name",
+            "new_email@domain.com",
+            "new password",
+            "123",
+        );
+
+        $userRepository = $this->entityManager
+            ->getRepository(User::class);
+
+        $userController = new UserController();
+
+        $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
+        $request = $this->createRequest("/users", Request::METHOD_PUT, $content);
+
+        $response = $userController->updateUser(1, $request, $userRepository, $this->serializer);
+
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
     protected function tearDown(): void
     {
         parent::tearDown();
