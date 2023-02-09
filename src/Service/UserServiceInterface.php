@@ -20,6 +20,8 @@ interface UserServiceInterface
      */
     public function findUser(int $userId): User;
 
+    public function findAllUsers(): array;
+
     /**
      * @throws UserNotFoundException
      */

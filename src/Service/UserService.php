@@ -23,6 +23,10 @@ class UserService implements UserServiceInterface {
         return $user;
     }
 
+    public function findAllUsers(): array {
+        return $this->userRepository->findAll();
+    }
+
     public function updateUser(int $userId, UserCreate $userCreate): User {
         $user = $this->userRepository->find($userId);
         if(empty($user)) {
