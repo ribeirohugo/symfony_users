@@ -78,7 +78,44 @@ class UserController extends AbstractController
             $userRepository->save($user, true);
         } catch (\Exception) {
             return new Response("",Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return new Response(
+            $serializer->serialize($user, JsonEncoder::FORMAT),
+            Response::HTTP_OK,
+            ['Content-Type' => 'application/json;charset=UTF-8']
+        );
+    }
+
+    #[Route('/users/{userId}', name: 'updateUser', methods: [Request::METHOD_PUT])]
+    public function updateUser(int $userId, Request $request, UserRepositoryInterface $userRepository, SerializerInterface $serializer): Response
+    {
+        try {
+            $userCreate = $serializer->deserialize($request->getContent(), UserCreate::class, "json");
+        } catch (\Exception) {
+            return new Response("",Response::HTTP_BAD_REQUEST);
         };
+
+        $user = $userRepository->find($userId);
+
+        if(empty($user)) {
+            return new Response("", Response::HTTP_NOT_FOUND);
+        }
+
+        $user->setName($userCreate->getName());
+        $user->setEmail($userCreate->getEmail());
+        $user->setPhone($userCreate->getPhone());
+        $user->setUpdatedAt(new \DateTime());
+
+        if($userCreate->getPassword()!="") {
+            $user->setPassword($userCreate->getPassword());
+        }
+
+        try {
+            $userRepository->save($user, true);
+        } catch (\Exception) {
+            return new Response("",Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
 
         return new Response(
             $serializer->serialize($user, JsonEncoder::FORMAT),
