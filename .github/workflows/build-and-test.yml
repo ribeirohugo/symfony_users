@@ -1,4 +1,4 @@
-name: Symfony
+name: Build and Test
 
 on:
   push:
