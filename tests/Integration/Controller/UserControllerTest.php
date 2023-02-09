@@ -119,7 +119,10 @@ class UserControllerTest extends KernelTestCase
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
-        $createdUser = $this->serializer->deserialize($response->getContent(), User::class, "json");
+        $normalizedUser = json_decode($response->getContent(), true);
+        if($normalizedUser["id"] != null) {
+            $createdUser = $userRepository->find($normalizedUser["id"]);
+        }
 
         $this->removeUser($createdUser);
     }
