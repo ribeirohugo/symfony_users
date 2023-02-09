@@ -18,5 +18,10 @@ interface UserServiceInterface
     /**
      * @throws UserNotFoundException
      */
+    public function findUser(int $userId): User;
+
+    /**
+     * @throws UserNotFoundException
+     */
     public function updateUser(int $userId, UserCreate $userCreate): User;
 }

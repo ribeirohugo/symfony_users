@@ -17,9 +17,64 @@ class UserServiceTest extends TestCase
     const USER_PASSWORD_TEST = "password";
     const USER_PHONE_TEST = "910123123";
 
-    protected function setUp(): void
+    public function testFindUserSuccess(): void
     {
+        $userId = 1;
+        $user = new User(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
 
+        $userRepository = $this->createMock(UserRepository::class);
+        $userRepository->expects(self::once())
+            ->method('find')
+            ->willReturn($user);
+
+        $userService = new UserService($userRepository);
+
+        $response = $userService->findUser($userId);
+
+        $this->assertEquals($user, $response);
+    }
+
+    public function testFindUserNotFound(): void
+    {
+        $userId = 1;
+        $expectedException = new UserNotFoundException($userId);
+
+        $userRepository = $this->createMock(UserRepository::class);
+        $userRepository->expects(self::once())
+            ->method('find')
+            ->willReturn(null);
+
+        $userService = new UserService($userRepository);
+
+        try {
+            $userService->findUser($userId);
+        } catch(UserNotFoundException $e) {
+            $this->assertEquals($expectedException, $e);
+        }
+    }
+
+    public function testFindUserRepositoryError(): void
+    {
+        $userId = 1;
+        $expectedException = new \Exception();
+
+        $userRepository = $this->createMock(UserRepository::class);
+        $userRepository->expects(self::once())
+            ->method('find')
+            ->willThrowException($expectedException);
+
+        $userService = new UserService($userRepository);
+
+        try {
+            $userService->findUser($userId);
+        } catch(\Exception $e) {
+            $this->assertEquals($expectedException, $e);
+        }
     }
 
     public function testUpdateUserSuccess(): void

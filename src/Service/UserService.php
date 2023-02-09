@@ -14,6 +14,15 @@ class UserService implements UserServiceInterface {
         $this->userRepository = $userRepository;
     }
 
+    public function findUser(int $userId): User {
+        $user = $this->userRepository->find($userId);
+        if(empty($user)) {
+            throw new UserNotFoundException($userId);
+        }
+
+        return $user;
+    }
+
     public function updateUser(int $userId, UserCreate $userCreate): User {
         $user = $this->userRepository->find($userId);
         if(empty($user)) {
