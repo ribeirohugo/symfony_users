@@ -20,7 +20,7 @@ class UserRepositoryTest extends KernelTestCase
     /**
      * @var EntityManager
      */
-    private EntityManager $entityManager;
+    private var EntityManager $entityManager;
 
     protected function setUp(): void
     {
