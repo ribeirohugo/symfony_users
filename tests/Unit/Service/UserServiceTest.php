@@ -7,11 +7,8 @@ use App\Entity\UserCreate;
 use App\Exception\UserNotFoundException;
 use App\Repository\UserRepository;
 use App\Service\UserService;
-use App\Service\UserServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
 
 class UserServiceTest extends TestCase
 {

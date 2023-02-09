@@ -6,7 +6,6 @@ use App\Entity\User;
 use App\Entity\UserCreate;
 use App\Exception\UserNotFoundException;
 use App\Repository\UserRepositoryInterface;
-use function PHPUnit\Framework\throwException;
 
 class UserService implements UserServiceInterface {
     private UserRepositoryInterface $userRepository;
