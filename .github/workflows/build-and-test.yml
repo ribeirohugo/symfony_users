@@ -32,7 +32,7 @@ jobs:
             ${{ runner.os }}-php-
       - name: Install Dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --ignore-platform-reqs
-      - name: Execute tests Unit via PHPUnit
+      - name: Execute Unit tests via PHPUnit
         run: vendor/bin/phpunit tests/Unit
 
   integration-tests:
@@ -61,7 +61,7 @@ jobs:
         run: |
           mkdir -p data
           touch data/database.sqlite
-      - name: Execute tests (Unit and Feature tests) via PHPUnit
+      - name: Execute Integration tests via PHPUnit (with SQLite)
         env:
           DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
         run: vendor/bin/phpunit tests/Integration
