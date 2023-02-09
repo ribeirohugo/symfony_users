@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[AsController]
 class UserController extends AbstractController
 {
-    #[Route('/users', name: 'listUsers', methods: ['GET'])]
+    #[Route('/users', name: 'listUsers', methods: [Request::METHOD_GET])]
     public function listUsers(UserRepositoryInterface $userRepository, SerializerInterface $serializer): Response
     {
         $users = $userRepository->findAll();
@@ -28,7 +28,7 @@ class UserController extends AbstractController
         );
     }
 
-    #[Route('/users/{userId}', name: 'singleUser', methods: ['GET'])]
+    #[Route('/users/{userId}', name: 'singleUser', methods: [Request::METHOD_GET])]
     public function singleUser(int $userId, UserRepositoryInterface $userRepository, SerializerInterface $serializer): Response
     {
         $user = $userRepository->find($userId);
@@ -44,7 +44,7 @@ class UserController extends AbstractController
         );
     }
 
-    #[Route('/users/{userId}', name: 'remove_user', methods: ['DELETE'])]
+    #[Route('/users/{userId}', name: 'removeUser', methods: [Request::METHOD_DELETE])]
     public function removeUser(int $userId, UserRepositoryInterface $userRepository): Response
     {
         $user = $userRepository->find($userId);
@@ -58,7 +58,7 @@ class UserController extends AbstractController
         return new Response("",Response::HTTP_NO_CONTENT);
     }
 
-    #[Route('/users', name: 'create_user', methods: ['POST'])]
+    #[Route('/users', name: 'createUser', methods: [Request::METHOD_POST])]
     public function createUser(Request $request, UserRepositoryInterface $userRepository, SerializerInterface $serializer): Response
     {
         try {
