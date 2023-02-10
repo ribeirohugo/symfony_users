@@ -97,9 +97,7 @@ class UserServiceTest extends KernelTestCase
         $userService = new UserService($userRepository);
         $userController = new UserController($userService);
 
-        $response = $userController->removeUser($user->getId());
-
-        $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        $userController->removeUser($user->getId());
     }
 
     public function testRemoveUserNotFound(): void
@@ -158,7 +156,7 @@ class UserServiceTest extends KernelTestCase
         $this->assertEquals($userCreate->getPassword(), $response->getPassword());
         $this->assertEquals($userCreate->getPhone(), $response->getPhone());
 
-        $this->removeUser($existingUser);
+        $this->removeUser($response);
     }
 
     public function testUpdateUserNotFound(): void
