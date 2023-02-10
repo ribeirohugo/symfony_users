@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\UserCreate;
 use App\Exception\UserNotFoundException;
-use App\Repository\UserRepositoryInterface;
 use App\Service\UserServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
