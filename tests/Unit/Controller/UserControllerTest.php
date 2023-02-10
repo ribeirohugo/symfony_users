@@ -6,7 +6,6 @@ use App\Controller\UserController;
 use App\Entity\User;
 use App\Entity\UserCreate;
 use App\Exception\UserNotFoundException;
-use App\Repository\UserRepositoryInterface;
 use App\Service\UserService;
 use App\Service\UserServiceInterface;
 use PHPUnit\Framework\TestCase;
@@ -23,14 +22,10 @@ class UserControllerTest extends TestCase
     const USER_PASSWORD_TEST = "password";
     const USER_PHONE_TEST = "910123123";
 
-    private UserController $userController;
-
     private Serializer $serializer;
 
     protected function setUp(): void
     {
-        $this->userController = new UserController();
-
         $encoders = array(new JsonEncoder());
         $normalizers = array(new ObjectNormalizer());
 
@@ -46,14 +41,15 @@ class UserControllerTest extends TestCase
             self::USER_PHONE_TEST,
         );
 
-        $userRepository = $this->createMock(UserRepositoryInterface::class);
-        $userRepository->expects(self::once())
-            ->method('findAll')
+        $userService = $this->createMock(UserServiceInterface::class);
+        $userService->expects(self::once())
+            ->method('findAllUsers')
             ->willReturn([
                 $user
             ]);
+        $userController = new UserController($userService);
 
-        $response = $this->userController->listUsers($userRepository, $this->serializer);
+        $response = $userController->listUsers($this->serializer);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals($this->serializer->serialize([$user], JsonEncoder::FORMAT), $response->getContent());
@@ -69,12 +65,13 @@ class UserControllerTest extends TestCase
             self::USER_PHONE_TEST,
         );
 
-        $userRepository = $this->createMock(UserRepositoryInterface::class);
-        $userRepository->expects(self::once())
-            ->method('find')
+        $userService = $this->createMock(UserServiceInterface::class);
+        $userService->expects(self::once())
+            ->method('findUser')
             ->willReturn($user);
+        $userController = new UserController($userService);
 
-        $response = $this->userController->singleUser($userId, $userRepository, $this->serializer);
+        $response = $userController->singleUser($userId, $this->serializer);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals($this->serializer->serialize($user, JsonEncoder::FORMAT), $response->getContent());
@@ -84,12 +81,13 @@ class UserControllerTest extends TestCase
     {
         $userId = 1;
 
-        $userRepository = $this->createMock(UserRepositoryInterface::class);
-        $userRepository->expects(self::once())
-            ->method('find')
-            ->willReturn(null);
+        $userService = $this->createMock(UserServiceInterface::class);
+        $userService->expects(self::once())
+            ->method('findUser')
+            ->willThrowException(new UserNotFoundException($userId));
+        $userController = new UserController($userService);
 
-        $response = $this->userController->singleUser($userId, $userRepository, $this->serializer);
+        $response = $userController->singleUser($userId, $this->serializer);
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
@@ -97,21 +95,13 @@ class UserControllerTest extends TestCase
     public function testRemoveUserSuccess(): void
     {
         $userId = 1;
-        $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
-        );
 
-        $userRepository = $this->createMock(UserRepositoryInterface::class);
-        $userRepository->expects(self::once())
-            ->method('find')
-            ->willReturn($user);
-        $userRepository->expects(self::once())
-            ->method('remove');
+        $userService = $this->createMock(UserServiceInterface::class);
+        $userService->expects(self::once())
+            ->method('removeUser');
+        $userController = new UserController($userService);
 
-        $response = $this->userController->removeUser($userId, $userRepository);
+        $response = $userController->removeUser($userId);
 
         $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
@@ -120,14 +110,30 @@ class UserControllerTest extends TestCase
     {
         $userId = 1;
 
-        $userRepository = $this->createMock(UserRepositoryInterface::class);
-        $userRepository->expects(self::once())
-            ->method('find')
-            ->willReturn(null);
+        $userService = $this->createMock(UserServiceInterface::class);
+        $userService->expects(self::once())
+            ->method('removeUser')
+            ->willThrowException(new UserNotFoundException($userId));
+        $userController = new UserController($userService);
 
-        $response = $this->userController->removeUser($userId, $userRepository);
+        $response = $userController->removeUser($userId);
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    public function testRemoveUserServiceError(): void
+    {
+        $userId = 1;
+
+        $userService = $this->createMock(UserServiceInterface::class);
+        $userService->expects(self::once())
+            ->method('removeUser')
+            ->willThrowException(new \Exception());
+        $userController = new UserController($userService);
+
+        $response = $userController->removeUser($userId);
+
+        $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
     }
 
     public function testCreateUserSuccess(): void
@@ -145,15 +151,16 @@ class UserControllerTest extends TestCase
             self::USER_PHONE_TEST,
         );
 
-        $userRepository = $this->createMock(UserRepositoryInterface::class);
-        $userRepository->expects(self::once())
-            ->method('save')
+        $userService = $this->createMock(UserServiceInterface::class);
+        $userService->expects(self::once())
+            ->method('createUser')
             ->willReturn($user);
+        $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = $this->createRequest("users", Request::METHOD_POST, $content);
 
-        $response = $this->userController->createUser($request, $userRepository, $this->serializer);
+        $response = $userController->createUser($request, $this->serializer);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals($this->serializer->serialize($user, JsonEncoder::FORMAT), $response->getContent());
@@ -161,18 +168,12 @@ class UserControllerTest extends TestCase
 
     public function testCreateUserInvalidBody(): void
     {
-        $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
-        );
-
-        $userRepository = $this->createMock(UserRepositoryInterface::class);
+        $userService = $this->createMock(UserServiceInterface::class);
+        $userController = new UserController($userService);
 
         $request = Request::createFromGlobals();
 
-        $response = $this->userController->createUser($request, $userRepository, $this->serializer);
+        $response = $userController->createUser($request, $this->serializer);
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
@@ -186,16 +187,16 @@ class UserControllerTest extends TestCase
             self::USER_PHONE_TEST,
         );
 
-        $userRepository = $this->createMock(UserRepositoryInterface::class);
-        $userRepository->expects(self::once())
-            ->method('save')
+        $userService = $this->createMock(UserServiceInterface::class);
+        $userService->expects(self::once())
+            ->method('createUser')
             ->willThrowException(new \Exception());
-
+        $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = $this->createRequest("users", Request::METHOD_POST, $content);
 
-        $response = $this->userController->createUser($request, $userRepository, $this->serializer);
+        $response = $userController->createUser($request, $this->serializer);
 
         $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
     }
@@ -216,15 +217,16 @@ class UserControllerTest extends TestCase
             self::USER_PHONE_TEST,
         );
 
-        $userRepository = $this->createMock(UserService::class);
-        $userRepository->expects(self::once())
+        $userService = $this->createMock(UserService::class);
+        $userService->expects(self::once())
             ->method('updateUser')
             ->willReturn($user);
+        $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = $this->createRequest("users/1", Request::METHOD_PUT, $content);
 
-        $response = $this->userController->updateUser($userId, $request, $userRepository, $this->serializer);
+        $response = $userController->updateUser($userId, $request, $this->serializer);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals($this->serializer->serialize($user, JsonEncoder::FORMAT), $response->getContent());
@@ -240,15 +242,16 @@ class UserControllerTest extends TestCase
             self::USER_PHONE_TEST,
         );
 
-        $userRepository = $this->createMock(UserServiceInterface::class);
-        $userRepository->expects(self::once())
+        $userService = $this->createMock(UserServiceInterface::class);
+        $userService->expects(self::once())
             ->method('updateUser')
             ->willThrowException(new UserNotFoundException($userId));
+        $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = $this->createRequest("users/1", Request::METHOD_PUT, $content);
 
-        $response = $this->userController->updateUser($userId, $request, $userRepository, $this->serializer);
+        $response = $userController->updateUser($userId, $request, $this->serializer);
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
@@ -269,15 +272,16 @@ class UserControllerTest extends TestCase
             self::USER_PHONE_TEST,
         );
 
-        $userRepository = $this->createMock(UserServiceInterface::class);
-        $userRepository->expects(self::once())
+        $userService = $this->createMock(UserServiceInterface::class);
+        $userService->expects(self::once())
             ->method('updateUser')
             ->willThrowException(new \Exception());
+        $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = $this->createRequest("users/1", Request::METHOD_PUT, $content);
 
-        $response = $this->userController->updateUser($userId, $request, $userRepository, $this->serializer);
+        $response = $userController->updateUser($userId, $request, $this->serializer);
 
         $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
     }

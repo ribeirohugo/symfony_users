@@ -57,12 +57,11 @@ class UserControllerTest extends KernelTestCase
     {
         $user = $this->addUser();
 
-        $userRepository = $this->entityManager
-            ->getRepository(User::class);
-        ;
-        $userController = new UserController();
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+        $userController = new UserController($userService);
 
-        $response = $userController->listUsers($userRepository, $this->serializer);
+        $response = $userController->listUsers($this->serializer);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals($this->serializer->serialize([$user], JsonEncoder::FORMAT), $response->getContent());
@@ -74,12 +73,11 @@ class UserControllerTest extends KernelTestCase
     {
         $user = $this->addUser();
 
-        $userRepository = $this->entityManager
-            ->getRepository(User::class);
-        ;
-        $userController = new UserController();
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+        $userController = new UserController($userService);
 
-        $response = $userController->singleUser($user->getId(), $userRepository, $this->serializer);
+        $response = $userController->singleUser($user->getId(), $this->serializer);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals($this->serializer->serialize($user, JsonEncoder::FORMAT), $response->getContent());
@@ -89,12 +87,35 @@ class UserControllerTest extends KernelTestCase
 
     public function testSingleUserNotFound(): void
     {
-        $userRepository = $this->entityManager
-            ->getRepository(User::class);
-        ;
-        $userController = new UserController();
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+        $userController = new UserController($userService);
 
-        $response = $userController->singleUser(1, $userRepository, $this->serializer);
+        $response = $userController->singleUser(1, $this->serializer);
+
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    public function testRemoveUserSuccess(): void
+    {
+        $user = $this->addUser();
+
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+        $userController = new UserController($userService);
+
+        $response = $userController->removeUser($user->getId(), $this->serializer);
+
+        $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
+    public function testRemoveUserNotFound(): void
+    {
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+        $userController = new UserController($userService);
+
+        $response = $userController->removeUser(1);
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
@@ -108,25 +129,24 @@ class UserControllerTest extends KernelTestCase
             self::USER_PHONE_TEST,
         );
 
-        $userRepository = $this->entityManager
-            ->getRepository(User::class);
-
-        $userController = new UserController();
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+        $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = $this->createRequest("/users", Request::METHOD_POST, $content);
 
-        $response = $userController->createUser($request, $userRepository, $this->serializer);
+        $response = $userController->createUser($request, $this->serializer);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
         // Fix: get user from response
         $normalizedUser = json_decode($response->getContent(), true);
         if($normalizedUser["id"] != null) {
-            $createdUser = $userRepository->find($normalizedUser["id"]);
+            $newUser = $userRepository->find($normalizedUser["id"]);
         }
 
-        $this->removeUser($createdUser);
+        $this->removeUser($newUser);
     }
 
     public function testUpdateUserSuccess(): void
@@ -140,16 +160,14 @@ class UserControllerTest extends KernelTestCase
             "123",
         );
 
-        $userRepository = $this->entityManager
-            ->getRepository(User::class);
+        $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-
-        $userController = new UserController();
+        $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = $this->createRequest("/users", Request::METHOD_PUT, $content);
 
-        $response = $userController->updateUser($existingUser->getId(), $request, $userService, $this->serializer);
+        $response = $userController->updateUser($existingUser->getId(), $request, $this->serializer);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
@@ -165,16 +183,14 @@ class UserControllerTest extends KernelTestCase
             "123",
         );
 
-        $userRepository = $this->entityManager
-            ->getRepository(User::class);
+        $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-
-        $userController = new UserController();
+        $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = $this->createRequest("/users/1", Request::METHOD_PUT, $content);
 
-        $response = $userController->updateUser(1, $request, $userService, $this->serializer);
+        $response = $userController->updateUser(1, $request, $this->serializer);
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }

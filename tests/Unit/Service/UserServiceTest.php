@@ -118,6 +118,7 @@ class UserServiceTest extends TestCase
 
     public function testRemoveUserSuccess(): void
     {
+        $userId = 1;
         $user = new User(
             self::USER_NAME_TEST,
             self::USER_EMAIL_TEST,
@@ -127,14 +128,18 @@ class UserServiceTest extends TestCase
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
+            ->method('find')
+            ->willReturn($user);
+        $userRepository->expects(self::once())
             ->method('remove');
 
         $userService = new UserService($userRepository);
-        $userService->removeUser($user);
+        $userService->removeUser($userId);
     }
 
-    public function testRemoveUserRepositoryError(): void
+    public function testRemoveUserRepositoryFindError(): void
     {
+        $userId = 1;
         $user = new User(
             self::USER_NAME_TEST,
             self::USER_EMAIL_TEST,
@@ -145,14 +150,44 @@ class UserServiceTest extends TestCase
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
+            ->method('find')
+            ->willReturn($user);
+        $userRepository->expects(self::once())
             ->method('remove')
             ->willThrowException($expectedException);
 
         $userService = new UserService($userRepository);
 
         try {
-            $userService->removeUser($user);
+            $userService->removeUser($userId);
         } catch (\Exception $e) {
+            $this->assertEquals($expectedException, $e);
+        }
+    }
+
+    public function testRemoveUserRepositoryRemoveError(): void
+    {
+        $userId = 1;
+        $user = new User(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+        $expectedException = new UserNotFoundException($userId);
+
+        $userRepository = $this->createMock(UserRepository::class);
+        $userRepository->expects(self::once())
+            ->method('find')
+            ->willReturn($user);
+        $userRepository->expects(self::once())
+            ->method('remove');
+
+        $userService = new UserService($userRepository);
+
+        try {
+            $userService->removeUser($userId);
+        } catch (UserNotFoundException $e) {
             $this->assertEquals($expectedException, $e);
         }
     }

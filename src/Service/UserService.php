@@ -27,7 +27,12 @@ class UserService implements UserServiceInterface {
         return $this->userRepository->findAll();
     }
 
-    public function removeUser(User $user): void {
+    public function removeUser(int $userId): void {
+        $user = $this->userRepository->find($userId);
+        if(empty($user)) {
+            throw new UserNotFoundException($userId);
+        }
+
         $this->userRepository->remove($user, true);
     }
 
@@ -39,7 +44,7 @@ class UserService implements UserServiceInterface {
             $userCreate->getPhone(),
         );
 
-        return $this->userRepository->save($user);
+        return $this->userRepository->save($user, true);
     }
 
     public function updateUser(int $userId, UserCreate $userCreate): User {
@@ -57,7 +62,7 @@ class UserService implements UserServiceInterface {
             $user->setPassword($userCreate->getPassword());
         }
 
-        $this->userRepository->save($user);
+        $this->userRepository->save($user, true);
 
         return $user;
     }
