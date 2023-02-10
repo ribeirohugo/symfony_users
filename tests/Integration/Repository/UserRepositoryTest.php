@@ -75,17 +75,17 @@ class UserRepositoryTest extends KernelTestCase
 
     public function testFindOneByEmail()
     {
-        $this->addUser();
+        $user = $this->addUser();
 
-        $user = $this->entityManager
+        $response = $this->entityManager
             ->getRepository(User::class)
             ->findOneBy(['email' => self::USER_EMAIL_TEST])
         ;
 
-        $this->assertSame(self::USER_NAME_TEST, $user->getName());
-        $this->assertSame(self::USER_EMAIL_TEST, $user->getEmail());
-        $this->assertSame(self::USER_PASSWORD_TEST, $user->getPassword());
-        $this->assertSame(self::USER_PHONE_TEST, $user->getPhone());
+        $this->assertSame($user->getName(), $response->getName());
+        $this->assertSame($user->getEmail(), $response->getEmail());
+        $this->assertSame($user->getPassword(), $response->getPassword());
+        $this->assertSame($user->getPhone(), $response->getPhone());
 
         $this->removeUser($user);
     }
