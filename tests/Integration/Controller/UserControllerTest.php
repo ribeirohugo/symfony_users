@@ -171,7 +171,13 @@ class UserControllerTest extends KernelTestCase
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
-        $this->removeUser($existingUser);
+        // Fix: get user from response
+        $normalizedUser = json_decode($response->getContent(), true);
+        if($normalizedUser["id"] != null) {
+            $updatedUser = $userRepository->find($normalizedUser["id"]);
+        }
+
+        $this->removeUser($updatedUser);
     }
 
     public function testUpdateUserNotFound(): void
