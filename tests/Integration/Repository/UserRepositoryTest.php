@@ -116,6 +116,32 @@ class UserRepositoryTest extends KernelTestCase
         $this->removeUser($createdUser);
     }
 
+    public function testSaveUserFailWithDuplicatedEmail() {
+        $user = $this->addUser();
+
+        $conflictingUser = new User(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+        $conflictingUser->setCreatedAt(new \DateTime());
+        $conflictingUser->setUpdatedAt(new \DateTime());
+
+        $this->expectException(UniqueConstraintViolationException::class);
+
+        try {
+            $this->entityManager
+                ->getRepository(User::class)
+                ->save($conflictingUser, true)
+            ;
+        } catch (\Exception) {
+
+        }
+
+        $this->removeUser($user);
+    }
+
     protected function tearDown(): void
     {
         parent::tearDown();
