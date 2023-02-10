@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
 use App\Entity\UserCreate;
 use App\Exception\UserNotFoundException;
 use App\Repository\UserRepositoryInterface;
@@ -18,10 +17,21 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[AsController]
 class UserController extends AbstractController
 {
-    #[Route('/users', name: 'listUsers', methods: [Request::METHOD_GET])]
-    public function listUsers(UserRepositoryInterface $userRepository, SerializerInterface $serializer): Response
+    private UserServiceInterface $userService;
+    function __construct(UserServiceInterface $userService)
     {
-        $users = $userRepository->findAll();
+        $this->userService = $userService;
+    }
+
+    #[Route('/users', name: 'listUsers', methods: [Request::METHOD_GET])]
+    public function listUsers(SerializerInterface $serializer): Response
+    {
+        try {
+            $users = $this->userService->findAllUsers();
+        } catch (\Exception $e) {
+            error_log($e);
+            return new Response("",Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
 
         return new Response(
             $serializer->serialize($users, JsonEncoder::FORMAT),
@@ -31,12 +41,15 @@ class UserController extends AbstractController
     }
 
     #[Route('/users/{userId}', name: 'singleUser', methods: [Request::METHOD_GET])]
-    public function singleUser(int $userId, UserRepositoryInterface $userRepository, SerializerInterface $serializer): Response
+    public function singleUser(int $userId, SerializerInterface $serializer): Response
     {
-        $user = $userRepository->find($userId);
-
-        if(empty($user)) {
+        try {
+            $user = $this->userService->findUser($userId);
+        } catch(UserNotFoundException) {
             return new Response("", Response::HTTP_NOT_FOUND);
+        } catch (\Exception $e) {
+            error_log($e);
+            return new Response("",Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return new Response(
@@ -61,7 +74,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/users', name: 'createUser', methods: [Request::METHOD_POST])]
-    public function createUser(Request $request, UserServiceInterface $userService, SerializerInterface $serializer): Response
+    public function createUser(Request $request, SerializerInterface $serializer): Response
     {
         try {
             $userCreate = $serializer->deserialize($request->getContent(), UserCreate::class, "json");
@@ -71,7 +84,7 @@ class UserController extends AbstractController
         }
 
         try {
-            $user = $userService->createUser($userCreate);
+            $user = $this->userService->createUser($userCreate);
         } catch (\Exception $e) {
             error_log($e);
             return new Response("",Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -85,7 +98,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/users/{userId}', name: 'updateUser', methods: [Request::METHOD_PUT])]
-    public function updateUser(int $userId, Request $request, UserServiceInterface $userService, SerializerInterface $serializer): Response
+    public function updateUser(int $userId, Request $request, SerializerInterface $serializer): Response
     {
         try {
             $userCreate = $serializer->deserialize($request->getContent(), UserCreate::class, "json");
@@ -96,14 +109,12 @@ class UserController extends AbstractController
         }
 
         try {
-            $user = $userService->updateUser($userId, $userCreate);
+            $user = $this->userService->updateUser($userId, $userCreate);
         } catch (UserNotFoundException $e) {
             error_log($e);
-
             return new Response("",Response::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
             error_log($e);
-
             return new Response("",Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
