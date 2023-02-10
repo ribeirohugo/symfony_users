@@ -110,7 +110,7 @@ class UserRepositoryTest extends KernelTestCase
         $this->assertSame(self::USER_PASSWORD_TEST, $user->getPassword());
         $this->assertSame(self::USER_PHONE_TEST, $user->getPhone());
 
-        $this->removeUser($user);
+        $this->removeUser($createdUser);
     }
 
     public function testSaveUserFailWithDuplicatedEmail() {
