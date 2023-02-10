@@ -24,6 +24,8 @@ interface UserServiceInterface
 
     public function removeUser(User $user): void;
 
+    public function createUser(UserCreate $userCreate): User;
+
     /**
      * @throws UserNotFoundException
      */
