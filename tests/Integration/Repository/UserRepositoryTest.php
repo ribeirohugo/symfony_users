@@ -128,18 +128,19 @@ class UserRepositoryTest extends KernelTestCase
         $conflictingUser->setCreatedAt(new \DateTime());
         $conflictingUser->setUpdatedAt(new \DateTime());
 
-        $this->expectException(UniqueConstraintViolationException::class);
 
         try {
+            $this->expectException(UniqueConstraintViolationException::class);
+
             $this->entityManager
                 ->getRepository(User::class)
                 ->save($conflictingUser, true)
             ;
         } catch (\Exception) {
 
+        } finally {
+            $this->removeUser($user);
         }
-
-        $this->removeUser($user);
     }
 
     protected function tearDown(): void
