@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Entity\UserCreate;
 use App\Exception\UserNotFoundException;
 use App\Repository\UserRepositoryInterface;
+use Exception;
 
 interface UserServiceInterface
 {
@@ -24,10 +25,14 @@ interface UserServiceInterface
 
     public function removeUser(User $user): void;
 
+    /**
+     * @throws Exception
+     */
     public function createUser(UserCreate $userCreate): User;
 
     /**
      * @throws UserNotFoundException
+     * @throws Exception
      */
     public function updateUser(int $userId, UserCreate $userCreate): User;
 }

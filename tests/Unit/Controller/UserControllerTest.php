@@ -145,15 +145,15 @@ class UserControllerTest extends TestCase
             self::USER_PHONE_TEST,
         );
 
-        $userRepository = $this->createMock(UserRepositoryInterface::class);
-        $userRepository->expects(self::once())
-            ->method('save')
+        $userService = $this->createMock(UserServiceInterface::class);
+        $userService->expects(self::once())
+            ->method('createUser')
             ->willReturn($user);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = $this->createRequest("users", Request::METHOD_POST, $content);
 
-        $response = $this->userController->createUser($request, $userRepository, $this->serializer);
+        $response = $this->userController->createUser($request, $userService, $this->serializer);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals($this->serializer->serialize($user, JsonEncoder::FORMAT), $response->getContent());
@@ -161,18 +161,11 @@ class UserControllerTest extends TestCase
 
     public function testCreateUserInvalidBody(): void
     {
-        $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
-        );
-
-        $userRepository = $this->createMock(UserRepositoryInterface::class);
+        $userService = $this->createMock(UserServiceInterface::class);
 
         $request = Request::createFromGlobals();
 
-        $response = $this->userController->createUser($request, $userRepository, $this->serializer);
+        $response = $this->userController->createUser($request, $userService, $this->serializer);
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
@@ -186,16 +179,15 @@ class UserControllerTest extends TestCase
             self::USER_PHONE_TEST,
         );
 
-        $userRepository = $this->createMock(UserRepositoryInterface::class);
-        $userRepository->expects(self::once())
-            ->method('save')
+        $userService = $this->createMock(UserServiceInterface::class);
+        $userService->expects(self::once())
+            ->method('createUser')
             ->willThrowException(new \Exception());
-
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = $this->createRequest("users", Request::METHOD_POST, $content);
 
-        $response = $this->userController->createUser($request, $userRepository, $this->serializer);
+        $response = $this->userController->createUser($request, $userService, $this->serializer);
 
         $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
     }

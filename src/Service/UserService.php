@@ -39,7 +39,12 @@ class UserService implements UserServiceInterface {
             $userCreate->getPhone(),
         );
 
-        return $this->userRepository->save($user);
+        try {
+            $user = $this->userRepository->save($user);
+        } catch (\Exception $e) {
+            throw $e;
+        }
+        return $user;
     }
 
     public function updateUser(int $userId, UserCreate $userCreate): User {

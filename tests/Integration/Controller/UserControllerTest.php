@@ -108,25 +108,24 @@ class UserControllerTest extends KernelTestCase
             self::USER_PHONE_TEST,
         );
 
-        $userRepository = $this->entityManager
-            ->getRepository(User::class);
-
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
         $userController = new UserController();
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = $this->createRequest("/users", Request::METHOD_POST, $content);
 
-        $response = $userController->createUser($request, $userRepository, $this->serializer);
+        $response = $userController->createUser($request, $userService, $this->serializer);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
         // Fix: get user from response
         $normalizedUser = json_decode($response->getContent(), true);
         if($normalizedUser["id"] != null) {
-            $createdUser = $userRepository->find($normalizedUser["id"]);
+            $newUser = $userRepository->find($normalizedUser["id"]);
         }
 
-        $this->removeUser($createdUser);
+        $this->removeUser($newUser);
     }
 
     public function testUpdateUserSuccess(): void
@@ -140,10 +139,8 @@ class UserControllerTest extends KernelTestCase
             "123",
         );
 
-        $userRepository = $this->entityManager
-            ->getRepository(User::class);
+        $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-
         $userController = new UserController();
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);

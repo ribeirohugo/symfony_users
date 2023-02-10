@@ -61,28 +61,19 @@ class UserController extends AbstractController
     }
 
     #[Route('/users', name: 'createUser', methods: [Request::METHOD_POST])]
-    public function createUser(Request $request, UserRepositoryInterface $userRepository, SerializerInterface $serializer): Response
+    public function createUser(Request $request, UserServiceInterface $userService, SerializerInterface $serializer): Response
     {
         try {
             $userCreate = $serializer->deserialize($request->getContent(), UserCreate::class, "json");
         } catch (\Exception $e) {
             error_log($e);
-
             return new Response("",Response::HTTP_BAD_REQUEST);
-        };
-
-        $user = new User(
-            $userCreate->getName(),
-            $userCreate->getEmail(),
-            $userCreate->getPassword(),
-            $userCreate->getPhone(),
-        );
+        }
 
         try {
-            $userRepository->save($user, true);
+            $user = $userService->createUser($userCreate);
         } catch (\Exception $e) {
             error_log($e);
-
             return new Response("",Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
