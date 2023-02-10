@@ -97,18 +97,21 @@ class UserRepositoryTest extends KernelTestCase
             self::USER_PASSWORD_TEST,
             self::USER_PHONE_TEST,
         );
-        $user->setCreatedAt(new \DateTime());
-        $user->setUpdatedAt(new \DateTime());
+        $timestamp = new \DateTime();
+        $user->setCreatedAt($timestamp);
+        $user->setUpdatedAt($timestamp);
 
         $createdUser = $this->entityManager
             ->getRepository(User::class)
             ->save($user, true)
         ;
 
-        $this->assertSame(self::USER_NAME_TEST, $user->getName());
-        $this->assertSame(self::USER_EMAIL_TEST, $user->getEmail());
-        $this->assertSame(self::USER_PASSWORD_TEST, $user->getPassword());
-        $this->assertSame(self::USER_PHONE_TEST, $user->getPhone());
+        $this->assertSame(self::USER_NAME_TEST, $createdUser->getName());
+        $this->assertSame(self::USER_EMAIL_TEST, $createdUser->getEmail());
+        $this->assertSame(self::USER_PASSWORD_TEST, $createdUser->getPassword());
+        $this->assertSame(self::USER_PHONE_TEST, $createdUser->getPhone());
+        $this->assertSame($timestamp, $createdUser->getCreatedAt());
+        $this->assertSame($timestamp, $createdUser->getUpdatedAt());
 
         $this->removeUser($createdUser);
     }
