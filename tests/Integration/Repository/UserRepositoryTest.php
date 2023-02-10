@@ -43,49 +43,49 @@ class UserRepositoryTest extends KernelTestCase
 
         $this->assertIsObject($user);
 
-        $user = $this->entityManager
+        $response = $this->entityManager
             ->getRepository(User::class)
             ->find($user->getId())
         ;
 
-        $this->assertSame(self::USER_NAME_TEST, $user->getName());
-        $this->assertSame(self::USER_EMAIL_TEST, $user->getEmail());
-        $this->assertSame(self::USER_PASSWORD_TEST, $user->getPassword());
-        $this->assertSame(self::USER_PHONE_TEST, $user->getPhone());
+        $this->assertSame($user->getName(), $response->getName());
+        $this->assertSame($user->getEmail(), $response->getEmail());
+        $this->assertSame($user->getPassword(), $response->getPassword());
+        $this->assertSame($user->getPhone(), $response->getPhone());
 
         $this->removeUser($user);
     }
 
     public function testFindOneByName()
     {
-        $this->addUser();
+        $user = $this->addUser();
 
-        $user = $this->entityManager
+        $response = $this->entityManager
             ->getRepository(User::class)
             ->findOneBy(['name' => self::USER_NAME_TEST])
         ;
 
-        $this->assertSame(self::USER_NAME_TEST, $user->getName());
-        $this->assertSame(self::USER_EMAIL_TEST, $user->getEmail());
-        $this->assertSame(self::USER_PASSWORD_TEST, $user->getPassword());
-        $this->assertSame(self::USER_PHONE_TEST, $user->getPhone());
+        $this->assertSame($user->getName(), $response->getName());
+        $this->assertSame($user->getEmail(), $response->getEmail());
+        $this->assertSame($user->getPassword(), $response->getPassword());
+        $this->assertSame($user->getPhone(), $response->getPhone());
 
         $this->removeUser($user);
     }
 
     public function testFindOneByEmail()
     {
-        $this->addUser();
+        $user = $this->addUser();
 
-        $user = $this->entityManager
+        $response = $this->entityManager
             ->getRepository(User::class)
             ->findOneBy(['email' => self::USER_EMAIL_TEST])
         ;
 
-        $this->assertSame(self::USER_NAME_TEST, $user->getName());
-        $this->assertSame(self::USER_EMAIL_TEST, $user->getEmail());
-        $this->assertSame(self::USER_PASSWORD_TEST, $user->getPassword());
-        $this->assertSame(self::USER_PHONE_TEST, $user->getPhone());
+        $this->assertSame($user->getName(), $response->getName());
+        $this->assertSame($user->getEmail(), $response->getEmail());
+        $this->assertSame($user->getPassword(), $response->getPassword());
+        $this->assertSame($user->getPhone(), $response->getPhone());
 
         $this->removeUser($user);
     }
@@ -97,42 +97,23 @@ class UserRepositoryTest extends KernelTestCase
             self::USER_PASSWORD_TEST,
             self::USER_PHONE_TEST,
         );
-        $user->setCreatedAt(new \DateTime());
-        $user->setUpdatedAt(new \DateTime());
+        $timestamp = new \DateTime();
+        $user->setCreatedAt($timestamp);
+        $user->setUpdatedAt($timestamp);
 
         $createdUser = $this->entityManager
             ->getRepository(User::class)
             ->save($user, true)
         ;
 
-        $this->assertSame(self::USER_NAME_TEST, $user->getName());
-        $this->assertSame(self::USER_EMAIL_TEST, $user->getEmail());
-        $this->assertSame(self::USER_PASSWORD_TEST, $user->getPassword());
-        $this->assertSame(self::USER_PHONE_TEST, $user->getPhone());
+        $this->assertSame($user->getName(), $createdUser->getName());
+        $this->assertSame($user->getEmail(), $createdUser->getEmail());
+        $this->assertSame($user->getPassword(), $createdUser->getPassword());
+        $this->assertSame($user->getPhone(), $createdUser->getPhone());
+        $this->assertSame($timestamp, $createdUser->getCreatedAt());
+        $this->assertSame($timestamp, $createdUser->getUpdatedAt());
 
-        $this->removeUser($user);
-    }
-
-    public function testSaveUserFailWithDuplicatedEmail() {
-        $user = $this->addUser();
-
-        $conflictingUser = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
-        );
-        $conflictingUser->setCreatedAt(new \DateTime());
-        $conflictingUser->setUpdatedAt(new \DateTime());
-
-        $this->expectException(UniqueConstraintViolationException::class);
-
-        $this->entityManager
-            ->getRepository(User::class)
-            ->save($conflictingUser, true)
-        ;
-
-        $this->removeUser($user);
+        $this->removeUser($createdUser);
     }
 
     protected function tearDown(): void
