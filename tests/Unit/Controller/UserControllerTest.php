@@ -5,7 +5,10 @@ namespace App\Tests\Unit\Controller;
 use App\Controller\UserController;
 use App\Entity\User;
 use App\Entity\UserCreate;
+use App\Exception\UserNotFoundException;
 use App\Repository\UserRepositoryInterface;
+use App\Service\UserService;
+use App\Service\UserServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -213,12 +216,9 @@ class UserControllerTest extends TestCase
             self::USER_PHONE_TEST,
         );
 
-        $userRepository = $this->createMock(UserRepositoryInterface::class);
+        $userRepository = $this->createMock(UserService::class);
         $userRepository->expects(self::once())
-            ->method('find')
-            ->willReturn($user);
-        $userRepository->expects(self::once())
-            ->method('save')
+            ->method('updateUser')
             ->willReturn($user);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
@@ -240,9 +240,10 @@ class UserControllerTest extends TestCase
             self::USER_PHONE_TEST,
         );
 
-        $userRepository = $this->createMock(UserRepositoryInterface::class);
+        $userRepository = $this->createMock(UserServiceInterface::class);
         $userRepository->expects(self::once())
-            ->method('find');
+            ->method('updateUser')
+            ->willThrowException(new UserNotFoundException($userId));
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = $this->createRequest("users/1", Request::METHOD_PUT, $content);
@@ -252,7 +253,7 @@ class UserControllerTest extends TestCase
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
 
-    public function testUpdateUserRepositoryFindError(): void
+    public function testUpdateUserError(): void
     {
         $userId = 1;
         $userCreate = new UserCreate(
@@ -268,41 +269,9 @@ class UserControllerTest extends TestCase
             self::USER_PHONE_TEST,
         );
 
-        $userRepository = $this->createMock(UserRepositoryInterface::class);
+        $userRepository = $this->createMock(UserServiceInterface::class);
         $userRepository->expects(self::once())
-            ->method('find')
-            ->willThrowException(new \Exception());
-
-        $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
-        $request = $this->createRequest("users/1", Request::METHOD_PUT, $content);
-
-        $response = $this->userController->updateUser($userId, $request, $userRepository, $this->serializer);
-
-        $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
-    }
-
-    public function testUpdateUserRepositorySaveError(): void
-    {
-        $userId = 1;
-        $userCreate = new UserCreate(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
-        );
-        $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
-        );
-
-        $userRepository = $this->createMock(UserRepositoryInterface::class);
-        $userRepository->expects(self::once())
-            ->method('find')
-            ->willReturn($user);
-        $userRepository->expects(self::once())
-            ->method('save')
+            ->method('updateUser')
             ->willThrowException(new \Exception());
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
