@@ -90,6 +90,32 @@ class UserRepositoryTest extends KernelTestCase
         $this->removeUser($user);
     }
 
+    public function testSaveUser() {
+        $user = new User(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+        $timestamp = new \DateTime();
+        $user->setCreatedAt($timestamp);
+        $user->setUpdatedAt($timestamp);
+
+        $createdUser = $this->entityManager
+            ->getRepository(User::class)
+            ->save($user, true)
+        ;
+
+        $this->assertSame(self::USER_NAME_TEST, $createdUser->getName());
+        $this->assertSame(self::USER_EMAIL_TEST, $createdUser->getEmail());
+        $this->assertSame(self::USER_PASSWORD_TEST, $createdUser->getPassword());
+        $this->assertSame(self::USER_PHONE_TEST, $createdUser->getPhone());
+        $this->assertSame($timestamp, $createdUser->getCreatedAt());
+        $this->assertSame($timestamp, $createdUser->getUpdatedAt());
+
+        $this->removeUser($createdUser);
+    }
+
     protected function tearDown(): void
     {
         parent::tearDown();
