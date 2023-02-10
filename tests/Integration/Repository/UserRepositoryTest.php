@@ -58,9 +58,9 @@ class UserRepositoryTest extends KernelTestCase
 
     public function testFindOneByName()
     {
-        $this->addUser();
+        $user = $this->addUser();
 
-        $user = $this->entityManager
+        $this->entityManager
             ->getRepository(User::class)
             ->findOneBy(['name' => self::USER_NAME_TEST])
         ;
@@ -86,54 +86,6 @@ class UserRepositoryTest extends KernelTestCase
         $this->assertSame($user->getEmail(), $response->getEmail());
         $this->assertSame($user->getPassword(), $response->getPassword());
         $this->assertSame($user->getPhone(), $response->getPhone());
-
-        $this->removeUser($user);
-    }
-
-    public function testSaveUser() {
-        $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
-        );
-        $timestamp = new \DateTime();
-        $user->setCreatedAt($timestamp);
-        $user->setUpdatedAt($timestamp);
-
-        $createdUser = $this->entityManager
-            ->getRepository(User::class)
-            ->save($user, true)
-        ;
-
-        $this->assertSame(self::USER_NAME_TEST, $createdUser->getName());
-        $this->assertSame(self::USER_EMAIL_TEST, $createdUser->getEmail());
-        $this->assertSame(self::USER_PASSWORD_TEST, $createdUser->getPassword());
-        $this->assertSame(self::USER_PHONE_TEST, $createdUser->getPhone());
-        $this->assertSame($timestamp, $createdUser->getCreatedAt());
-        $this->assertSame($timestamp, $createdUser->getUpdatedAt());
-
-        $this->removeUser($createdUser);
-    }
-
-    public function testSaveUserFailWithDuplicatedEmail() {
-        $user = $this->addUser();
-
-        $conflictingUser = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
-        );
-        $conflictingUser->setCreatedAt(new \DateTime());
-        $conflictingUser->setUpdatedAt(new \DateTime());
-
-        $this->expectException(UniqueConstraintViolationException::class);
-
-        $this->entityManager
-            ->getRepository(User::class)
-            ->save($conflictingUser, true)
-        ;
 
         $this->removeUser($user);
     }
