@@ -27,7 +27,12 @@ class UserService implements UserServiceInterface {
         return $this->userRepository->findAll();
     }
 
-    public function removeUser(User $user): void {
+    public function removeUser(int $userId): void {
+        $user = $this->userRepository->find($userId);
+        if(empty($user)) {
+            throw new UserNotFoundException($userId);
+        }
+
         $this->userRepository->remove($user, true);
     }
 

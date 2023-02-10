@@ -96,6 +96,30 @@ class UserControllerTest extends KernelTestCase
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
 
+    public function testRemoveUserSuccess(): void
+    {
+        $user = $this->addUser();
+
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+        $userController = new UserController($userService);
+
+        $response = $userController->removeUser($user->getId(), $this->serializer);
+
+        $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
+    public function testRemoveUserNotFound(): void
+    {
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+        $userController = new UserController($userService);
+
+        $response = $userController->removeUser(1);
+
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
     public function testCreateUserSuccess(): void
     {
         $userCreate = new UserCreate(

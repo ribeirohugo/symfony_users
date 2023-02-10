@@ -23,7 +23,11 @@ interface UserServiceInterface
 
     public function findAllUsers(): array;
 
-    public function removeUser(User $user): void;
+    /**
+     * @throws UserNotFoundException
+     * @throws Exception
+     */
+    public function removeUser(int $userId): void;
 
     /**
      * @throws Exception

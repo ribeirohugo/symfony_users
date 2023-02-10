@@ -60,15 +60,16 @@ class UserController extends AbstractController
     }
 
     #[Route('/users/{userId}', name: 'removeUser', methods: [Request::METHOD_DELETE])]
-    public function removeUser(int $userId, UserRepositoryInterface $userRepository): Response
+    public function removeUser(int $userId): Response
     {
-        $user = $userRepository->find($userId);
-
-        if(empty($user)) {
+        try {
+            $this->userService->removeUser($userId);
+        } catch(UserNotFoundException) {
             return new Response("", Response::HTTP_NOT_FOUND);
+        } catch (\Exception $e) {
+            error_log($e);
+            return new Response("",Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        $userRepository->remove($user);
 
         return new Response("",Response::HTTP_NO_CONTENT);
     }
