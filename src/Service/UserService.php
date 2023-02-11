@@ -42,13 +42,13 @@ class UserService implements UserServiceInterface {
     }
 
     public function createUser(UserCreate $userCreate): User {
-        if($userCreate->getName()) {
+        if($userCreate->getName() == "") {
             throw new InvalidRequestException(self::EMPTY_USER_NAME);
         }
-        if($userCreate->getEmail()) {
+        if($userCreate->getEmail() == "") {
             throw new InvalidRequestException(self::EMPTY_USER_EMAIL);
         }
-        if($userCreate->getPassword()) {
+        if($userCreate->getPassword() == "") {
             throw new InvalidRequestException(self::EMPTY_USER_PASSWORD);
         }
 
