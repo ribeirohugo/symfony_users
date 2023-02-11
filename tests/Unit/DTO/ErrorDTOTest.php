@@ -34,7 +34,7 @@ class ErrorDTOTest extends TestCase{
 
         $user = new ErrorDTO($testException);
 
-        $user->setMessage(self::DEFAULT_ERROR_CODE);
+        $user->setCode(self::DEFAULT_ERROR_CODE);
 
         $this->assertEquals(self::DEFAULT_ERROR_CODE, $user->getCode());
     }
