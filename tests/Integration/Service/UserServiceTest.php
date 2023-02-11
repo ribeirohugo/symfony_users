@@ -76,11 +76,9 @@ class UserServiceTest extends KernelTestCase
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
 
-        try {
-            $userService->findUser($userId);
-        } catch (\Exception $e) {
-            $this->assertEquals(new UserNotFoundException($userId), $e);
-        }
+        $this->expectException(UserNotFoundException::class);
+
+        $userService->findUser($userId);
     }
 
     public function testRemoveUserSuccess(): void
@@ -100,11 +98,9 @@ class UserServiceTest extends KernelTestCase
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
 
-        try {
-            $userService->removeUser($userId);
-        } catch (\Exception $e) {
-            $this->assertEquals(new UserNotFoundException($userId), $e);
-        }
+        $this->expectException(UserNotFoundException::class);
+
+        $userService->removeUser($userId);
     }
 
     public function testCreateUserSuccess(): void
@@ -166,11 +162,10 @@ class UserServiceTest extends KernelTestCase
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
 
-        try {
-            $userService->updateUser($userId, $userCreate);
-        } catch (\Exception $e) {
-            $this->assertEquals(new UserNotFoundException($userId), $e);
-        }
+        $this->expectException(UserNotFoundException::class);
+
+        $userService->updateUser($userId, $userCreate);
+
     }
 
     protected function tearDown(): void
