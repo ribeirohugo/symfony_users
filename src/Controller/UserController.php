@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\DTO\ErrorDTO;
 use App\Entity\UserCreate;
+use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Service\UserServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,7 +18,10 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[AsController]
 class UserController extends AbstractController
 {
+    const INVALID_JSON_FORMAT = "invalid json format request";
+
     private UserServiceInterface $userService;
+
     function __construct(UserServiceInterface $userService)
     {
         $this->userService = $userService;
@@ -85,6 +90,11 @@ class UserController extends AbstractController
 
         try {
             $user = $this->userService->createUser($userCreate);
+        } catch (InvalidRequestException $e) {
+            $errorDTO = new ErrorDTO($e);
+            $errorResponse = $serializer->serialize($errorDTO, JsonEncoder::FORMAT);
+
+            return new Response($errorResponse,Response::HTTP_BAD_REQUEST);
         } catch (\Exception $e) {
             error_log($e);
             return new Response("",Response::HTTP_INTERNAL_SERVER_ERROR);
