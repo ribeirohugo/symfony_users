@@ -42,7 +42,6 @@ class UserServiceTest extends TestCase
     public function testFindUserNotFound(): void
     {
         $userId = 1;
-        $expectedException = new UserNotFoundException($userId);
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
@@ -51,30 +50,25 @@ class UserServiceTest extends TestCase
 
         $userService = new UserService($userRepository);
 
-        try {
-            $userService->findUser($userId);
-        } catch(UserNotFoundException $e) {
-            $this->assertEquals($expectedException, $e);
-        }
+        $this->expectException(UserNotFoundException::class);
+
+        $userService->findUser($userId);
     }
 
     public function testFindUserRepositoryError(): void
     {
         $userId = 1;
-        $expectedException = new \Exception();
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
             ->method('find')
-            ->willThrowException($expectedException);
+            ->willThrowException(new \Exception());
 
         $userService = new UserService($userRepository);
 
-        try {
-            $userService->findUser($userId);
-        } catch(\Exception $e) {
-            $this->assertEquals($expectedException, $e);
-        }
+        $this->expectException(\Exception::class);
+
+        $userService->findUser($userId);
     }
 
     public function testFindAllUsersSuccess(): void
@@ -100,20 +94,16 @@ class UserServiceTest extends TestCase
 
     public function testFindAllUsersRepositoryError(): void
     {
-        $expectedException = new \Exception();
-
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
             ->method('findAll')
-            ->willThrowException($expectedException);
+            ->willThrowException(new \Exception());
 
         $userService = new UserService($userRepository);
 
-        try {
-            $userService->findAllUsers();
-        } catch (\Exception $e) {
-            $this->assertEquals($expectedException, $e);
-        }
+        $this->expectException(\Exception::class);
+
+        $userService->findAllUsers();
     }
 
     public function testRemoveUserSuccess(): void
@@ -146,7 +136,6 @@ class UserServiceTest extends TestCase
             self::USER_PASSWORD_TEST,
             self::USER_PHONE_TEST,
         );
-        $expectedException = new \Exception();
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
@@ -154,15 +143,13 @@ class UserServiceTest extends TestCase
             ->willReturn($user);
         $userRepository->expects(self::once())
             ->method('remove')
-            ->willThrowException($expectedException);
+            ->willThrowException(new \Exception());
 
         $userService = new UserService($userRepository);
 
-        try {
-            $userService->removeUser($userId);
-        } catch (\Exception $e) {
-            $this->assertEquals($expectedException, $e);
-        }
+        $this->expectException(\Exception::class);
+
+        $userService->removeUser($userId);
     }
 
     public function testRemoveUserRepositoryRemoveError(): void
@@ -174,22 +161,20 @@ class UserServiceTest extends TestCase
             self::USER_PASSWORD_TEST,
             self::USER_PHONE_TEST,
         );
-        $expectedException = new UserNotFoundException($userId);
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
             ->method('find')
             ->willReturn($user);
         $userRepository->expects(self::once())
-            ->method('remove');
+            ->method('remove')
+            ->willThrowException(new \Exception());
 
         $userService = new UserService($userRepository);
 
-        try {
-            $userService->removeUser($userId);
-        } catch (UserNotFoundException $e) {
-            $this->assertEquals($expectedException, $e);
-        }
+        $this->expectException(\Exception::class);
+
+        $userService->removeUser($userId);
     }
 
     public function testCreateUserSuccess(): void
@@ -233,20 +218,17 @@ class UserServiceTest extends TestCase
             self::USER_PASSWORD_TEST,
             self::USER_PHONE_TEST,
         );
-        $expectedException = new \Exception();
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
             ->method('save')
-            ->willThrowException($expectedException);
+            ->willThrowException(new \Exception());
 
         $userService = new UserService($userRepository);
 
-        try {
-            $userService->createUser($userCreate);
-        } catch (\Exception $e){
-            $this->assertEquals($e, $expectedException);
-        }
+        $this->expectException(\Exception::class);
+
+        $userService->createUser($userCreate);
     }
 
     public function testUpdateUserSuccess(): void
@@ -289,7 +271,6 @@ class UserServiceTest extends TestCase
             self::USER_PASSWORD_TEST,
             self::USER_PHONE_TEST,
         );
-        $expectedException = new UserNotFoundException($userId);
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
@@ -298,11 +279,9 @@ class UserServiceTest extends TestCase
 
         $userService = new UserService($userRepository);
 
-        try {
-            $userService->updateUser($userId, $userCreate);
-        } catch(\Exception $e) {
-            $this->assertEquals($expectedException, $e);
-        }
+        $this->expectException(\Exception::class);
+
+        $userService->updateUser($userId, $userCreate);
     }
 
     public function testUpdateUserRepositoryFindError(): void
@@ -321,20 +300,16 @@ class UserServiceTest extends TestCase
             self::USER_PHONE_TEST,
         );
 
-        $expectedException = new \Exception();
-
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
             ->method('find')
-            ->willThrowException($expectedException);
+            ->willThrowException(new \Exception());
 
         $userService = new UserService($userRepository);
 
-        try {
-            $userService->updateUser($userId, $userCreate);
-        } catch(\Exception $e) {
-            $this->assertEquals($expectedException, $e);
-        }
+        $this->expectException(\Exception::class);
+
+        $userService->updateUser($userId, $userCreate);
     }
 
     public function testUpdateUserRepositorySaveError(): void
@@ -353,23 +328,19 @@ class UserServiceTest extends TestCase
             self::USER_PHONE_TEST,
         );
 
-        $expectedException = new \Exception();
-
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
             ->method('find')
             ->willReturn($user);
         $userRepository->expects(self::once())
             ->method('save')
-            ->willThrowException($expectedException);
+            ->willThrowException(new \Exception());
 
         $userService = new UserService($userRepository);
 
-        try {
-            $userService->updateUser($userId, $userCreate);
-        } catch(\Exception $e) {
-            $this->assertEquals($expectedException, $e);
-        }
+        $this->expectException(\Exception::class);
+
+        $userService->updateUser($userId, $userCreate);
     }
 
     protected function tearDown(): void
