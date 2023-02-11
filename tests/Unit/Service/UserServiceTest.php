@@ -293,12 +293,6 @@ class UserServiceTest extends TestCase
             self::USER_PASSWORD_TEST,
             self::USER_PHONE_TEST,
         );
-        $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
-        );
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
