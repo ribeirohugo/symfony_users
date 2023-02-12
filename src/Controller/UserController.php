@@ -82,7 +82,7 @@ class UserController extends AbstractController
     public function createUser(Request $request, SerializerInterface $serializer): Response
     {
         try {
-            $userCreate = $serializer->deserialize($request->getContent(), UserCreate::class, "json");
+            $userCreate = $serializer->deserialize($request->getContent(), UserCreate::class, JsonEncoder::FORMAT);
         } catch (\Exception $e) {
             error_log($e);
             return new Response(self::INVALID_JSON_FORMAT,Response::HTTP_BAD_REQUEST);

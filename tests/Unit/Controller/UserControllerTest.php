@@ -2,9 +2,11 @@
 
 namespace App\Tests\Unit\Controller;
 
+use App\Common\ErrorMessage;
 use App\Controller\UserController;
 use App\Entity\User;
 use App\Entity\UserCreate;
+use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Service\UserService;
 use App\Service\UserServiceInterface;
@@ -176,6 +178,37 @@ class UserControllerTest extends TestCase
         $response = $userController->createUser($request, $this->serializer);
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+    }
+
+    public function testCreateUserInvalidRequestException(): void
+    {
+        $userCreate = new UserCreate(
+            "",
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+        $user = new User(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+        $expectedException = new InvalidRequestException("request");
+
+        $userService = $this->createMock(UserServiceInterface::class);
+        $userService->expects(self::once())
+            ->method('createUser')
+            ->willThrowException($expectedException);
+        $userController = new UserController($userService);
+
+        $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
+        $request = $this->createRequest("users", Request::METHOD_POST, $content);
+
+        $response = $userController->createUser($request, $this->serializer);
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::generate($expectedException, $this->serializer), $response->getContent());
     }
 
     public function testCreateUserRepositoryError(): void
