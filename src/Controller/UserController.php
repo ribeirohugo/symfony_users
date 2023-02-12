@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Common\ErrorMessage;
 use App\Entity\UserCreate;
+use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Service\UserServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,7 +18,10 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[AsController]
 class UserController extends AbstractController
 {
+    const INVALID_JSON_FORMAT = "invalid json format request";
+
     private UserServiceInterface $userService;
+
     function __construct(UserServiceInterface $userService)
     {
         $this->userService = $userService;
@@ -77,14 +82,18 @@ class UserController extends AbstractController
     public function createUser(Request $request, SerializerInterface $serializer): Response
     {
         try {
-            $userCreate = $serializer->deserialize($request->getContent(), UserCreate::class, "json");
+            $userCreate = $serializer->deserialize($request->getContent(), UserCreate::class, JsonEncoder::FORMAT);
         } catch (\Exception $e) {
             error_log($e);
-            return new Response("",Response::HTTP_BAD_REQUEST);
+            return new Response(self::INVALID_JSON_FORMAT,Response::HTTP_BAD_REQUEST);
         }
 
         try {
             $user = $this->userService->createUser($userCreate);
+        } catch (InvalidRequestException $e) {
+            $errorResponse = ErrorMessage::generate($e, $serializer);
+
+            return new Response($errorResponse,Response::HTTP_BAD_REQUEST);
         } catch (\Exception $e) {
             error_log($e);
             return new Response("",Response::HTTP_INTERNAL_SERVER_ERROR);

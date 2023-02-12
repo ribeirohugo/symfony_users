@@ -4,10 +4,15 @@ namespace App\Service;
 
 use App\Entity\User;
 use App\Entity\UserCreate;
+use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Repository\UserRepositoryInterface;
 
 class UserService implements UserServiceInterface {
+    const ERROR_EMPTY_USER_NAME = "user name should not be empty";
+    const ERROR_EMPTY_USER_EMAIL = "user e-mail should not be empty";
+    const ERROR_EMPTY_USER_PASSWORD = "user password should not be empty";
+
     private UserRepositoryInterface $userRepository;
     function __construct(UserRepositoryInterface $userRepository)
     {
@@ -37,6 +42,16 @@ class UserService implements UserServiceInterface {
     }
 
     public function createUser(UserCreate $userCreate): User {
+        if($userCreate->getName() == "") {
+            throw new InvalidRequestException(self::ERROR_EMPTY_USER_NAME);
+        }
+        if($userCreate->getEmail() == "") {
+            throw new InvalidRequestException(self::ERROR_EMPTY_USER_EMAIL);
+        }
+        if($userCreate->getPassword() == "") {
+            throw new InvalidRequestException(self::ERROR_EMPTY_USER_PASSWORD);
+        }
+
         $user = new User(
             $userCreate->getName(),
             $userCreate->getEmail(),

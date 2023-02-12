@@ -22,7 +22,7 @@ class UserTest extends TestCase{
     }
 
     public function testUserName() {
-        $user = new User("", "", "", "");
+        $user = new User("test", "test", "test", "test");
 
         $user->setName(self::USER_NAME_TEST);
 
@@ -30,14 +30,14 @@ class UserTest extends TestCase{
     }
 
     public function testUserEmail() {
-        $user = new User("", "", "", "");
+        $user = new User("test", "test", "test", "test");
 
         $user->setEmail(self::USER_EMAIL_TEST);
 
         $this->assertEquals(self::USER_EMAIL_TEST, $user->getEmail());    }
 
     public function testUserPassword() {
-        $user = new User("", "", "", "");
+        $user = new User("test", "test", "test", "test");
 
         $user->setPassword(self::USER_PASSWORD_TEST);
 
@@ -45,7 +45,7 @@ class UserTest extends TestCase{
     }
 
     public function testUserPhone() {
-        $user = new User("", "", "", "");
+        $user = new User("test", "test", "test", "test");
 
         $user->setPhone(self::USER_PHONE_TEST);
 
@@ -53,7 +53,7 @@ class UserTest extends TestCase{
     }
 
     public function testUserCreatedAt() {
-        $user = new User("", "", "", "");
+        $user = new User("test", "test", "test", "test");
 
         $createdAt = new \DateTime();
 
@@ -63,7 +63,7 @@ class UserTest extends TestCase{
     }
 
     public function testUserUpdatedAt() {
-        $user = new User("", "", "", "");
+        $user = new User("test", "test", "test", "test");
 
         $updatedAt = new \DateTime();
 
