@@ -25,6 +25,7 @@ interface UserServiceInterface
     public function findAllUsers(): array;
 
     /**
+     * @throws InvalidRequestException
      * @throws UserNotFoundException
      * @throws Exception
      */

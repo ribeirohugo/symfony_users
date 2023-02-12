@@ -110,7 +110,11 @@ class UserController extends AbstractController
     public function updateUser(int $userId, Request $request, SerializerInterface $serializer): Response
     {
         try {
-            $userCreate = $serializer->deserialize($request->getContent(), UserCreate::class, "json");
+            $userCreate = $serializer->deserialize($request->getContent(), UserCreate::class, JsonEncoder::FORMAT);
+        } catch (InvalidRequestException $e) {
+            $errorResponse = ErrorMessage::generate($e, $serializer);
+
+            return new Response($errorResponse,Response::HTTP_BAD_REQUEST);
         } catch (\Exception $e) {
             error_log($e);
 

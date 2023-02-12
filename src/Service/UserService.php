@@ -63,6 +63,13 @@ class UserService implements UserServiceInterface {
     }
 
     public function updateUser(int $userId, UserCreate $userCreate): User {
+        if($userCreate->getName() == "") {
+            throw new InvalidRequestException(self::ERROR_EMPTY_USER_NAME);
+        }
+        if($userCreate->getEmail() == "") {
+            throw new InvalidRequestException(self::ERROR_EMPTY_USER_EMAIL);
+        }
+
         $user = $this->userRepository->find($userId);
         if(empty($user)) {
             throw new UserNotFoundException($userId);
