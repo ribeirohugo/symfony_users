@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\User;
 use App\Entity\UserCreate;
+use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Repository\UserRepositoryInterface;
 use Exception;
@@ -30,6 +31,7 @@ interface UserServiceInterface
     public function removeUser(int $userId): void;
 
     /**
+     * @throws InvalidRequestException
      * @throws Exception
      */
     public function createUser(UserCreate $userCreate): User;

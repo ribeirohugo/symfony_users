@@ -4,9 +4,11 @@ namespace App\Tests\Unit\Service;
 
 use App\Entity\User;
 use App\Entity\UserCreate;
+use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Repository\UserRepository;
 use App\Service\UserService;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -202,6 +204,57 @@ class UserServiceTest extends TestCase
         $response = $userService->createUser($userCreate);
 
         $this->assertEquals($user, $response);
+    }
+
+    public function testCreateUserEmptyName(): void
+    {
+        $userCreate = new UserCreate(
+            "",
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+
+        $userRepository = $this->createMock(UserRepository::class);
+        $userService = new UserService($userRepository);
+
+        $this->expectException(InvalidRequestException::class);
+
+        $userService->createUser($userCreate);
+    }
+
+    public function testCreateUserEmptyEmail(): void
+    {
+        $userCreate = new UserCreate(
+            self::USER_NAME_TEST,
+            "",
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+
+        $userRepository = $this->createMock(UserRepository::class);
+        $userService = new UserService($userRepository);
+
+        $this->expectException(InvalidRequestException::class);
+
+        $userService->createUser($userCreate);
+    }
+
+    public function testCreateUserEmptyPassword(): void
+    {
+        $userCreate = new UserCreate(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            "",
+            self::USER_PHONE_TEST,
+        );
+
+        $userRepository = $this->createMock(UserRepository::class);
+        $userService = new UserService($userRepository);
+
+        $this->expectException(InvalidRequestException::class);
+
+        $userService->createUser($userCreate);
     }
 
     public function testCreateUserRepositorySaveError(): void
