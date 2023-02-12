@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\DTO\ErrorDTO;
+use App\Common\ErrorMessage;
 use App\Entity\UserCreate;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
@@ -85,14 +85,13 @@ class UserController extends AbstractController
             $userCreate = $serializer->deserialize($request->getContent(), UserCreate::class, "json");
         } catch (\Exception $e) {
             error_log($e);
-            return new Response("",Response::HTTP_BAD_REQUEST);
+            return new Response(self::INVALID_JSON_FORMAT,Response::HTTP_BAD_REQUEST);
         }
 
         try {
             $user = $this->userService->createUser($userCreate);
         } catch (InvalidRequestException $e) {
-            $errorDTO = new ErrorDTO($e);
-            $errorResponse = $serializer->serialize($errorDTO, JsonEncoder::FORMAT);
+            $errorResponse = ErrorMessage::generate($e, $serializer);
 
             return new Response($errorResponse,Response::HTTP_BAD_REQUEST);
         } catch (\Exception $e) {
