@@ -2,9 +2,12 @@
 
 namespace App\Tests\Integration\Controller;
 
+use App\Common\ErrorMessage;
 use App\Controller\UserController;
+use App\DTO\ErrorDTO;
 use App\Entity\User;
 use App\Entity\UserCreate;
+use App\Exception\InvalidRequestException;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -147,6 +150,78 @@ class UserControllerTest extends KernelTestCase
         }
 
         $this->removeUser($newUser);
+    }
+
+    public function testCreateUserEmptyName(): void
+    {
+        $userCreate = new UserCreate(
+            "",
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+        $exception = new InvalidRequestException(UserService::ERROR_EMPTY_USER_NAME);
+        $errorMessage = ErrorMessage::generate($exception, $this->serializer);
+
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+        $userController = new UserController($userService);
+
+        $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
+        $request = $this->createRequest("/users", Request::METHOD_POST, $content);
+
+        $response = $userController->createUser($request, $this->serializer);
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals($errorMessage, $response->getContent());
+    }
+
+    public function testCreateUserEmptyEmail(): void
+    {
+        $userCreate = new UserCreate(
+            self::USER_NAME_TEST,
+            "",
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+        $exception = new InvalidRequestException(UserService::ERROR_EMPTY_USER_EMAIL);
+        $errorMessage = ErrorMessage::generate($exception, $this->serializer);
+
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+        $userController = new UserController($userService);
+
+        $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
+        $request = $this->createRequest("/users", Request::METHOD_POST, $content);
+
+        $response = $userController->createUser($request, $this->serializer);
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals($errorMessage, $response->getContent());
+    }
+
+    public function testCreateUserEmptyPassword(): void
+    {
+        $userCreate = new UserCreate(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            "",
+            self::USER_PHONE_TEST,
+        );
+        $exception = new InvalidRequestException(UserService::ERROR_EMPTY_USER_PASSWORD);
+        $errorMessage = ErrorMessage::generate($exception, $this->serializer);
+
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+        $userController = new UserController($userService);
+
+        $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
+        $request = $this->createRequest("/users", Request::METHOD_POST, $content);
+
+        $response = $userController->createUser($request, $this->serializer);
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals($errorMessage, $response->getContent());
     }
 
     public function testUpdateUserSuccess(): void
