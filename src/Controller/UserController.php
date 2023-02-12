@@ -111,10 +111,6 @@ class UserController extends AbstractController
     {
         try {
             $userCreate = $serializer->deserialize($request->getContent(), UserCreate::class, JsonEncoder::FORMAT);
-        } catch (InvalidRequestException $e) {
-            $errorResponse = ErrorMessage::generate($e, $serializer);
-
-            return new Response($errorResponse,Response::HTTP_BAD_REQUEST);
         } catch (\Exception $e) {
             error_log($e);
 
@@ -123,6 +119,10 @@ class UserController extends AbstractController
 
         try {
             $user = $this->userService->updateUser($userId, $userCreate);
+        } catch (InvalidRequestException $e) {
+            $errorResponse = ErrorMessage::generate($e, $serializer);
+
+            return new Response($errorResponse,Response::HTTP_BAD_REQUEST);
         } catch (UserNotFoundException $e) {
             error_log($e);
             return new Response("",Response::HTTP_NOT_FOUND);
