@@ -34,7 +34,7 @@ class UserController extends AbstractController
             $users = $this->userService->findAllUsers();
         } catch (\Exception $e) {
             error_log($e);
-            return new Response("",Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new Response("", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return new Response(
@@ -53,7 +53,7 @@ class UserController extends AbstractController
             return new Response("", Response::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
             error_log($e);
-            return new Response("",Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new Response("", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return new Response(
@@ -72,10 +72,10 @@ class UserController extends AbstractController
             return new Response("", Response::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
             error_log($e);
-            return new Response("",Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new Response("", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return new Response("",Response::HTTP_NO_CONTENT);
+        return new Response("", Response::HTTP_NO_CONTENT);
     }
 
     #[Route('/users', name: 'createUser', methods: [Request::METHOD_POST])]
@@ -85,7 +85,7 @@ class UserController extends AbstractController
             $userCreate = $serializer->deserialize($request->getContent(), UserCreate::class, JsonEncoder::FORMAT);
         } catch (\Exception $e) {
             error_log($e);
-            return new Response(self::INVALID_JSON_FORMAT,Response::HTTP_BAD_REQUEST);
+            return new Response(self::INVALID_JSON_FORMAT, Response::HTTP_BAD_REQUEST);
         }
 
         try {
@@ -93,10 +93,10 @@ class UserController extends AbstractController
         } catch (InvalidRequestException $e) {
             $errorResponse = ErrorMessage::generate($e, $serializer);
 
-            return new Response($errorResponse,Response::HTTP_BAD_REQUEST);
+            return new Response($errorResponse, Response::HTTP_BAD_REQUEST);
         } catch (\Exception $e) {
             error_log($e);
-            return new Response("",Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new Response("", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return new Response(
@@ -114,7 +114,7 @@ class UserController extends AbstractController
         } catch (\Exception $e) {
             error_log($e);
 
-            return new Response("",Response::HTTP_BAD_REQUEST);
+            return new Response(self::INVALID_JSON_FORMAT, Response::HTTP_BAD_REQUEST);
         }
 
         try {
@@ -125,10 +125,10 @@ class UserController extends AbstractController
             return new Response($errorResponse,Response::HTTP_BAD_REQUEST);
         } catch (UserNotFoundException $e) {
             error_log($e);
-            return new Response("",Response::HTTP_NOT_FOUND);
+            return new Response("", Response::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
             error_log($e);
-            return new Response("",Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new Response("", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return new Response(
