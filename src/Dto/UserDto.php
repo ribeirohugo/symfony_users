@@ -1,11 +1,11 @@
 <?php
 
-namespace App\DTO;
+namespace App\Dto;
 
 /**
- * UserDTO holds editable attributes for creating/updating a user.
+ * UserDTO holds returnable data for a user.
  */
-class UserDTO
+class UserDto
 {
     /**
      * @var string|null
@@ -20,24 +20,38 @@ class UserDTO
     /**
      * @var string|null
      */
-    private ?string $password = null;
+    private ?string $phone = null;
 
     /**
-     * @var string|null
+     * @var \DateTimeInterface|null
      */
-    private ?string $phone = null;
+    private ?\DateTimeInterface $createdAt;
+
+    /**
+     * @var \DateTimeInterface|null
+     */
+    private ?\DateTimeInterface $updatedAt;
+
 
     /**
      * @param string $name
      * @param string $email
-     * @param string $password
      * @param string $phone
+     * @param \DateTimeInterface|null $createdAt
+     * @param \DateTimeInterface|null $updatedAt
      */
-    public function __construct(string $name, string $email, string $password, string $phone) {
+    public function __construct(
+        string $name,
+        string $email,
+        string $phone,
+        \DateTimeInterface $createdAt = null,
+        \DateTimeInterface $updatedAt = null,
+    ) {
         $this->name = $name;
         $this->email = $email;
-        $this->password = $password;
         $this->phone = $phone;
+        $this->createdAt = $createdAt;
+        $this->updatedAt = $updatedAt;
     }
 
     /**
@@ -86,17 +100,44 @@ class UserDTO
     }
 
     /**
-     * @return string
+     * @return \DateTimeInterface
      */
-    public function getPassword(): string {
-        return $this->password;
+    public function getCreatedAt(): \DateTimeInterface {
+        return $this->createdAt;
     }
 
     /**
-     * @param string $password
+     * @param \DateTime|string $createdAt
      * @return void
      */
-    public function setPassword(string $password): void {
-        $this->password = $password;
+    public function setCreatedAt(\DateTime|string $createdAt): void {
+        // Fix: deserialize set datetime error
+        if(gettype($createdAt) == "string") {
+            $this->createdAt = date_create_from_format(\DateTimeInterface::RFC3339, $createdAt);
+            return;
+        }
+
+        $this->createdAt = $createdAt;
+    }
+
+    /**
+     * @return \DateTimeInterface
+     */
+    public function getUpdatedAt(): \DateTimeInterface {
+        return $this->updatedAt;
+    }
+
+    /**
+     * @param \DateTimeInterface|string $updatedAt
+     * @return void
+     */
+    public function setUpdatedAt(\DateTime|string $updatedAt): void {
+        // Fix: deserialize set datetime error
+        if(gettype($updatedAt) == "string") {
+            $this->createdAt = date_create_from_format(\DateTimeInterface::RFC3339, $updatedAt);
+            return;
+        }
+
+        $this->updatedAt = $updatedAt;
     }
 }
