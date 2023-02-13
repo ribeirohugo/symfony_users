@@ -37,6 +37,7 @@ interface UserServiceInterface
     public function createUser(UserCreate $userCreate): User;
 
     /**
+     * @throws InvalidRequestException
      * @throws UserNotFoundException
      * @throws Exception
      */

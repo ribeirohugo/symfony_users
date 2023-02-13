@@ -315,6 +315,42 @@ class UserServiceTest extends TestCase
         $this->assertEquals($user, $response);
     }
 
+    public function testUpdateUserEmptyName(): void
+    {
+        $userId = 1;
+        $userCreate = new UserCreate(
+            "",
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+
+        $userRepository = $this->createMock(UserRepository::class);
+        $userService = new UserService($userRepository);
+
+        $this->expectException(InvalidRequestException::class);
+
+        $userService->updateUser($userId, $userCreate);
+    }
+
+    public function testUpdateUserEmptyEmail(): void
+    {
+        $userId = 1;
+        $userCreate = new UserCreate(
+            self::USER_NAME_TEST,
+            "",
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+
+        $userRepository = $this->createMock(UserRepository::class);
+        $userService = new UserService($userRepository);
+
+        $this->expectException(InvalidRequestException::class);
+
+        $userService->updateUser($userId, $userCreate);
+    }
+
     public function testUpdateUserNotFound(): void
     {
         $userId = 1;
