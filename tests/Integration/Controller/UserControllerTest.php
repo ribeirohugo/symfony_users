@@ -4,7 +4,7 @@ namespace App\Tests\Integration\Controller;
 
 use App\Common\ErrorMessage;
 use App\Controller\UserController;
-use App\DTO\UserDTO;
+use App\Dto\UserEditableDto;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
 use App\Service\UserService;
@@ -172,7 +172,7 @@ class UserControllerTest extends KernelTestCase
 
     public function testCreateUserSuccess(): void
     {
-        $userCreate = new UserDTO(
+        $userCreate = new UserEditableDto(
             self::USER_NAME_TEST,
             self::USER_EMAIL_TEST,
             self::USER_PASSWORD_TEST,
@@ -201,7 +201,7 @@ class UserControllerTest extends KernelTestCase
 
     public function testCreateUserEmptyName(): void
     {
-        $userCreate = new UserDTO(
+        $userCreate = new UserEditableDto(
             "",
             self::USER_EMAIL_TEST,
             self::USER_PASSWORD_TEST,
@@ -225,7 +225,7 @@ class UserControllerTest extends KernelTestCase
 
     public function testCreateUserEmptyEmail(): void
     {
-        $userCreate = new UserDTO(
+        $userCreate = new UserEditableDto(
             self::USER_NAME_TEST,
             "",
             self::USER_PASSWORD_TEST,
@@ -249,7 +249,7 @@ class UserControllerTest extends KernelTestCase
 
     public function testCreateUserEmptyPassword(): void
     {
-        $userCreate = new UserDTO(
+        $userCreate = new UserEditableDto(
             self::USER_NAME_TEST,
             self::USER_EMAIL_TEST,
             "",
@@ -275,7 +275,7 @@ class UserControllerTest extends KernelTestCase
     {
         $existingUser = $this->addUser();
 
-        $userCreate = new UserDTO(
+        $userCreate = new UserEditableDto(
             self::NEW_USER_NAME_TEST,
             self::NEW_USER_EMAIL_TEST,
             self::NEW_USER_PASSWORD_TEST,
@@ -300,7 +300,7 @@ class UserControllerTest extends KernelTestCase
     {
         $existingUser = $this->addUser();
 
-        $userCreate = new UserDTO(
+        $userCreate = new UserEditableDto(
             "",
             self::NEW_USER_EMAIL_TEST,
             self::NEW_USER_PASSWORD_TEST,
@@ -328,7 +328,7 @@ class UserControllerTest extends KernelTestCase
     {
         $existingUser = $this->addUser();
 
-        $userCreate = new UserDTO(
+        $userCreate = new UserEditableDto(
             self::NEW_USER_NAME_TEST,
             "",
             self::NEW_USER_PASSWORD_TEST,
@@ -354,7 +354,7 @@ class UserControllerTest extends KernelTestCase
 
     public function testUpdateUserNotFound(): void
     {
-        $userCreate = new UserDTO(
+        $userCreate = new UserEditableDto(
             self::NEW_USER_NAME_TEST,
             self::NEW_USER_EMAIL_TEST,
             self::NEW_USER_PASSWORD_TEST,

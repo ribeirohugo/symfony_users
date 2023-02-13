@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\DTO\UserDTO;
+use App\Dto\UserEditableDto;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
@@ -80,11 +80,11 @@ class UserService implements UserServiceInterface {
     }
 
     /**
-     * @param \App\DTO\UserDTO $userCreate
+     * @param \App\Dto\UserEditableDto $userCreate
      * @return User
      * @throws InvalidRequestException
      */
-    public function createUser(UserDTO $userCreate): User {
+    public function createUser(UserEditableDto $userCreate): User {
         if($userCreate->getName() == "") {
             throw new InvalidRequestException(self::ERROR_EMPTY_USER_NAME);
         }
@@ -107,12 +107,12 @@ class UserService implements UserServiceInterface {
 
     /**
      * @param int $userId
-     * @param \App\DTO\UserDTO $userCreate
+     * @param \App\Dto\UserEditableDto $userCreate
      * @return User
      * @throws InvalidRequestException
      * @throws UserNotFoundException
      */
-    public function updateUser(int $userId, UserDTO $userCreate): User {
+    public function updateUser(int $userId, UserEditableDto $userCreate): User {
         if($userCreate->getName() == "") {
             throw new InvalidRequestException(self::ERROR_EMPTY_USER_NAME);
         }

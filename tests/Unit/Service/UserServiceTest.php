@@ -2,7 +2,7 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\DTO\UserDTO;
+use App\Dto\UserEditableDto;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
@@ -180,7 +180,7 @@ class UserServiceTest extends TestCase
 
     public function testCreateUserSuccess(): void
     {
-        $userCreate = new UserDTO(
+        $userCreate = new UserEditableDto(
             self::USER_NAME_TEST,
             self::USER_EMAIL_TEST,
             self::USER_PASSWORD_TEST,
@@ -207,7 +207,7 @@ class UserServiceTest extends TestCase
 
     public function testCreateUserEmptyName(): void
     {
-        $userCreate = new UserDTO(
+        $userCreate = new UserEditableDto(
             "",
             self::USER_EMAIL_TEST,
             self::USER_PASSWORD_TEST,
@@ -224,7 +224,7 @@ class UserServiceTest extends TestCase
 
     public function testCreateUserEmptyEmail(): void
     {
-        $userCreate = new UserDTO(
+        $userCreate = new UserEditableDto(
             self::USER_NAME_TEST,
             "",
             self::USER_PASSWORD_TEST,
@@ -241,7 +241,7 @@ class UserServiceTest extends TestCase
 
     public function testCreateUserEmptyPassword(): void
     {
-        $userCreate = new UserDTO(
+        $userCreate = new UserEditableDto(
             self::USER_NAME_TEST,
             self::USER_EMAIL_TEST,
             "",
@@ -258,7 +258,7 @@ class UserServiceTest extends TestCase
 
     public function testCreateUserRepositorySaveError(): void
     {
-        $userCreate = new UserDTO(
+        $userCreate = new UserEditableDto(
             self::USER_NAME_TEST,
             self::USER_EMAIL_TEST,
             self::USER_PASSWORD_TEST,
@@ -286,7 +286,7 @@ class UserServiceTest extends TestCase
     public function testUpdateUserSuccess(): void
     {
         $userId = 1;
-        $userCreate = new UserDTO(
+        $userCreate = new UserEditableDto(
             self::USER_NAME_TEST,
             self::USER_EMAIL_TEST,
             self::USER_PASSWORD_TEST,
@@ -317,7 +317,7 @@ class UserServiceTest extends TestCase
     public function testUpdateUserEmptyName(): void
     {
         $userId = 1;
-        $userCreate = new UserDTO(
+        $userCreate = new UserEditableDto(
             "",
             self::USER_EMAIL_TEST,
             self::USER_PASSWORD_TEST,
@@ -335,7 +335,7 @@ class UserServiceTest extends TestCase
     public function testUpdateUserEmptyEmail(): void
     {
         $userId = 1;
-        $userCreate = new UserDTO(
+        $userCreate = new UserEditableDto(
             self::USER_NAME_TEST,
             "",
             self::USER_PASSWORD_TEST,
@@ -353,7 +353,7 @@ class UserServiceTest extends TestCase
     public function testUpdateUserNotFound(): void
     {
         $userId = 1;
-        $userCreate = new UserDTO(
+        $userCreate = new UserEditableDto(
             self::USER_NAME_TEST,
             self::USER_EMAIL_TEST,
             self::USER_PASSWORD_TEST,
@@ -375,7 +375,7 @@ class UserServiceTest extends TestCase
     public function testUpdateUserRepositoryFindError(): void
     {
         $userId = 1;
-        $userCreate = new UserDTO(
+        $userCreate = new UserEditableDto(
             self::USER_NAME_TEST,
             self::USER_EMAIL_TEST,
             self::USER_PASSWORD_TEST,
@@ -397,7 +397,7 @@ class UserServiceTest extends TestCase
     public function testUpdateUserRepositorySaveError(): void
     {
         $userId = 1;
-        $userCreate = new UserDTO(
+        $userCreate = new UserEditableDto(
             self::USER_NAME_TEST,
             self::USER_EMAIL_TEST,
             self::USER_PASSWORD_TEST,

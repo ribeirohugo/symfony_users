@@ -2,7 +2,7 @@
 
 namespace App\Tests\Unit\DTO;
 
-use App\DTO\ErrorDTO;
+use App\Dto\ErrorDto;
 use PHPUnit\Framework\TestCase;
 
 class ErrorDTOTest extends TestCase{
@@ -12,7 +12,7 @@ class ErrorDTOTest extends TestCase{
     public function testErrorDTOConstruct() {
         $exception = new \Exception(self::DEFAULT_ERROR_MESSAGE, self::DEFAULT_ERROR_CODE);
 
-        $user = new ErrorDTO($exception);
+        $user = new ErrorDto($exception);
 
         $this->assertIsObject($user);
         $this->assertEquals(self::DEFAULT_ERROR_MESSAGE, $user->getMessage());
@@ -22,7 +22,7 @@ class ErrorDTOTest extends TestCase{
     public function testErrorDTOMessage() {
         $testException = new \Exception();
 
-        $user = new ErrorDTO($testException);
+        $user = new ErrorDto($testException);
 
         $user->setMessage(self::DEFAULT_ERROR_MESSAGE);
 
@@ -32,7 +32,7 @@ class ErrorDTOTest extends TestCase{
     public function testErrorDTOCode() {
         $testException = new \Exception();
 
-        $user = new ErrorDTO($testException);
+        $user = new ErrorDto($testException);
 
         $user->setCode(self::DEFAULT_ERROR_CODE);
 

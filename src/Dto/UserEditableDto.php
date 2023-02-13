@@ -1,11 +1,11 @@
 <?php
 
-namespace App\DTO;
+namespace App\Dto;
 
 /**
- * UserDTO holds editable attributes for creating/updating a user.
+ * UserEditableDto holds editable attributes for creating/updating a user.
  */
-class UserDTO
+class UserEditableDto
 {
     /**
      * @var string|null
