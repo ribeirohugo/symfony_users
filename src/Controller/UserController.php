@@ -15,18 +15,33 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\SerializerInterface;
 
+/**
+ * UserController holds user related controller methods and routing configs.
+ */
 #[AsController]
 class UserController extends AbstractController
 {
     const INVALID_JSON_FORMAT = "invalid json format request";
 
+    /**
+     * @var UserServiceInterface
+     */
     private UserServiceInterface $userService;
 
+    /**
+     * @param UserServiceInterface $userService
+     */
     function __construct(UserServiceInterface $userService)
     {
         $this->userService = $userService;
     }
 
+    /**
+     * Returns all persisted users.
+     *
+     * @param SerializerInterface $serializer
+     * @return Response
+     */
     #[Route('/users', name: 'listUsers', methods: [Request::METHOD_GET])]
     public function listUsers(SerializerInterface $serializer): Response
     {
@@ -44,6 +59,14 @@ class UserController extends AbstractController
         );
     }
 
+    /**
+     * Returns a user, for a given user ID persisted users.
+     * Returns a not found response if user doesn't exist.
+     *
+     * @param int $userId
+     * @param SerializerInterface $serializer
+     * @return Response
+     */
     #[Route('/users/{userId}', name: 'singleUser', methods: [Request::METHOD_GET])]
     public function singleUser(int $userId, SerializerInterface $serializer): Response
     {
@@ -63,6 +86,13 @@ class UserController extends AbstractController
         );
     }
 
+    /**
+     * Removes a user for a given user ID.
+     * Returns user not found response if user doesn't exist.
+     *
+     * @param int $userId
+     * @return Response
+     */
     #[Route('/users/{userId}', name: 'removeUser', methods: [Request::METHOD_DELETE])]
     public function removeUser(int $userId): Response
     {
@@ -78,6 +108,14 @@ class UserController extends AbstractController
         return new Response("", Response::HTTP_NO_CONTENT);
     }
 
+    /**
+     * Creates a new user for a given user data through the body request.
+     * Returns bad request response when the user data isn't valid.
+     *
+     * @param Request $request
+     * @param SerializerInterface $serializer
+     * @return Response
+     */
     #[Route('/users', name: 'createUser', methods: [Request::METHOD_POST])]
     public function createUser(Request $request, SerializerInterface $serializer): Response
     {
@@ -106,6 +144,16 @@ class UserController extends AbstractController
         );
     }
 
+    /**
+     * Updates an existing user for a given user ID, with a given user data.
+     * Returns not found status if the user doesn't exist.
+     * Returns bad request response when the user data isn't valid.
+     *
+     * @param int $userId
+     * @param Request $request
+     * @param SerializerInterface $serializer
+     * @return Response
+     */
     #[Route('/users/{userId}', name: 'updateUser', methods: [Request::METHOD_PUT])]
     public function updateUser(int $userId, Request $request, SerializerInterface $serializer): Response
     {
