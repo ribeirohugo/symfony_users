@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Common\ErrorMessage;
-use App\DTO\UserDTO;
+use App\Dto\UserEditableDto;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Service\UserServiceInterface;
@@ -155,7 +155,7 @@ class UserController extends AbstractController
     public function createUser(Request $request, SerializerInterface $serializer): Response
     {
         try {
-            $userCreate = $serializer->deserialize($request->getContent(), UserDTO::class, JsonEncoder::FORMAT);
+            $userCreate = $serializer->deserialize($request->getContent(), UserEditableDto::class, JsonEncoder::FORMAT);
         } catch (\Exception $e) {
             error_log($e);
             return new Response(self::INVALID_JSON_FORMAT, Response::HTTP_BAD_REQUEST);
@@ -193,7 +193,7 @@ class UserController extends AbstractController
     public function updateUser(int $userId, Request $request, SerializerInterface $serializer): Response
     {
         try {
-            $userCreate = $serializer->deserialize($request->getContent(), UserDTO::class, JsonEncoder::FORMAT);
+            $userCreate = $serializer->deserialize($request->getContent(), UserEditableDto::class, JsonEncoder::FORMAT);
         } catch (\Exception $e) {
             error_log($e);
 

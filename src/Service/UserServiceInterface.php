@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\DTO\UserDTO;
+use App\Dto\UserEditableDto;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
@@ -45,12 +45,12 @@ interface UserServiceInterface
      * @throws InvalidRequestException
      * @throws Exception
      */
-    public function createUser(UserDTO $userCreate): User;
+    public function createUser(UserEditableDto $userCreate): User;
 
     /**
      * @throws InvalidRequestException
      * @throws UserNotFoundException
      * @throws Exception
      */
-    public function updateUser(int $userId, UserDTO $userCreate): User;
+    public function updateUser(int $userId, UserEditableDto $userCreate): User;
 }

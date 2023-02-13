@@ -1,11 +1,11 @@
 <?php
 
-namespace App\DTO;
+namespace App\Dto;
 
 /**
- * ErrorDTO holds basic error data.
+ * ErrorDto holds basic error data.
  */
-class ErrorDTO
+class ErrorDto
 {
     /**
      * @var string

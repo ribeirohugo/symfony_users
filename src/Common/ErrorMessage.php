@@ -2,7 +2,7 @@
 
 namespace App\Common;
 
-use App\DTO\ErrorDTO;
+use App\Dto\ErrorDto;
 use Exception;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -17,7 +17,7 @@ class ErrorMessage {
      * @return string
      */
     public static function generate(Exception $error, SerializerInterface $serializer): string {
-        $errorDTO = new ErrorDTO($error);
+        $errorDTO = new ErrorDto($error);
         return $serializer->serialize($errorDTO, JsonEncoder::FORMAT);
     }
 }
