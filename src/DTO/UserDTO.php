@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Entity;
+namespace App\DTO;
 
 /**
- * UserCreate holds editable attributes for creating/updating a user.
+ * UserDTO holds editable attributes for creating/updating a user.
  */
-class UserCreate
+class UserDTO
 {
     /**
      * @var string|null

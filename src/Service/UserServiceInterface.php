@@ -2,8 +2,8 @@
 
 namespace App\Service;
 
+use App\DTO\UserDTO;
 use App\Entity\User;
-use App\Entity\UserCreate;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Repository\UserRepositoryInterface;
@@ -37,12 +37,12 @@ interface UserServiceInterface
      * @throws InvalidRequestException
      * @throws Exception
      */
-    public function createUser(UserCreate $userCreate): User;
+    public function createUser(UserDTO $userCreate): User;
 
     /**
      * @throws InvalidRequestException
      * @throws UserNotFoundException
      * @throws Exception
      */
-    public function updateUser(int $userId, UserCreate $userCreate): User;
+    public function updateUser(int $userId, UserDTO $userCreate): User;
 }

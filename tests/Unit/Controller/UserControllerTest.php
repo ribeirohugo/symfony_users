@@ -4,8 +4,8 @@ namespace App\Tests\Unit\Controller;
 
 use App\Common\ErrorMessage;
 use App\Controller\UserController;
+use App\DTO\UserDTO;
 use App\Entity\User;
-use App\Entity\UserCreate;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Service\UserService;
@@ -140,7 +140,7 @@ class UserControllerTest extends TestCase
 
     public function testCreateUserSuccess(): void
     {
-        $userCreate = new UserCreate(
+        $userCreate = new UserDTO(
             self::USER_NAME_TEST,
             self::USER_EMAIL_TEST,
             self::USER_PASSWORD_TEST,
@@ -182,7 +182,7 @@ class UserControllerTest extends TestCase
 
     public function testCreateUserInvalidRequestException(): void
     {
-        $userCreate = new UserCreate(
+        $userCreate = new UserDTO(
             "",
             self::USER_EMAIL_TEST,
             self::USER_PASSWORD_TEST,
@@ -213,7 +213,7 @@ class UserControllerTest extends TestCase
 
     public function testCreateUserRepositoryError(): void
     {
-        $userCreate = new UserCreate(
+        $userCreate = new UserDTO(
             self::USER_NAME_TEST,
             self::USER_EMAIL_TEST,
             self::USER_PASSWORD_TEST,
@@ -237,7 +237,7 @@ class UserControllerTest extends TestCase
     public function testUpdateUserSuccess(): void
     {
         $userId = 1;
-        $userCreate = new UserCreate(
+        $userCreate = new UserDTO(
             self::USER_NAME_TEST,
             self::USER_EMAIL_TEST,
             self::USER_PASSWORD_TEST,
@@ -268,7 +268,7 @@ class UserControllerTest extends TestCase
     public function testUpdateUserNotfound(): void
     {
         $userId = 1;
-        $userCreate = new UserCreate(
+        $userCreate = new UserDTO(
             self::USER_NAME_TEST,
             self::USER_EMAIL_TEST,
             self::USER_PASSWORD_TEST,
@@ -292,7 +292,7 @@ class UserControllerTest extends TestCase
     public function testUpdateUserError(): void
     {
         $userId = 1;
-        $userCreate = new UserCreate(
+        $userCreate = new UserDTO(
             self::USER_NAME_TEST,
             self::USER_EMAIL_TEST,
             self::USER_PASSWORD_TEST,

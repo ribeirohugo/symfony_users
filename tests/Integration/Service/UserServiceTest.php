@@ -3,8 +3,8 @@
 namespace App\Tests\Integration\Service;
 
 use App\Controller\UserController;
+use App\DTO\UserDTO;
 use App\Entity\User;
-use App\Entity\UserCreate;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Service\UserService;
@@ -109,7 +109,7 @@ class UserServiceTest extends KernelTestCase
 
     public function testCreateUserSuccess(): void
     {
-        $userCreate = new UserCreate(
+        $userCreate = new UserDTO(
             self::USER_NAME_TEST,
             self::USER_EMAIL_TEST,
             self::USER_PASSWORD_TEST,
@@ -133,7 +133,7 @@ class UserServiceTest extends KernelTestCase
     {
         $existingUser = $this->addUser();
 
-        $userCreate = new UserCreate(
+        $userCreate = new UserDTO(
             self::NEW_USER_NAME_TEST,
             self::NEW_USER_EMAIL_TEST,
             self::NEW_USER_PASSWORD_TEST,
@@ -157,7 +157,7 @@ class UserServiceTest extends KernelTestCase
     {
         $existingUser = $this->addUser();
 
-        $userCreate = new UserCreate(
+        $userCreate = new UserDTO(
             "",
             self::NEW_USER_EMAIL_TEST,
             self::NEW_USER_PASSWORD_TEST,
@@ -178,7 +178,7 @@ class UserServiceTest extends KernelTestCase
     {
         $existingUser = $this->addUser();
 
-        $userCreate = new UserCreate(
+        $userCreate = new UserDTO(
             self::NEW_USER_NAME_TEST,
             "",
             self::NEW_USER_PASSWORD_TEST,
@@ -198,7 +198,7 @@ class UserServiceTest extends KernelTestCase
     public function testUpdateUserNotFound(): void
     {
         $userId = 1;
-        $userCreate = new UserCreate(
+        $userCreate = new UserDTO(
             "new name",
             "new_email@domain.com",
             "new password",

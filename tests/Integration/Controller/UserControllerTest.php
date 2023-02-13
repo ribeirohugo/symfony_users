@@ -4,8 +4,8 @@ namespace App\Tests\Integration\Controller;
 
 use App\Common\ErrorMessage;
 use App\Controller\UserController;
+use App\DTO\UserDTO;
 use App\Entity\User;
-use App\Entity\UserCreate;
 use App\Exception\InvalidRequestException;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManager;
@@ -15,9 +15,9 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 class UserControllerTest extends KernelTestCase
 {
@@ -128,7 +128,7 @@ class UserControllerTest extends KernelTestCase
 
     public function testCreateUserSuccess(): void
     {
-        $userCreate = new UserCreate(
+        $userCreate = new UserDTO(
             self::USER_NAME_TEST,
             self::USER_EMAIL_TEST,
             self::USER_PASSWORD_TEST,
@@ -157,7 +157,7 @@ class UserControllerTest extends KernelTestCase
 
     public function testCreateUserEmptyName(): void
     {
-        $userCreate = new UserCreate(
+        $userCreate = new UserDTO(
             "",
             self::USER_EMAIL_TEST,
             self::USER_PASSWORD_TEST,
@@ -181,7 +181,7 @@ class UserControllerTest extends KernelTestCase
 
     public function testCreateUserEmptyEmail(): void
     {
-        $userCreate = new UserCreate(
+        $userCreate = new UserDTO(
             self::USER_NAME_TEST,
             "",
             self::USER_PASSWORD_TEST,
@@ -205,7 +205,7 @@ class UserControllerTest extends KernelTestCase
 
     public function testCreateUserEmptyPassword(): void
     {
-        $userCreate = new UserCreate(
+        $userCreate = new UserDTO(
             self::USER_NAME_TEST,
             self::USER_EMAIL_TEST,
             "",
@@ -231,7 +231,7 @@ class UserControllerTest extends KernelTestCase
     {
         $existingUser = $this->addUser();
 
-        $userCreate = new UserCreate(
+        $userCreate = new UserDTO(
             self::NEW_USER_NAME_TEST,
             self::NEW_USER_EMAIL_TEST,
             self::NEW_USER_PASSWORD_TEST,
@@ -256,7 +256,7 @@ class UserControllerTest extends KernelTestCase
     {
         $existingUser = $this->addUser();
 
-        $userCreate = new UserCreate(
+        $userCreate = new UserDTO(
             "",
             self::NEW_USER_EMAIL_TEST,
             self::NEW_USER_PASSWORD_TEST,
@@ -284,7 +284,7 @@ class UserControllerTest extends KernelTestCase
     {
         $existingUser = $this->addUser();
 
-        $userCreate = new UserCreate(
+        $userCreate = new UserDTO(
             self::NEW_USER_NAME_TEST,
             "",
             self::NEW_USER_PASSWORD_TEST,
@@ -310,7 +310,7 @@ class UserControllerTest extends KernelTestCase
 
     public function testUpdateUserNotFound(): void
     {
-        $userCreate = new UserCreate(
+        $userCreate = new UserDTO(
             self::NEW_USER_NAME_TEST,
             self::NEW_USER_EMAIL_TEST,
             self::NEW_USER_PASSWORD_TEST,
