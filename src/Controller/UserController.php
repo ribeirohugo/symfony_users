@@ -22,6 +22,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 class UserController extends AbstractController
 {
     const INVALID_JSON_FORMAT = "invalid json format request";
+    const EMPTY_EMAIL = "no email was found";
 
     /**
      * @var UserServiceInterface
@@ -74,6 +75,40 @@ class UserController extends AbstractController
             $user = $this->userService->findUser($userId);
         } catch(UserNotFoundException) {
             return new Response("", Response::HTTP_NOT_FOUND);
+        } catch (\Exception $e) {
+            error_log($e);
+            return new Response("", Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return new Response(
+            $serializer->serialize($user, JsonEncoder::FORMAT),
+            Response::HTTP_OK,
+            ['Content-Type' => 'application/json;charset=UTF-8']
+        );
+    }
+
+    /**
+     * Returns a user for a given email.
+     * Returns user not found error if the user doesn't exist for the given email.
+     *
+     * @param Request $request
+     * @param SerializerInterface $serializer
+     * @return Response
+     */
+    #[Route('/users/email', name: 'findUserByEmail', methods: [Request::METHOD_GET])]
+    public function findUserByEmail(Request $request, SerializerInterface $serializer): Response
+    {
+        $email = $request->query->get('email');
+        if($email == "") {
+            return new Response(self::EMPTY_EMAIL, Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            $user = $this->userService->findUserByEmail($email);
+        } catch(UserNotFoundException $e) {
+            $errorResponse = ErrorMessage::generate($e, $serializer);
+
+            return new Response($errorResponse, Response::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
             error_log($e);
             return new Response("", Response::HTTP_INTERNAL_SERVER_ERROR);

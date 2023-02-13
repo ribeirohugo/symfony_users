@@ -94,6 +94,66 @@ class UserControllerTest extends TestCase
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
 
+    public function testFindUserByEmailSuccess(): void
+    {
+        $user = new User(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+
+        $userService = $this->createMock(UserServiceInterface::class);
+        $userService->expects(self::once())
+            ->method('findUserByEmail')
+            ->willReturn($user);
+        $userController = new UserController($userService);
+
+        $parameters = ["email" => self::USER_EMAIL_TEST];
+        $request = $this->createRequest("users/email", Request::METHOD_GET, "", $parameters);
+
+        $response = $userController->findUserByEmail($request, $this->serializer);
+
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals($this->serializer->serialize($user, JsonEncoder::FORMAT), $response->getContent());
+    }
+
+    public function testFindUserByEmailEmptyEmail(): void
+    {
+        $userService = $this->createMock(UserServiceInterface::class);
+        $userController = new UserController($userService);
+
+        $request = $this->createRequest("users/email", Request::METHOD_GET, "");
+
+        $response = $userController->findUserByEmail($request, $this->serializer);
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals(UserController::EMPTY_EMAIL, $response->getContent());
+    }
+
+    public function testFindUserByEmailNotFound(): void
+    {
+        $user = new User(
+            self::USER_NAME_TEST,
+            self::USER_EMAIL_TEST,
+            self::USER_PASSWORD_TEST,
+            self::USER_PHONE_TEST,
+        );
+
+        $userService = $this->createMock(UserServiceInterface::class);
+        $userService->expects(self::once())
+            ->method('findUserByEmail')
+            ->willThrowException(new UserNotFoundException(self::USER_EMAIL_TEST));
+        $userController = new UserController($userService);
+
+        $parameters = ["email" => self::USER_EMAIL_TEST];
+        $request = $this->createRequest("users/email", Request::METHOD_GET, "", $parameters);
+
+        $response = $userController->findUserByEmail($request, $this->serializer);
+
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
     public function testRemoveUserSuccess(): void
     {
         $userId = 1;
@@ -324,7 +384,7 @@ class UserControllerTest extends TestCase
         parent::tearDown();
     }
 
-    protected function createRequest(string $uri, string $method, string $content) {
-        return Request::create($uri, $method, [], [], [], [], $content);
+    protected function createRequest(string $uri, string $method, string $content, array $parameters = []) {
+        return Request::create($uri, $method, $parameters, [], [], [], $content);
     }
 }
