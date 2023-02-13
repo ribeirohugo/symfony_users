@@ -85,6 +85,30 @@ class UserServiceTest extends KernelTestCase
         $userService->findUser($userId);
     }
 
+    public function testFindUserByEmailSuccess(): void
+    {
+        $user = $this->addUser();
+
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+
+        $response = $userService->findUserByEmail($user->getEmail());
+
+        $this->assertEquals($user, $response);
+
+        $this->removeUser($user);
+    }
+
+    public function testFindUserByEmailNotFound(): void
+    {
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+
+        $this->expectException(UserNotFoundException::class);
+
+        $userService->findUserByEmail(self::USER_EMAIL_TEST);
+    }
+
     public function testRemoveUserSuccess(): void
     {
         $user = $this->addUser();

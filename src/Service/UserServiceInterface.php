@@ -28,6 +28,14 @@ interface UserServiceInterface
     public function findAllUsers(): array;
 
     /**
+     * @param string $email
+     * @return User
+     * @throws UserNotFoundException
+     * @throws Exception
+     */
+    public function findUserByEmail(string $email): User;
+
+    /**
      * @throws UserNotFoundException
      * @throws Exception
      */

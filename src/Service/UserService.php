@@ -44,6 +44,21 @@ class UserService implements UserServiceInterface {
     }
 
     /**
+     * @param string $email
+     * @return User
+     * @throws UserNotFoundException
+     */
+    public function findUserByEmail(string $email): User {
+        $user = $this->userRepository->findOneBy(["email" => $email]);
+
+        if(empty($user)) {
+            throw new UserNotFoundException($email);
+        }
+
+        return $user;
+    }
+
+    /**
      * @return array
      */
     public function findAllUsers(): array {
