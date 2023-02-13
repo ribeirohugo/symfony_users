@@ -16,11 +16,19 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class UserRepository extends ServiceEntityRepository implements UserRepositoryInterface
 {
+    /**
+     * @param ManagerRegistry $registry
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, User::class);
     }
 
+    /**
+     * @param User $user
+     * @param bool $flush
+     * @return User
+     */
     public function save(User $user, bool $flush = false): User
     {
         $this->getEntityManager()->persist($user);
@@ -32,6 +40,11 @@ class UserRepository extends ServiceEntityRepository implements UserRepositoryIn
         return $user;
     }
 
+    /**
+     * @param User $user
+     * @param bool $flush
+     * @return void
+     */
     public function remove(User $user, bool $flush = false): void
     {
         $this->getEntityManager()->remove($user);

@@ -22,6 +22,9 @@ interface UserServiceInterface
      */
     public function findUser(int $userId): User;
 
+    /**
+     * @return array
+     */
     public function findAllUsers(): array;
 
     /**
