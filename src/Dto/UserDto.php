@@ -2,50 +2,51 @@
 
 namespace App\Dto;
 
+use DateTimeInterface;
+
 /**
  * UserDTO holds returnable data for a user.
  */
 class UserDto
 {
     /**
-     * @var string|null
+     * @var string
      */
-    private ?string $name = null;
+    private string $name;
 
     /**
-     * @var string|null
+     * @var string
      */
-    private ?string $email = null;
+    private string $email;
 
     /**
-     * @var string|null
+     * @var string
      */
-    private ?string $phone = null;
+    private string $phone;
 
     /**
-     * @var \DateTimeInterface|null
+     * @var DateTimeInterface|null
      */
-    private ?\DateTimeInterface $createdAt;
+    private ?DateTimeInterface $createdAt;
 
     /**
-     * @var \DateTimeInterface|null
+     * @var DateTimeInterface|null
      */
-    private ?\DateTimeInterface $updatedAt;
-
+    private ?DateTimeInterface $updatedAt;
 
     /**
      * @param string $name
      * @param string $email
      * @param string $phone
-     * @param \DateTimeInterface|null $createdAt
-     * @param \DateTimeInterface|null $updatedAt
+     * @param DateTimeInterface|null $createdAt
+     * @param DateTimeInterface|null $updatedAt
      */
     public function __construct(
-        string $name,
-        string $email,
-        string $phone,
-        \DateTimeInterface $createdAt = null,
-        \DateTimeInterface $updatedAt = null,
+        string             $name,
+        string             $email,
+        string             $phone,
+        ?DateTimeInterface $createdAt = null,
+        ?DateTimeInterface $updatedAt = null,
     ) {
         $this->name = $name;
         $this->email = $email;
@@ -55,9 +56,9 @@ class UserDto
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getName(): string {
+    public function getName(): ?string {
         return $this->name;
     }
 
@@ -85,9 +86,9 @@ class UserDto
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getPhone(): string {
+    public function getPhone(): ?string {
         return $this->phone;
     }
 
@@ -100,20 +101,20 @@ class UserDto
     }
 
     /**
-     * @return \DateTimeInterface
+     * @return DateTimeInterface
      */
-    public function getCreatedAt(): \DateTimeInterface {
+    public function getCreatedAt(): DateTimeInterface {
         return $this->createdAt;
     }
 
     /**
-     * @param \DateTime|string $createdAt
+     * @param DateTimeInterface|string $createdAt
      * @return void
      */
-    public function setCreatedAt(\DateTime|string $createdAt): void {
+    public function setCreatedAt(DateTimeInterface|string $createdAt): void {
         // Fix: deserialize set datetime error
         if(gettype($createdAt) == "string") {
-            $this->createdAt = date_create_from_format(\DateTimeInterface::RFC3339, $createdAt);
+            $this->createdAt = date_create_from_format(DateTimeInterface::RFC3339, $createdAt);
             return;
         }
 
@@ -121,20 +122,20 @@ class UserDto
     }
 
     /**
-     * @return \DateTimeInterface
+     * @return DateTimeInterface|null
      */
-    public function getUpdatedAt(): \DateTimeInterface {
+    public function getUpdatedAt(): ?DateTimeInterface {
         return $this->updatedAt;
     }
 
     /**
-     * @param \DateTimeInterface|string $updatedAt
+     * @param DateTimeInterface|string|null $updatedAt
      * @return void
      */
-    public function setUpdatedAt(\DateTime|string $updatedAt): void {
+    public function setUpdatedAt(DateTimeInterface|string|null $updatedAt): void {
         // Fix: deserialize set datetime error
         if(gettype($updatedAt) == "string") {
-            $this->createdAt = date_create_from_format(\DateTimeInterface::RFC3339, $updatedAt);
+            $this->createdAt = date_create_from_format(DateTimeInterface::RFC3339, $updatedAt);
             return;
         }
 
