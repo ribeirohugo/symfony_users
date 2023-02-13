@@ -33,7 +33,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/UserDTO'
+                            $ref: '#/components/schemas/UserEditableDto'
             responses:
                 '200':
                     description: Returns the created user.
@@ -85,6 +85,13 @@ paths:
                       type: integer
                   required: true
                   description: Numeric ID of a user
+            requestBody:
+                description: User edit data body.
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserEditableDto'
             responses:
                 '200':
                     description: Returns the updated user.
@@ -179,7 +186,7 @@ components:
                 updatedAt:
                     type: string
                     format: date-time
-        UserDTO:
+        UserEditableDto:
             type: object
             properties:
                 name:
