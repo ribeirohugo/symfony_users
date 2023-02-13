@@ -8,6 +8,7 @@ use App\DTO\UserDTO;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
 use App\Service\UserService;
+use App\Tests\Utils\RequestHelper;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -98,6 +99,49 @@ class UserControllerTest extends KernelTestCase
         $userController = new UserController($userService);
 
         $response = $userController->singleUser(1, $this->serializer);
+
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    public function testFindUserByEmailSuccess(): void
+    {
+        $user = $this->addUser();
+
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+        $userController = new UserController($userService);
+
+        $parameters = ["email" => self::USER_EMAIL_TEST];
+        $request = RequestHelper::createRequest("/users/email", Request::METHOD_GET, "", $parameters);
+        $response = $userController->findUserByEmail($request, $this->serializer);
+
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals($this->serializer->serialize($user, JsonEncoder::FORMAT), $response->getContent());
+
+        $this->removeUser($user);
+    }
+
+    public function testFindUserByEmailEmptyEmail(): void
+    {
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+        $userController = new UserController($userService);
+
+        $request = RequestHelper::createRequest("/users/email", Request::METHOD_GET, "");
+        $response = $userController->findUserByEmail($request, $this->serializer);
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+    }
+
+    public function testFindUserByEmailNotFound(): void
+    {
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+        $userController = new UserController($userService);
+
+        $parameters = ["email" => self::USER_EMAIL_TEST];
+        $request = RequestHelper::createRequest("/users/email", Request::METHOD_GET, "", $parameters);
+        $response = $userController->findUserByEmail($request, $this->serializer);
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
