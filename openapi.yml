@@ -1,0 +1,201 @@
+openapi: 3.0.0
+info:
+    title: Symfony Users API
+    description:  Symfony Rest API to manage users.
+    version: 1.0.0
+    contact:
+        name: Hugo Ribeiro
+        url: https://github.com/ribeirohugo
+paths:
+    /users:
+        get:
+            operationId: listUsers
+            description: Returns a list of users.
+            tags:
+            - Users
+            responses:
+                '200':
+                    description: Returns an array of users.
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/User'
+        post:
+            operationId: createUser
+            description: Creates a user and returns created user when succeeds.
+            tags:
+                - Users
+            requestBody:
+                description: User creation data body.
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserDTO'
+            responses:
+                '200':
+                    description: Returns the created user.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                '400':
+                    description: Invalid user create request.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /users/{userId}:
+        get:
+            operationId: singleUser
+            description: Returns a user for a given Id.
+            tags:
+                - Users
+            parameters:
+                - in: path
+                  name: userId
+                  schema:
+                      type: integer
+                  required: true
+                  description: Numeric ID of a user
+            responses:
+                '200':
+                    description: Returns a user.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                '404':
+                    description: User was not found for the given Id.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+        put:
+            operationId: updateUser
+            description: Updates a user and returns updated user when succeeds.
+            tags:
+                - Users
+            parameters:
+                - in: path
+                  name: userId
+                  schema:
+                      type: integer
+                  required: true
+                  description: Numeric ID of a user
+            responses:
+                '200':
+                    description: Returns the updated user.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                '400':
+                    description: Invalid user create request.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '404':
+                    description: User with the given user Id doesn't exist.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+        delete:
+            operationId: deleteUser
+            description: Deletes a user for a given Id.
+            tags:
+                - Users
+            parameters:
+                - in: path
+                  name: userId
+                  schema:
+                      type: integer
+                  required: true
+                  description: Numeric ID of a user.
+            responses:
+                '204':
+                    description: User successfully deleted.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                '404':
+                    description: User with the given user Id doesn't exist.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+    /users/email:
+        get:
+            operationId: findUserByEmail
+            description: Returns a user for a given email.
+            tags:
+                - Users
+            parameters:
+                - in: query
+                  name: userEmail
+                  schema:
+                      type: string
+                      format: email
+                  required: true
+                  description: User email.
+            responses:
+                '200':
+                    description: Returns a user.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                '404':
+                    description: User was not found for the given email.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+components:
+    schemas:
+        User:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+                name:
+                    type: string
+                email:
+                    type: string
+                    format: email
+                password:
+                    type: string
+                phone:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+        UserDTO:
+            type: object
+            properties:
+                name:
+                    type: string
+                email:
+                    type: string
+                    format: email
+                password:
+                    type: string
+                phone:
+                    type: string
+        Error:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
