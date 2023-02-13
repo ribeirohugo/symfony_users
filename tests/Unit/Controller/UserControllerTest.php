@@ -358,12 +358,6 @@ class UserControllerTest extends TestCase
             self::USER_PASSWORD_TEST,
             self::USER_PHONE_TEST,
         );
-        $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
-        );
 
         $userService = $this->createMock(UserServiceInterface::class);
         $userService->expects(self::once())
