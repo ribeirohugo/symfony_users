@@ -165,10 +165,7 @@ class UserServiceTest extends KernelTestCase
 
         $this->assertEquals($userCreate->getName(), $response->getName());
         $this->assertEquals($userCreate->getEmail(), $response->getEmail());
-        $this->assertEquals($userCreate->getPassword(), $response->getPassword());
         $this->assertEquals($userCreate->getPhone(), $response->getPhone());
-
-        $this->removeUser($response);
     }
 
     public function testUpdateUserEmptyName(): void
@@ -187,9 +184,7 @@ class UserServiceTest extends KernelTestCase
 
         $this->expectException(InvalidRequestException::class);
 
-        $response = $userService->updateUser($existingUser->getId(), $userCreate);
-
-        $this->removeUser($response);
+        $userService->updateUser($existingUser->getId(), $userCreate);
     }
 
     public function testUpdateUserEmptyEmail(): void

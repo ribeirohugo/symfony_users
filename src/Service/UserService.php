@@ -114,11 +114,11 @@ class UserService implements UserServiceInterface {
     /**
      * @param int $userId
      * @param UserEditableDto $userEditable
-     * @return User
+     * @return UserDto
      * @throws InvalidRequestException
      * @throws UserNotFoundException
      */
-    public function updateUser(int $userId, UserEditableDto $userEditable): User {
+    public function updateUser(int $userId, UserEditableDto $userEditable): UserDto {
         if($userEditable->getName() == "") {
             throw new InvalidRequestException(self::ERROR_EMPTY_USER_NAME);
         }
@@ -140,8 +140,8 @@ class UserService implements UserServiceInterface {
             $user->setPassword($userEditable->getPassword());
         }
 
-        $this->userRepository->save($user, true);
+        $updatedUser = $this->userRepository->save($user, true);
 
-        return $user;
+        return UserMapper::entityToDto($updatedUser);
     }
 }

@@ -6,7 +6,6 @@ use App\Common\ErrorMessage;
 use App\Controller\UserController;
 use App\Dto\UserDto;
 use App\Dto\UserEditableDto;
-use App\Entity\User;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Service\UserService;
@@ -284,33 +283,31 @@ class UserControllerTest extends TestCase
 
     public function testUpdateUserSuccess(): void
     {
-        $userId = 1;
         $userCreate = new UserEditableDto(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
-        $user = new User(
+        $userDto = new UserDto(
+            ConstHelper::USER_ID_TEST,
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
-            ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
-
         $userService = $this->createMock(UserService::class);
         $userService->expects(self::once())
             ->method('updateUser')
-            ->willReturn($user);
+            ->willReturn($userDto);
         $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = $this->createRequest("users/1", Request::METHOD_PUT, $content);
 
-        $response = $userController->updateUser($userId, $request, $this->serializer);
+        $response = $userController->updateUser(ConstHelper::USER_ID_TEST, $request, $this->serializer);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $this->assertEquals($this->serializer->serialize($user, JsonEncoder::FORMAT), $response->getContent());
+        $this->assertEquals($this->serializer->serialize($userDto, JsonEncoder::FORMAT), $response->getContent());
     }
 
     public function testUpdateUserNotfound(): void

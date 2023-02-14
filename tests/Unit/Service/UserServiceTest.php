@@ -262,12 +262,6 @@ class UserServiceTest extends TestCase
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
-        $user = new User(
-            ConstHelper::USER_NAME_TEST,
-            ConstHelper::USER_EMAIL_TEST,
-            ConstHelper::USER_PASSWORD_TEST,
-            ConstHelper::USER_PHONE_TEST,
-        );
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
@@ -283,7 +277,6 @@ class UserServiceTest extends TestCase
 
     public function testUpdateUserSuccess(): void
     {
-        $userId = 1;
         $userCreate = new UserEditableDto(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
@@ -296,6 +289,8 @@ class UserServiceTest extends TestCase
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
+        $user->setId(ConstHelper::USER_ID_TEST);
+        $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
@@ -307,9 +302,12 @@ class UserServiceTest extends TestCase
 
         $userService = new UserService($userRepository);
 
-        $response = $userService->updateUser($userId, $userCreate);
+        $response = $userService->updateUser(ConstHelper::USER_ID_TEST, $userCreate);
 
-        $this->assertEquals($user, $response);
+        // Set current timestamp to update date
+        $userDto->setUpdatedAt($response->getUpdatedAt());
+
+        $this->assertEquals($userDto, $response);
     }
 
     public function testUpdateUserEmptyName(): void

@@ -22,6 +22,14 @@ class UserTest extends TestCase{
         $this->assertEquals(ConstHelper::USER_PHONE_TEST, $user->getPhone());
     }
 
+    public function testUserId() {
+        $user = new User("", "", "", "");
+
+        $user->setId(ConstHelper::USER_ID_TEST);
+
+        $this->assertEquals(ConstHelper::USER_ID_TEST, $user->getId());
+    }
+
     public function testUserName() {
         $user = new User("", "", "", "");
 
