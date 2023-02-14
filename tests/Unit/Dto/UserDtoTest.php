@@ -3,7 +3,6 @@
 namespace App\Tests\Unit\Dto;
 
 use App\DTO\UserDTO;
-use App\Dto\UserEditableDto;
 use App\Tests\Utils\ConstHelper;
 use PHPUnit\Framework\TestCase;
 
