@@ -84,11 +84,11 @@ class UserService implements UserServiceInterface {
     }
 
     /**
-     * @param \App\Dto\UserEditableDto $userCreate
-     * @return User
+     * @param UserEditableDto $userEditable
+     * @return UserDto
      * @throws InvalidRequestException
      */
-    public function createUser(UserEditableDto $userEditable): User {
+    public function createUser(UserEditableDto $userEditable): UserDto {
         if($userEditable->getName() == "") {
             throw new InvalidRequestException(self::ERROR_EMPTY_USER_NAME);
         }
@@ -106,7 +106,9 @@ class UserService implements UserServiceInterface {
             $userEditable->getPhone(),
         );
 
-        return $this->userRepository->save($user, true);
+        $newUser = $this->userRepository->save($user, true);
+
+        return UserMapper::entityToDto($newUser);
     }
 
     /**

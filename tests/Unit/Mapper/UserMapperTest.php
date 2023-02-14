@@ -16,6 +16,7 @@ class UserMapperTest extends TestCase{
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
+        $user->setId(ConstHelper::USER_ID_TEST);
 
         $dto = UserMapper::entityToDto($user);
 
@@ -33,6 +34,7 @@ class UserMapperTest extends TestCase{
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
+        $user->setId(ConstHelper::USER_ID_TEST);
         $users[] = $user;
 
         $dto = UserMapper::entityToDtoArray($users);

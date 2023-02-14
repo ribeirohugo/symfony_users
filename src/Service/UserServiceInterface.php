@@ -45,10 +45,11 @@ interface UserServiceInterface
     public function removeUser(int $userId): void;
 
     /**
-     * @throws InvalidRequestException
+     * @param UserEditableDto $userCreate
+     * @return UserDto
      * @throws Exception
      */
-    public function createUser(UserEditableDto $userCreate): User;
+    public function createUser(UserEditableDto $userCreate): UserDto;
 
     /**
      * @throws InvalidRequestException

@@ -10,6 +10,11 @@ use DateTimeInterface;
 class UserDto
 {
     /**
+     * @var int
+     */
+    private int $id;
+
+    /**
      * @var string
      */
     private string $name;
@@ -35,6 +40,7 @@ class UserDto
     private ?DateTimeInterface $updatedAt;
 
     /**
+     * @param int $int
      * @param string $name
      * @param string $email
      * @param string $phone
@@ -42,17 +48,34 @@ class UserDto
      * @param DateTimeInterface|null $updatedAt
      */
     public function __construct(
+        int                $id,
         string             $name,
         string             $email,
         string             $phone,
         ?DateTimeInterface $createdAt = null,
         ?DateTimeInterface $updatedAt = null,
     ) {
+        $this->id = $id;
         $this->name = $name;
         $this->email = $email;
         $this->phone = $phone;
         $this->createdAt = $createdAt;
         $this->updatedAt = $updatedAt;
+    }
+
+    /**
+     * @return int
+     */
+    public function getId(): int {
+        return $this->id;
+    }
+
+    /**
+     * @param int $id
+     * @return void
+     */
+    public function setId(int $id): void {
+        $this->id = $id;
     }
 
     /**

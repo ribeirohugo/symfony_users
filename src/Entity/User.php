@@ -79,6 +79,14 @@ class User
     }
 
     /**
+     * @param int $id
+     * @return void
+     */
+    public function setId(int $id): void {
+        $this->id = $id;
+    }
+
+    /**
      * @return string
      */
     public function getName(): string {

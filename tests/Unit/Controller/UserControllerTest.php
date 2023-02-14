@@ -9,7 +9,6 @@ use App\Dto\UserEditableDto;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
-use App\Mapper\UserMapper;
 use App\Service\UserService;
 use App\Service\UserServiceInterface;
 use App\Tests\Utils\ConstHelper;
@@ -38,6 +37,7 @@ class UserControllerTest extends TestCase
     public function testListUsersSuccess(): void
     {
         $userDto = new UserDto(
+            ConstHelper::USER_ID_TEST,
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PHONE_TEST,
@@ -61,6 +61,7 @@ class UserControllerTest extends TestCase
     {
         $userId = 1;
         $userDto = new UserDto(
+            ConstHelper::USER_ID_TEST,
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PHONE_TEST,
@@ -97,6 +98,7 @@ class UserControllerTest extends TestCase
     public function testFindUserByEmailSuccess(): void
     {
         $userDto = new UserDto(
+            ConstHelper::USER_ID_TEST,
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PASSWORD_TEST,
@@ -198,17 +200,17 @@ class UserControllerTest extends TestCase
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
-        $user = new User(
+        $userDto = new UserDto(
+            ConstHelper::USER_ID_TEST,
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
-            ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
 
         $userService = $this->createMock(UserServiceInterface::class);
         $userService->expects(self::once())
             ->method('createUser')
-            ->willReturn($user);
+            ->willReturn($userDto);
         $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
@@ -217,7 +219,7 @@ class UserControllerTest extends TestCase
         $response = $userController->createUser($request, $this->serializer);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $this->assertEquals($this->serializer->serialize($user, JsonEncoder::FORMAT), $response->getContent());
+        $this->assertEquals($this->serializer->serialize($userDto, JsonEncoder::FORMAT), $response->getContent());
     }
 
     public function testCreateUserInvalidBody(): void
@@ -236,12 +238,6 @@ class UserControllerTest extends TestCase
     {
         $userCreate = new UserEditableDto(
             "",
-            ConstHelper::USER_EMAIL_TEST,
-            ConstHelper::USER_PASSWORD_TEST,
-            ConstHelper::USER_PHONE_TEST,
-        );
-        $user = new User(
-            ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,

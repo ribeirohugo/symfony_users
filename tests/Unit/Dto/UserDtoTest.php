@@ -11,14 +11,17 @@ class UserDtoTest extends TestCase{
         $timestamp = new \DateTime();
 
         $user = new UserDto(
+            ConstHelper::USER_ID_TEST,
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PHONE_TEST,
             $timestamp,
             $timestamp,
         );
+        $user->setId(ConstHelper::USER_ID_TEST);
 
         $this->assertIsObject($user);
+        $this->assertEquals(ConstHelper::USER_ID_TEST, $user->getId());
         $this->assertEquals(ConstHelper::USER_NAME_TEST, $user->getName());
         $this->assertEquals(ConstHelper::USER_EMAIL_TEST, $user->getEmail());
         $this->assertEquals(ConstHelper::USER_PHONE_TEST, $user->getPhone());
@@ -26,8 +29,23 @@ class UserDtoTest extends TestCase{
         $this->assertEquals($timestamp, $user->getUpdatedAt());
     }
 
+    public function testUserDtoId() {
+        $user = new UserDto(
+            ConstHelper::USER_ID_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PHONE_TEST,
+        );
+
+        $user->setId(ConstHelper::NEW_USER_ID_TEST);
+
+        $this->assertIsObject($user);
+        $this->assertEquals(ConstHelper::NEW_USER_ID_TEST, $user->getId());
+    }
+
     public function testUserDtoName() {
         $user = new UserDto(
+            ConstHelper::USER_ID_TEST,
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PHONE_TEST,
@@ -41,6 +59,7 @@ class UserDtoTest extends TestCase{
 
     public function testUserDtoEmail() {
         $user = new UserDto(
+            ConstHelper::USER_ID_TEST,
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PHONE_TEST,
@@ -54,6 +73,7 @@ class UserDtoTest extends TestCase{
 
     public function testUserDtoPhone() {
         $user = new UserDto(
+            ConstHelper::USER_ID_TEST,
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PHONE_TEST,
@@ -67,6 +87,7 @@ class UserDtoTest extends TestCase{
 
     public function testUserDtoCreatedAt() {
         $user = new UserDto(
+            ConstHelper::USER_ID_TEST,
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PHONE_TEST,
@@ -81,6 +102,7 @@ class UserDtoTest extends TestCase{
 
     public function testUserDtoUpdatedAt() {
         $user = new UserDto(
+            ConstHelper::USER_ID_TEST,
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PHONE_TEST,
