@@ -10,9 +10,9 @@ use App\Mapper\UserMapper;
 use App\Repository\UserRepositoryInterface;
 
 /**
- * AuthenticationServiceService holds user service layer and parses data from controller into the repository layer.
+ * AuthenticationService holds login service logic and maps data between controller and repository.
  */
-class AuthenticationServiceService implements AuthenticationServiceInterface
+class AuthenticationService implements AuthenticationServiceInterface
 {
     /**
      * @var UserRepositoryInterface

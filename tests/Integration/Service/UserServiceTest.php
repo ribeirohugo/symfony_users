@@ -2,7 +2,6 @@
 
 namespace App\Tests\Integration\Service;
 
-use App\Common\Password;
 use App\Controller\UserController;
 use App\Dto\UserEditableDto;
 use App\Entity\User;
