@@ -4,11 +4,11 @@ namespace App\Service;
 
 use App\Dto\UserDto;
 use App\Dto\UserEditableDto;
-use App\Entity\User;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Repository\UserRepositoryInterface;
 use Exception;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 interface UserServiceInterface
 {
@@ -46,10 +46,11 @@ interface UserServiceInterface
 
     /**
      * @param UserEditableDto $userEditable
+     * @param UserPasswordHasherInterface $passwordHasher
      * @return UserDto
      * @throws Exception
      */
-    public function createUser(UserEditableDto $userEditable): UserDto;
+    public function createUser(UserEditableDto $userEditable, UserPasswordHasherInterface $passwordHasher): UserDto;
 
     /**
      * @throws InvalidRequestException
