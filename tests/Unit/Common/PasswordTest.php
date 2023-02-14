@@ -3,7 +3,6 @@
 namespace App\Tests\Unit\Common;
 
 use App\Common\Password;
-use App\Dto\ErrorDto;
 use App\Entity\User;
 use App\Tests\Utils\ConstHelper;
 use PHPUnit\Framework\TestCase;
