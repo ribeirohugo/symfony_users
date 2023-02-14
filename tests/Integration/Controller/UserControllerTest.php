@@ -11,6 +11,7 @@ use App\Mapper\UserMapper;
 use App\Service\UserService;
 use App\Tests\Utils\ConstHelper;
 use App\Tests\Utils\RequestHelper;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -370,6 +371,26 @@ class UserControllerTest extends KernelTestCase
         $response = $userController->updateUser(1, $request, $this->serializer);
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    public function testSaveUserFailWithDuplicatedEmail() {
+        $user = $this->addUser();
+
+        $conflictingUser = new User(
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
+        );
+        $conflictingUser->setCreatedAt(new \DateTime());
+        $conflictingUser->setUpdatedAt(new \DateTime());
+
+        $this->expectException(UniqueConstraintViolationException::class);
+
+        $this->entityManager
+            ->getRepository(User::class)
+            ->save($conflictingUser, true)
+        ;
     }
 
     protected function tearDown(): void

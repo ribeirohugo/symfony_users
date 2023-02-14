@@ -2,7 +2,6 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\Dto\UserDto;
 use App\Dto\UserEditableDto;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
