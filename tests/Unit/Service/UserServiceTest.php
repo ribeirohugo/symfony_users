@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Service;
 
+use App\Common\Password;
 use App\Dto\UserEditableDto;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;

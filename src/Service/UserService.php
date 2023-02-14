@@ -2,13 +2,14 @@
 
 namespace App\Service;
 
+use App\Common\Password;
 use App\Dto\UserDto;
 use App\Dto\UserEditableDto;
-use App\Entity\User;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Mapper\UserMapper;
 use App\Repository\UserRepositoryInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
  * UserService holds user service layer and parses data from controller into the repository layer.
@@ -101,6 +102,11 @@ class UserService implements UserServiceInterface {
 
         $user = UserMapper::userEditableDtoToEntity($userEditable);
 
+        $passwordHasher = Password::autoUserHasher();
+
+        $hashedPassword = $passwordHasher->hashPassword($user, $user->getPassword());
+        $user->setPassword($hashedPassword);
+
         $newUser = $this->userRepository->save($user, true);
 
         return UserMapper::entityToDto($newUser);
@@ -134,6 +140,11 @@ class UserService implements UserServiceInterface {
         if($userEditable->getPassword()!="") {
             $user->setPassword($userEditable->getPassword());
         }
+
+        $passwordHasher = Password::autoUserHasher();
+
+        $hashedPassword = $passwordHasher->hashPassword($user, $user->getPassword());
+        $user->setPassword($hashedPassword);
 
         $updatedUser = $this->userRepository->save($user, true);
 
