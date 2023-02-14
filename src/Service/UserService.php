@@ -99,12 +99,7 @@ class UserService implements UserServiceInterface {
             throw new InvalidRequestException(self::ERROR_EMPTY_USER_PASSWORD);
         }
 
-        $user = new User(
-            $userEditable->getName(),
-            $userEditable->getEmail(),
-            $userEditable->getPassword(),
-            $userEditable->getPhone(),
-        );
+        $user = UserMapper::userEditableDtoToEntity($userEditable);
 
         $newUser = $this->userRepository->save($user, true);
 
