@@ -9,6 +9,7 @@ use App\Dto\UserEditableDto;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
+use App\Mapper\UserMapper;
 use App\Service\UserService;
 use App\Service\UserServiceInterface;
 use App\Tests\Utils\ConstHelper;
@@ -95,17 +96,16 @@ class UserControllerTest extends TestCase
 
     public function testFindUserByEmailSuccess(): void
     {
-        $user = new User(
+        $userDto = new UserDto(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PASSWORD_TEST,
-            ConstHelper::USER_PHONE_TEST,
         );
 
         $userService = $this->createMock(UserServiceInterface::class);
         $userService->expects(self::once())
             ->method('findUserByEmail')
-            ->willReturn($user);
+            ->willReturn($userDto);
         $userController = new UserController($userService);
 
         $parameters = ["email" => ConstHelper::USER_EMAIL_TEST];
@@ -114,7 +114,7 @@ class UserControllerTest extends TestCase
         $response = $userController->findUserByEmail($request, $this->serializer);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $this->assertEquals($this->serializer->serialize($user, JsonEncoder::FORMAT), $response->getContent());
+        $this->assertEquals($this->serializer->serialize($userDto, JsonEncoder::FORMAT), $response->getContent());
     }
 
     public function testFindUserByEmailEmptyEmail(): void

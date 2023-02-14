@@ -47,17 +47,17 @@ class UserService implements UserServiceInterface {
 
     /**
      * @param string $email
-     * @return User
+     * @return UserDto
      * @throws UserNotFoundException
      */
-    public function findUserByEmail(string $email): User {
+    public function findUserByEmail(string $email): UserDto {
         $user = $this->userRepository->findOneBy(["email" => $email]);
 
         if(empty($user)) {
             throw new UserNotFoundException($email);
         }
 
-        return $user;
+        return UserMapper::entityToDto($user);
     }
 
     /**

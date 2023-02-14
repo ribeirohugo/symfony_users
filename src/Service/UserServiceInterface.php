@@ -32,11 +32,11 @@ interface UserServiceInterface
 
     /**
      * @param string $email
-     * @return User
+     * @return UserDto
      * @throws UserNotFoundException
      * @throws Exception
      */
-    public function findUserByEmail(string $email): User;
+    public function findUserByEmail(string $email): UserDto;
 
     /**
      * @throws UserNotFoundException
