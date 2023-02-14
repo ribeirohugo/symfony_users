@@ -3,6 +3,7 @@
 namespace App\Tests\Integration\Repository;
 
 use App\Entity\User;
+use App\Tests\Utils\ConstHelper;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -11,11 +12,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class UserRepositoryTest extends KernelTestCase
 {
-    const USER_NAME_TEST = "name";
-    const USER_EMAIL_TEST = "email@domain.com";
-    const USER_PASSWORD_TEST = "password";
-    const USER_PHONE_TEST = "910123123";
-
     /**
      * @var EntityManager
      */
@@ -62,7 +58,7 @@ class UserRepositoryTest extends KernelTestCase
 
         $response = $this->entityManager
             ->getRepository(User::class)
-            ->findOneBy(['name' => self::USER_NAME_TEST])
+            ->findOneBy(['name' => ConstHelper::USER_NAME_TEST])
         ;
 
         $this->assertSame($user->getName(), $response->getName());
@@ -79,7 +75,7 @@ class UserRepositoryTest extends KernelTestCase
 
         $response = $this->entityManager
             ->getRepository(User::class)
-            ->findOneBy(['email' => self::USER_EMAIL_TEST])
+            ->findOneBy(['email' => ConstHelper::USER_EMAIL_TEST])
         ;
 
         $this->assertSame($user->getName(), $response->getName());
@@ -92,10 +88,10 @@ class UserRepositoryTest extends KernelTestCase
 
     public function testSaveUser() {
         $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
         $timestamp = new \DateTime();
         $user->setCreatedAt($timestamp);
@@ -127,10 +123,10 @@ class UserRepositoryTest extends KernelTestCase
 
     protected function addUser(): ?User {
         $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
         $user->setCreatedAt(new \DateTime());
         $user->setUpdatedAt(new \DateTime());

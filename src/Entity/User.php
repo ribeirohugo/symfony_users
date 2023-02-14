@@ -21,16 +21,16 @@ class User
     private ?int $id = null;
 
     /**
-     * @var string|null
+     * @var string
      */
     #[ORM\Column(length: 255)]
-    private ?string $name = null;
+    private string $name;
 
     /**
-     * @var string|null
+     * @var string
      */
     #[ORM\Column(length: 255)]
-    private ?string $email = null;
+    private string $email;
 
     /**
      * @var string|null
@@ -39,10 +39,10 @@ class User
     private ?string $password = null;
 
     /**
-     * @var string|null
+     * @var string
      */
     #[ORM\Column(length: 20)]
-    private ?string $phone = null;
+    private string $phone;
 
     /**
      * @var \DateTime
@@ -76,6 +76,14 @@ class User
      */
     public function getId(): ?int {
         return $this->id;
+    }
+
+    /**
+     * @param int $id
+     * @return void
+     */
+    public function setId(int $id): void {
+        $this->id = $id;
     }
 
     /**
@@ -160,9 +168,9 @@ class User
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTimeInterface|null
      */
-    public function getUpdatedAt(): \DateTime {
+    public function getUpdatedAt(): ?\DateTimeInterface {
         return $this->updatedAt;
     }
 

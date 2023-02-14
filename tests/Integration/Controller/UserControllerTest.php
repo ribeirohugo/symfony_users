@@ -7,8 +7,11 @@ use App\Controller\UserController;
 use App\Dto\UserEditableDto;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
+use App\Mapper\UserMapper;
 use App\Service\UserService;
+use App\Tests\Utils\ConstHelper;
 use App\Tests\Utils\RequestHelper;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -22,20 +25,14 @@ use Symfony\Component\Serializer\Serializer;
 
 class UserControllerTest extends KernelTestCase
 {
-    const USER_NAME_TEST = "name";
-    const USER_EMAIL_TEST = "email@domain.com";
-    const USER_PASSWORD_TEST = "password";
-    const USER_PHONE_TEST = "910123123";
-    const NEW_USER_NAME_TEST = "new name";
-    const NEW_USER_EMAIL_TEST = "new_email@domain.com";
-    const NEW_USER_PASSWORD_TEST = "new_password";
-    const NEW_USER_PHONE_TEST = "910111222";
-
     /**
      * @var EntityManager
      */
     private EntityManager $entityManager;
 
+    /**
+     * @var Serializer
+     */
     private Serializer $serializer;
 
     protected function setUp(): void
@@ -63,6 +60,7 @@ class UserControllerTest extends KernelTestCase
     public function testListUsersSuccess(): void
     {
         $user = $this->addUser();
+        $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
@@ -71,7 +69,7 @@ class UserControllerTest extends KernelTestCase
         $response = $userController->listUsers($this->serializer);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $this->assertEquals($this->serializer->serialize([$user], JsonEncoder::FORMAT), $response->getContent());
+        $this->assertEquals($this->serializer->serialize([$userDto], JsonEncoder::FORMAT), $response->getContent());
 
         $this->removeUser($user);
     }
@@ -79,6 +77,7 @@ class UserControllerTest extends KernelTestCase
     public function testSingleUserSuccess(): void
     {
         $user = $this->addUser();
+        $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
@@ -87,7 +86,7 @@ class UserControllerTest extends KernelTestCase
         $response = $userController->singleUser($user->getId(), $this->serializer);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $this->assertEquals($this->serializer->serialize($user, JsonEncoder::FORMAT), $response->getContent());
+        $this->assertEquals($this->serializer->serialize($userDto, JsonEncoder::FORMAT), $response->getContent());
 
         $this->removeUser($user);
     }
@@ -106,17 +105,18 @@ class UserControllerTest extends KernelTestCase
     public function testFindUserByEmailSuccess(): void
     {
         $user = $this->addUser();
+        $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
         $userController = new UserController($userService);
 
-        $parameters = ["email" => self::USER_EMAIL_TEST];
+        $parameters = ["email" => ConstHelper::USER_EMAIL_TEST];
         $request = RequestHelper::createRequest("/users/email", Request::METHOD_GET, "", $parameters);
         $response = $userController->findUserByEmail($request, $this->serializer);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $this->assertEquals($this->serializer->serialize($user, JsonEncoder::FORMAT), $response->getContent());
+        $this->assertEquals($this->serializer->serialize($userDto, JsonEncoder::FORMAT), $response->getContent());
 
         $this->removeUser($user);
     }
@@ -139,7 +139,7 @@ class UserControllerTest extends KernelTestCase
         $userService = new UserService($userRepository);
         $userController = new UserController($userService);
 
-        $parameters = ["email" => self::USER_EMAIL_TEST];
+        $parameters = ["email" => ConstHelper::USER_EMAIL_TEST];
         $request = RequestHelper::createRequest("/users/email", Request::METHOD_GET, "", $parameters);
         $response = $userController->findUserByEmail($request, $this->serializer);
 
@@ -173,10 +173,10 @@ class UserControllerTest extends KernelTestCase
     public function testCreateUserSuccess(): void
     {
         $userCreate = new UserEditableDto(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
 
         $userRepository = $this->entityManager->getRepository(User::class);
@@ -203,9 +203,9 @@ class UserControllerTest extends KernelTestCase
     {
         $userCreate = new UserEditableDto(
             "",
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
         $exception = new InvalidRequestException(UserService::ERROR_EMPTY_USER_NAME);
         $errorMessage = ErrorMessage::generate($exception, $this->serializer);
@@ -226,10 +226,10 @@ class UserControllerTest extends KernelTestCase
     public function testCreateUserEmptyEmail(): void
     {
         $userCreate = new UserEditableDto(
-            self::USER_NAME_TEST,
+            ConstHelper::USER_NAME_TEST,
             "",
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
         $exception = new InvalidRequestException(UserService::ERROR_EMPTY_USER_EMAIL);
         $errorMessage = ErrorMessage::generate($exception, $this->serializer);
@@ -250,10 +250,10 @@ class UserControllerTest extends KernelTestCase
     public function testCreateUserEmptyPassword(): void
     {
         $userCreate = new UserEditableDto(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
             "",
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
         $exception = new InvalidRequestException(UserService::ERROR_EMPTY_USER_PASSWORD);
         $errorMessage = ErrorMessage::generate($exception, $this->serializer);
@@ -276,10 +276,10 @@ class UserControllerTest extends KernelTestCase
         $existingUser = $this->addUser();
 
         $userCreate = new UserEditableDto(
-            self::NEW_USER_NAME_TEST,
-            self::NEW_USER_EMAIL_TEST,
-            self::NEW_USER_PASSWORD_TEST,
-            self::NEW_USER_PHONE_TEST,
+            ConstHelper::NEW_USER_NAME_TEST,
+            ConstHelper::NEW_USER_EMAIL_TEST,
+            ConstHelper::NEW_USER_PASSWORD_TEST,
+            ConstHelper::NEW_USER_PHONE_TEST,
         );
 
         $userRepository = $this->entityManager->getRepository(User::class);
@@ -302,9 +302,9 @@ class UserControllerTest extends KernelTestCase
 
         $userCreate = new UserEditableDto(
             "",
-            self::NEW_USER_EMAIL_TEST,
-            self::NEW_USER_PASSWORD_TEST,
-            self::NEW_USER_PHONE_TEST,
+            ConstHelper::NEW_USER_EMAIL_TEST,
+            ConstHelper::NEW_USER_PASSWORD_TEST,
+            ConstHelper::NEW_USER_PHONE_TEST,
         );
         $exception = new InvalidRequestException(UserService::ERROR_EMPTY_USER_NAME);
         $errorMessage = ErrorMessage::generate($exception, $this->serializer);
@@ -329,10 +329,10 @@ class UserControllerTest extends KernelTestCase
         $existingUser = $this->addUser();
 
         $userCreate = new UserEditableDto(
-            self::NEW_USER_NAME_TEST,
+            ConstHelper::NEW_USER_NAME_TEST,
             "",
-            self::NEW_USER_PASSWORD_TEST,
-            self::NEW_USER_PHONE_TEST,
+            ConstHelper::NEW_USER_PASSWORD_TEST,
+            ConstHelper::NEW_USER_PHONE_TEST,
         );
         $exception = new InvalidRequestException(UserService::ERROR_EMPTY_USER_EMAIL);
         $errorMessage = ErrorMessage::generate($exception, $this->serializer);
@@ -355,10 +355,10 @@ class UserControllerTest extends KernelTestCase
     public function testUpdateUserNotFound(): void
     {
         $userCreate = new UserEditableDto(
-            self::NEW_USER_NAME_TEST,
-            self::NEW_USER_EMAIL_TEST,
-            self::NEW_USER_PASSWORD_TEST,
-            self::NEW_USER_PHONE_TEST,
+            ConstHelper::NEW_USER_NAME_TEST,
+            ConstHelper::NEW_USER_EMAIL_TEST,
+            ConstHelper::NEW_USER_PASSWORD_TEST,
+            ConstHelper::NEW_USER_PHONE_TEST,
         );
 
         $userRepository = $this->entityManager->getRepository(User::class);
@@ -373,6 +373,26 @@ class UserControllerTest extends KernelTestCase
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
 
+    public function testSaveUserFailWithDuplicatedEmail() {
+        $user = $this->addUser();
+
+        $conflictingUser = new User(
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
+        );
+        $conflictingUser->setCreatedAt(new \DateTime());
+        $conflictingUser->setUpdatedAt(new \DateTime());
+
+        $this->expectException(UniqueConstraintViolationException::class);
+
+        $this->entityManager
+            ->getRepository(User::class)
+            ->save($conflictingUser, true)
+        ;
+    }
+
     protected function tearDown(): void
     {
         parent::tearDown();
@@ -384,10 +404,10 @@ class UserControllerTest extends KernelTestCase
 
     protected function addUser(): ?User {
         $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
         $user->setCreatedAt(new \DateTime());
         $user->setUpdatedAt(new \DateTime());

@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Dto\UserDto;
 use App\Dto\UserEditableDto;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
@@ -18,22 +19,24 @@ interface UserServiceInterface
     public function __construct(UserRepositoryInterface $userRepository);
 
     /**
+     * @param int $userId
+     * @return UserDto
      * @throws UserNotFoundException
      */
-    public function findUser(int $userId): User;
+    public function findUser(int $userId): UserDto;
 
     /**
-     * @return array
+     * @return UserDto[]
      */
     public function findAllUsers(): array;
 
     /**
      * @param string $email
-     * @return User
+     * @return UserDto
      * @throws UserNotFoundException
      * @throws Exception
      */
-    public function findUserByEmail(string $email): User;
+    public function findUserByEmail(string $email): UserDto;
 
     /**
      * @throws UserNotFoundException
@@ -42,15 +45,16 @@ interface UserServiceInterface
     public function removeUser(int $userId): void;
 
     /**
-     * @throws InvalidRequestException
+     * @param UserEditableDto $userEditable
+     * @return UserDto
      * @throws Exception
      */
-    public function createUser(UserEditableDto $userCreate): User;
+    public function createUser(UserEditableDto $userEditable): UserDto;
 
     /**
      * @throws InvalidRequestException
      * @throws UserNotFoundException
      * @throws Exception
      */
-    public function updateUser(int $userId, UserEditableDto $userCreate): User;
+    public function updateUser(int $userId, UserEditableDto $userEditable): UserDto;
 }

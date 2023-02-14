@@ -2,10 +2,12 @@
 
 namespace App\Service;
 
+use App\Dto\UserDto;
 use App\Dto\UserEditableDto;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
+use App\Mapper\UserMapper;
 use App\Repository\UserRepositoryInterface;
 
 /**
@@ -31,38 +33,40 @@ class UserService implements UserServiceInterface {
 
     /**
      * @param int $userId
-     * @return User
+     * @return UserDto
      * @throws UserNotFoundException
      */
-    public function findUser(int $userId): User {
+    public function findUser(int $userId): UserDto {
         $user = $this->userRepository->find($userId);
         if(empty($user)) {
             throw new UserNotFoundException($userId);
         }
 
-        return $user;
+        return UserMapper::entityToDto($user);
     }
 
     /**
      * @param string $email
-     * @return User
+     * @return UserDto
      * @throws UserNotFoundException
      */
-    public function findUserByEmail(string $email): User {
+    public function findUserByEmail(string $email): UserDto {
         $user = $this->userRepository->findOneBy(["email" => $email]);
 
         if(empty($user)) {
             throw new UserNotFoundException($email);
         }
 
-        return $user;
+        return UserMapper::entityToDto($user);
     }
 
     /**
-     * @return array
+     * @return UserDto[]
      */
     public function findAllUsers(): array {
-        return $this->userRepository->findAll();
+        $users = $this->userRepository->findAll();
+
+        return UserMapper::entityToDtoArray($users);
     }
 
     /**
@@ -80,43 +84,40 @@ class UserService implements UserServiceInterface {
     }
 
     /**
-     * @param \App\Dto\UserEditableDto $userCreate
-     * @return User
+     * @param UserEditableDto $userEditable
+     * @return UserDto
      * @throws InvalidRequestException
      */
-    public function createUser(UserEditableDto $userCreate): User {
-        if($userCreate->getName() == "") {
+    public function createUser(UserEditableDto $userEditable): UserDto {
+        if($userEditable->getName() == "") {
             throw new InvalidRequestException(self::ERROR_EMPTY_USER_NAME);
         }
-        if($userCreate->getEmail() == "") {
+        if($userEditable->getEmail() == "") {
             throw new InvalidRequestException(self::ERROR_EMPTY_USER_EMAIL);
         }
-        if($userCreate->getPassword() == "") {
+        if($userEditable->getPassword() == "") {
             throw new InvalidRequestException(self::ERROR_EMPTY_USER_PASSWORD);
         }
 
-        $user = new User(
-            $userCreate->getName(),
-            $userCreate->getEmail(),
-            $userCreate->getPassword(),
-            $userCreate->getPhone(),
-        );
+        $user = UserMapper::userEditableDtoToEntity($userEditable);
 
-        return $this->userRepository->save($user, true);
+        $newUser = $this->userRepository->save($user, true);
+
+        return UserMapper::entityToDto($newUser);
     }
 
     /**
      * @param int $userId
-     * @param \App\Dto\UserEditableDto $userCreate
-     * @return User
+     * @param UserEditableDto $userEditable
+     * @return UserDto
      * @throws InvalidRequestException
      * @throws UserNotFoundException
      */
-    public function updateUser(int $userId, UserEditableDto $userCreate): User {
-        if($userCreate->getName() == "") {
+    public function updateUser(int $userId, UserEditableDto $userEditable): UserDto {
+        if($userEditable->getName() == "") {
             throw new InvalidRequestException(self::ERROR_EMPTY_USER_NAME);
         }
-        if($userCreate->getEmail() == "") {
+        if($userEditable->getEmail() == "") {
             throw new InvalidRequestException(self::ERROR_EMPTY_USER_EMAIL);
         }
 
@@ -125,17 +126,17 @@ class UserService implements UserServiceInterface {
             throw new UserNotFoundException($userId);
         }
 
-        $user->setName($userCreate->getName());
-        $user->setEmail($userCreate->getEmail());
-        $user->setPhone($userCreate->getPhone());
+        $user->setName($userEditable->getName());
+        $user->setEmail($userEditable->getEmail());
+        $user->setPhone($userEditable->getPhone());
         $user->setUpdatedAt(new \DateTime());
 
-        if($userCreate->getPassword()!="") {
-            $user->setPassword($userCreate->getPassword());
+        if($userEditable->getPassword()!="") {
+            $user->setPassword($userEditable->getPassword());
         }
 
-        $this->userRepository->save($user, true);
+        $updatedUser = $this->userRepository->save($user, true);
 
-        return $user;
+        return UserMapper::entityToDto($updatedUser);
     }
 }

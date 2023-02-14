@@ -6,27 +6,25 @@ use App\Dto\UserEditableDto;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
+use App\Mapper\UserMapper;
 use App\Repository\UserRepository;
 use App\Service\UserService;
+use App\Tests\Utils\ConstHelper;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 
 class UserServiceTest extends TestCase
 {
-    const USER_NAME_TEST = "name";
-    const USER_EMAIL_TEST = "email@domain.com";
-    const USER_PASSWORD_TEST = "password";
-    const USER_PHONE_TEST = "910123123";
-
     public function testFindUserSuccess(): void
     {
-        $userId = 1;
         $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
+        $user->setId(ConstHelper::USER_ID_TEST);
+        $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
@@ -35,15 +33,13 @@ class UserServiceTest extends TestCase
 
         $userService = new UserService($userRepository);
 
-        $response = $userService->findUser($userId);
+        $response = $userService->findUser(ConstHelper::USER_ID_TEST);
 
-        $this->assertEquals($user, $response);
+        $this->assertEquals($userDto, $response);
     }
 
     public function testFindUserNotFound(): void
     {
-        $userId = 1;
-
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
             ->method('find')
@@ -53,13 +49,11 @@ class UserServiceTest extends TestCase
 
         $this->expectException(UserNotFoundException::class);
 
-        $userService->findUser($userId);
+        $userService->findUser(ConstHelper::USER_ID_TEST);
     }
 
     public function testFindUserRepositoryError(): void
     {
-        $userId = 1;
-
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
             ->method('find')
@@ -69,17 +63,19 @@ class UserServiceTest extends TestCase
 
         $this->expectException(\Exception::class);
 
-        $userService->findUser($userId);
+        $userService->findUser(ConstHelper::USER_ID_TEST);
     }
 
     public function testFindAllUsersSuccess(): void
     {
         $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
+        $user->setId(ConstHelper::USER_ID_TEST);
+        $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
@@ -90,7 +86,7 @@ class UserServiceTest extends TestCase
 
         $response = $userService->findAllUsers();
 
-        $this->assertEquals([$user], $response);
+        $this->assertEquals([$userDto], $response);
     }
 
     public function testFindAllUsersRepositoryError(): void
@@ -109,12 +105,11 @@ class UserServiceTest extends TestCase
 
     public function testRemoveUserSuccess(): void
     {
-        $userId = 1;
         $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
 
         $userRepository = $this->createMock(UserRepository::class);
@@ -125,17 +120,17 @@ class UserServiceTest extends TestCase
             ->method('remove');
 
         $userService = new UserService($userRepository);
-        $userService->removeUser($userId);
+        $userService->removeUser(ConstHelper::USER_ID_TEST);
     }
 
     public function testRemoveUserRepositoryFindError(): void
     {
         $userId = 1;
         $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
 
         $userRepository = $this->createMock(UserRepository::class);
@@ -157,10 +152,10 @@ class UserServiceTest extends TestCase
     {
         $userId = 1;
         $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
 
         $userRepository = $this->createMock(UserRepository::class);
@@ -181,17 +176,19 @@ class UserServiceTest extends TestCase
     public function testCreateUserSuccess(): void
     {
         $userCreate = new UserEditableDto(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
         $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
+        $user->setId(ConstHelper::USER_ID_TEST);
+        $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
@@ -202,16 +199,16 @@ class UserServiceTest extends TestCase
 
         $response = $userService->createUser($userCreate);
 
-        $this->assertEquals($user, $response);
+        $this->assertEquals($userDto, $response);
     }
 
     public function testCreateUserEmptyName(): void
     {
         $userCreate = new UserEditableDto(
             "",
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
 
         $userRepository = $this->createMock(UserRepository::class);
@@ -225,10 +222,10 @@ class UserServiceTest extends TestCase
     public function testCreateUserEmptyEmail(): void
     {
         $userCreate = new UserEditableDto(
-            self::USER_NAME_TEST,
+            ConstHelper::USER_NAME_TEST,
             "",
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
 
         $userRepository = $this->createMock(UserRepository::class);
@@ -242,10 +239,10 @@ class UserServiceTest extends TestCase
     public function testCreateUserEmptyPassword(): void
     {
         $userCreate = new UserEditableDto(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
             "",
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
 
         $userRepository = $this->createMock(UserRepository::class);
@@ -259,16 +256,10 @@ class UserServiceTest extends TestCase
     public function testCreateUserRepositorySaveError(): void
     {
         $userCreate = new UserEditableDto(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
-        );
-        $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
 
         $userRepository = $this->createMock(UserRepository::class);
@@ -285,19 +276,20 @@ class UserServiceTest extends TestCase
 
     public function testUpdateUserSuccess(): void
     {
-        $userId = 1;
         $userCreate = new UserEditableDto(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
         $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
+        $user->setId(ConstHelper::USER_ID_TEST);
+        $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
@@ -309,9 +301,12 @@ class UserServiceTest extends TestCase
 
         $userService = new UserService($userRepository);
 
-        $response = $userService->updateUser($userId, $userCreate);
+        $response = $userService->updateUser(ConstHelper::USER_ID_TEST, $userCreate);
 
-        $this->assertEquals($user, $response);
+        // Set current timestamp to update date
+        $userDto->setUpdatedAt($response->getUpdatedAt());
+
+        $this->assertEquals($userDto, $response);
     }
 
     public function testUpdateUserEmptyName(): void
@@ -319,9 +314,9 @@ class UserServiceTest extends TestCase
         $userId = 1;
         $userCreate = new UserEditableDto(
             "",
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
 
         $userRepository = $this->createMock(UserRepository::class);
@@ -336,10 +331,10 @@ class UserServiceTest extends TestCase
     {
         $userId = 1;
         $userCreate = new UserEditableDto(
-            self::USER_NAME_TEST,
+            ConstHelper::USER_NAME_TEST,
             "",
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
 
         $userRepository = $this->createMock(UserRepository::class);
@@ -354,10 +349,10 @@ class UserServiceTest extends TestCase
     {
         $userId = 1;
         $userCreate = new UserEditableDto(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
 
         $userRepository = $this->createMock(UserRepository::class);
@@ -376,10 +371,10 @@ class UserServiceTest extends TestCase
     {
         $userId = 1;
         $userCreate = new UserEditableDto(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
 
         $userRepository = $this->createMock(UserRepository::class);
@@ -398,16 +393,16 @@ class UserServiceTest extends TestCase
     {
         $userId = 1;
         $userCreate = new UserEditableDto(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
         $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
 
         $userRepository = $this->createMock(UserRepository::class);

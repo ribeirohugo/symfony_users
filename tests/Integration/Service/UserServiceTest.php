@@ -7,7 +7,9 @@ use App\Dto\UserEditableDto;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
+use App\Mapper\UserMapper;
 use App\Service\UserService;
+use App\Tests\Utils\ConstHelper;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -15,14 +17,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class UserServiceTest extends KernelTestCase
 {
-    const USER_NAME_TEST = "name";
-    const USER_EMAIL_TEST = "email@domain.com";
-    const USER_PASSWORD_TEST = "password";
-    const USER_PHONE_TEST = "910123123";
-    const NEW_USER_NAME_TEST = "new name";
-    const NEW_USER_EMAIL_TEST = "new_email@domain.com";
-    const NEW_USER_PASSWORD_TEST = "password";
-    const NEW_USER_PHONE_TEST = "910123123";
     /**
      * @var EntityManager
      */
@@ -48,13 +42,14 @@ class UserServiceTest extends KernelTestCase
     public function testListUsersSuccess(): void
     {
         $user = $this->addUser();
+        $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
 
         $response = $userService->findAllUsers();
 
-        $this->assertEquals([$user], $response);
+        $this->assertEquals([$userDto], $response);
 
         $this->removeUser($user);
     }
@@ -62,13 +57,14 @@ class UserServiceTest extends KernelTestCase
     public function testFindUserSuccess(): void
     {
         $user = $this->addUser();
+        $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
 
         $response = $userService->findUser($user->getId());
 
-        $this->assertEquals($user, $response);
+        $this->assertEquals($userDto, $response);
 
         $this->removeUser($user);
     }
@@ -88,13 +84,14 @@ class UserServiceTest extends KernelTestCase
     public function testFindUserByEmailSuccess(): void
     {
         $user = $this->addUser();
+        $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
 
         $response = $userService->findUserByEmail($user->getEmail());
 
-        $this->assertEquals($user, $response);
+        $this->assertEquals($userDto, $response);
 
         $this->removeUser($user);
     }
@@ -106,7 +103,7 @@ class UserServiceTest extends KernelTestCase
 
         $this->expectException(UserNotFoundException::class);
 
-        $userService->findUserByEmail(self::USER_EMAIL_TEST);
+        $userService->findUserByEmail(ConstHelper::USER_EMAIL_TEST);
     }
 
     public function testRemoveUserSuccess(): void
@@ -134,10 +131,10 @@ class UserServiceTest extends KernelTestCase
     public function testCreateUserSuccess(): void
     {
         $userCreate = new UserEditableDto(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
 
         $userRepository = $this->entityManager->getRepository(User::class);
@@ -147,10 +144,7 @@ class UserServiceTest extends KernelTestCase
 
         $this->assertEquals($userCreate->getName(), $response->getName());
         $this->assertEquals($userCreate->getEmail(), $response->getEmail());
-        $this->assertEquals($userCreate->getPassword(), $response->getPassword());
         $this->assertEquals($userCreate->getPhone(), $response->getPhone());
-
-        $this->removeUser($response);
     }
 
     public function testUpdateUserSuccess(): void
@@ -158,10 +152,10 @@ class UserServiceTest extends KernelTestCase
         $existingUser = $this->addUser();
 
         $userCreate = new UserEditableDto(
-            self::NEW_USER_NAME_TEST,
-            self::NEW_USER_EMAIL_TEST,
-            self::NEW_USER_PASSWORD_TEST,
-            self::NEW_USER_PHONE_TEST,
+            ConstHelper::NEW_USER_NAME_TEST,
+            ConstHelper::NEW_USER_EMAIL_TEST,
+            ConstHelper::NEW_USER_PASSWORD_TEST,
+            ConstHelper::NEW_USER_PHONE_TEST,
         );
 
         $userRepository = $this->entityManager->getRepository(User::class);
@@ -171,10 +165,7 @@ class UserServiceTest extends KernelTestCase
 
         $this->assertEquals($userCreate->getName(), $response->getName());
         $this->assertEquals($userCreate->getEmail(), $response->getEmail());
-        $this->assertEquals($userCreate->getPassword(), $response->getPassword());
         $this->assertEquals($userCreate->getPhone(), $response->getPhone());
-
-        $this->removeUser($response);
     }
 
     public function testUpdateUserEmptyName(): void
@@ -183,9 +174,9 @@ class UserServiceTest extends KernelTestCase
 
         $userCreate = new UserEditableDto(
             "",
-            self::NEW_USER_EMAIL_TEST,
-            self::NEW_USER_PASSWORD_TEST,
-            self::NEW_USER_PHONE_TEST,
+            ConstHelper::NEW_USER_EMAIL_TEST,
+            ConstHelper::NEW_USER_PASSWORD_TEST,
+            ConstHelper::NEW_USER_PHONE_TEST,
         );
 
         $userRepository = $this->entityManager->getRepository(User::class);
@@ -193,9 +184,7 @@ class UserServiceTest extends KernelTestCase
 
         $this->expectException(InvalidRequestException::class);
 
-        $response = $userService->updateUser($existingUser->getId(), $userCreate);
-
-        $this->removeUser($response);
+        $userService->updateUser($existingUser->getId(), $userCreate);
     }
 
     public function testUpdateUserEmptyEmail(): void
@@ -203,10 +192,10 @@ class UserServiceTest extends KernelTestCase
         $existingUser = $this->addUser();
 
         $userCreate = new UserEditableDto(
-            self::NEW_USER_NAME_TEST,
+            ConstHelper::NEW_USER_NAME_TEST,
             "",
-            self::NEW_USER_PASSWORD_TEST,
-            self::NEW_USER_PHONE_TEST,
+            ConstHelper::NEW_USER_PASSWORD_TEST,
+            ConstHelper::NEW_USER_PHONE_TEST,
         );
 
         $userRepository = $this->entityManager->getRepository(User::class);
@@ -249,10 +238,10 @@ class UserServiceTest extends KernelTestCase
 
     protected function addUser(): ?User {
         $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
         $user->setCreatedAt(new \DateTime());
         $user->setUpdatedAt(new \DateTime());
