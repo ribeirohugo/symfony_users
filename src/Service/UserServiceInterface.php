@@ -50,7 +50,7 @@ interface UserServiceInterface
      * @return UserDto
      * @throws Exception
      */
-    public function createUser(UserEditableDto $userEditable, UserPasswordHasherInterface $passwordHasher): UserDto;
+    public function createUser(UserEditableDto $userEditable): UserDto;
 
     /**
      * @throws InvalidRequestException

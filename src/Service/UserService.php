@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Common\Password;
 use App\Dto\UserDto;
 use App\Dto\UserEditableDto;
 use App\Exception\InvalidRequestException;
@@ -85,11 +86,10 @@ class UserService implements UserServiceInterface {
 
     /**
      * @param UserEditableDto $userEditable
-     * @param UserPasswordHasherInterface $passwordHasher
      * @return UserDto
      * @throws InvalidRequestException
      */
-    public function createUser(UserEditableDto $userEditable, UserPasswordHasherInterface $passwordHasher): UserDto {
+    public function createUser(UserEditableDto $userEditable): UserDto {
         if($userEditable->getName() == "") {
             throw new InvalidRequestException(self::ERROR_EMPTY_USER_NAME);
         }
@@ -101,6 +101,8 @@ class UserService implements UserServiceInterface {
         }
 
         $user = UserMapper::userEditableDtoToEntity($userEditable);
+
+        $passwordHasher = Password::autoUserHasher();
 
         $hashedPassword = $passwordHasher->hashPassword($user, $user->getPassword());
         $user->setPassword($hashedPassword);
@@ -138,6 +140,11 @@ class UserService implements UserServiceInterface {
         if($userEditable->getPassword()!="") {
             $user->setPassword($userEditable->getPassword());
         }
+
+        $passwordHasher = Password::autoUserHasher();
+
+        $hashedPassword = $passwordHasher->hashPassword($user, $user->getPassword());
+        $user->setPassword($hashedPassword);
 
         $updatedUser = $this->userRepository->save($user, true);
 

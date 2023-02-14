@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Common\ErrorMessage;
+use App\Common\Password;
 use App\Dto\UserEditableDto;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
@@ -11,7 +12,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -150,11 +150,10 @@ class UserController extends AbstractController
      *
      * @param Request $request
      * @param SerializerInterface $serializer
-     * @param UserPasswordHasherInterface $passwordHasher
      * @return Response
      */
     #[Route('/users', name: 'createUser', methods: [Request::METHOD_POST])]
-    public function createUser(Request $request, SerializerInterface $serializer, UserPasswordHasherInterface $passwordHasher): Response
+    public function createUser(Request $request, SerializerInterface $serializer): Response
     {
         try {
             $userCreate = $serializer->deserialize($request->getContent(), UserEditableDto::class, JsonEncoder::FORMAT);
@@ -164,7 +163,7 @@ class UserController extends AbstractController
         }
 
         try {
-            $user = $this->userService->createUser($userCreate, $passwordHasher);
+            $user = $this->userService->createUser($userCreate);
         } catch (InvalidRequestException $e) {
             $errorResponse = ErrorMessage::generate($e, $serializer);
 

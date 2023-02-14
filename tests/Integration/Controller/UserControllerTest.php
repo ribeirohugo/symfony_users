@@ -154,7 +154,7 @@ class UserControllerTest extends KernelTestCase
         $userService = new UserService($userRepository);
         $userController = new UserController($userService);
 
-        $response = $userController->removeUser($user->getId(), $this->serializer);
+        $response = $userController->removeUser($user->getId());
 
         $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
@@ -374,7 +374,7 @@ class UserControllerTest extends KernelTestCase
     }
 
     public function testSaveUserFailWithDuplicatedEmail() {
-        $user = $this->addUser();
+        $this->addUser();
 
         $conflictingUser = new User(
             ConstHelper::USER_NAME_TEST,
@@ -425,7 +425,7 @@ class UserControllerTest extends KernelTestCase
         ;
     }
 
-    protected function createRequest(string $uri, string $method, string $content) {
+    protected function createRequest(string $uri, string $method, string $content): Request {
         return Request::create($uri, $method, [], [], [], [], $content);
     }
 }

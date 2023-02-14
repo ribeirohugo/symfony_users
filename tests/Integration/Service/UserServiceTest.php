@@ -2,6 +2,7 @@
 
 namespace App\Tests\Integration\Service;
 
+use App\Common\Password;
 use App\Controller\UserController;
 use App\Dto\UserEditableDto;
 use App\Entity\User;
@@ -203,19 +204,17 @@ class UserServiceTest extends KernelTestCase
 
         $this->expectException(InvalidRequestException::class);
 
-        $response = $userService->updateUser($existingUser->getId(), $userCreate);
-
-        $this->removeUser($response);
+        $userService->updateUser($existingUser->getId(), $userCreate);
     }
 
     public function testUpdateUserNotFound(): void
     {
         $userId = 1;
         $userCreate = new UserEditableDto(
-            "new name",
-            "new_email@domain.com",
-            "new password",
-            "123",
+            ConstHelper::NEW_USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
 
         $userRepository = $this->entityManager->getRepository(User::class);
