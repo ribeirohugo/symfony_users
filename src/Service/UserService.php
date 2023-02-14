@@ -6,6 +6,7 @@ use App\Dto\UserEditableDto;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
+use App\Mapper\UserMapper;
 use App\Repository\UserRepositoryInterface;
 
 /**
@@ -84,22 +85,22 @@ class UserService implements UserServiceInterface {
      * @return User
      * @throws InvalidRequestException
      */
-    public function createUser(UserEditableDto $userCreate): User {
-        if($userCreate->getName() == "") {
+    public function createUser(UserEditableDto $userEditable): User {
+        if($userEditable->getName() == "") {
             throw new InvalidRequestException(self::ERROR_EMPTY_USER_NAME);
         }
-        if($userCreate->getEmail() == "") {
+        if($userEditable->getEmail() == "") {
             throw new InvalidRequestException(self::ERROR_EMPTY_USER_EMAIL);
         }
-        if($userCreate->getPassword() == "") {
+        if($userEditable->getPassword() == "") {
             throw new InvalidRequestException(self::ERROR_EMPTY_USER_PASSWORD);
         }
 
         $user = new User(
-            $userCreate->getName(),
-            $userCreate->getEmail(),
-            $userCreate->getPassword(),
-            $userCreate->getPhone(),
+            $userEditable->getName(),
+            $userEditable->getEmail(),
+            $userEditable->getPassword(),
+            $userEditable->getPhone(),
         );
 
         return $this->userRepository->save($user, true);
@@ -112,11 +113,11 @@ class UserService implements UserServiceInterface {
      * @throws InvalidRequestException
      * @throws UserNotFoundException
      */
-    public function updateUser(int $userId, UserEditableDto $userCreate): User {
-        if($userCreate->getName() == "") {
+    public function updateUser(int $userId, UserEditableDto $userEditable): User {
+        if($userEditable->getName() == "") {
             throw new InvalidRequestException(self::ERROR_EMPTY_USER_NAME);
         }
-        if($userCreate->getEmail() == "") {
+        if($userEditable->getEmail() == "") {
             throw new InvalidRequestException(self::ERROR_EMPTY_USER_EMAIL);
         }
 
@@ -125,13 +126,13 @@ class UserService implements UserServiceInterface {
             throw new UserNotFoundException($userId);
         }
 
-        $user->setName($userCreate->getName());
-        $user->setEmail($userCreate->getEmail());
-        $user->setPhone($userCreate->getPhone());
+        $user->setName($userEditable->getName());
+        $user->setEmail($userEditable->getEmail());
+        $user->setPhone($userEditable->getPhone());
         $user->setUpdatedAt(new \DateTime());
 
-        if($userCreate->getPassword()!="") {
-            $user->setPassword($userCreate->getPassword());
+        if($userEditable->getPassword()!="") {
+            $user->setPassword($userEditable->getPassword());
         }
 
         $this->userRepository->save($user, true);

@@ -3,6 +3,7 @@
 namespace App\Mapper;
 
 use App\Dto\UserDto;
+use App\Dto\UserEditableDto;
 use App\Entity\User;
 
 class UserMapper {
@@ -10,7 +11,7 @@ class UserMapper {
      * @param User $entity
      * @return UserDto
      */
-    public static function EntityToDto(User $entity): UserDto {
+    public static function entityToDto(User $entity): UserDto {
         return new UserDto(
             $entity->getName(),
             $entity->getEmail(),
@@ -24,13 +25,26 @@ class UserMapper {
      * @param User[] $entities
      * @return UserDto[]
      */
-    public static function EntityToDtoArray(array $entities): array {
+    public static function entityToDtoArray(array $entities): array {
         $values = [];
 
         foreach($entities as $entity) {
-            $values[] = self::EntityToDto($entity);
+            $values[] = self::entityToDto($entity);
         }
 
         return $values;
+    }
+
+    /**
+     * @param UserEditableDto $userEditableDto
+     * @return User
+     */
+    public static function userEditableDtoToEntity(UserEditableDto $userEditableDto): User {
+        return new User(
+            $userEditableDto->getName(),
+            $userEditableDto->getEmail(),
+            $userEditableDto->getPassword(),
+            $userEditableDto->getPhone(),
+        );
     }
 }
