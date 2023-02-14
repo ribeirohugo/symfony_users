@@ -6,12 +6,12 @@ use App\Common\Password;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
 
-class UserFixture {
+class FixtureHelper {
     /**
      * @param EntityManager $entityManager
      * @return User|null
      */
-    public static function addUser(EntityManager $entityManager, ): ?User {
+    public static function addUser(EntityManager $entityManager): ?User {
         $user = new User(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
@@ -38,7 +38,6 @@ class UserFixture {
     public static function removeUser(EntityManager $entityManager, User $user): void {
         $entityManager
             ->getRepository(User::class)
-            ->remove($user, true)
-        ;
+            ->remove($user, true);
     }
 }
