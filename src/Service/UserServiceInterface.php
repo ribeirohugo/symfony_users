@@ -8,7 +8,6 @@ use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Repository\UserRepositoryInterface;
 use Exception;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 interface UserServiceInterface
 {
@@ -46,7 +45,6 @@ interface UserServiceInterface
 
     /**
      * @param UserEditableDto $userEditable
-     * @param UserPasswordHasherInterface $passwordHasher
      * @return UserDto
      * @throws Exception
      */
