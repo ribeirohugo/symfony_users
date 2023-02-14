@@ -4,12 +4,14 @@ namespace App\Tests\Unit\Controller;
 
 use App\Common\ErrorMessage;
 use App\Controller\UserController;
+use App\Dto\UserDto;
 use App\Dto\UserEditableDto;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Service\UserService;
 use App\Service\UserServiceInterface;
+use App\Tests\Utils\ConstHelper;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,47 +38,45 @@ class UserControllerTest extends TestCase
 
     public function testListUsersSuccess(): void
     {
-        $user = new User(
-            self::USER_NAME_TEST,
-            self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
-            self::USER_PHONE_TEST,
+        $userDto = new UserDto(
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PHONE_TEST,
         );
 
         $userService = $this->createMock(UserServiceInterface::class);
         $userService->expects(self::once())
             ->method('findAllUsers')
             ->willReturn([
-                $user
+                $userDto
             ]);
         $userController = new UserController($userService);
 
         $response = $userController->listUsers($this->serializer);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $this->assertEquals($this->serializer->serialize([$user], JsonEncoder::FORMAT), $response->getContent());
+        $this->assertEquals($this->serializer->serialize([$userDto], JsonEncoder::FORMAT), $response->getContent());
     }
 
     public function testSingleUserSuccess(): void
     {
         $userId = 1;
-        $user = new User(
+        $userDto = new UserDto(
             self::USER_NAME_TEST,
             self::USER_EMAIL_TEST,
-            self::USER_PASSWORD_TEST,
             self::USER_PHONE_TEST,
         );
 
         $userService = $this->createMock(UserServiceInterface::class);
         $userService->expects(self::once())
             ->method('findUser')
-            ->willReturn($user);
+            ->willReturn($userDto);
         $userController = new UserController($userService);
 
         $response = $userController->singleUser($userId, $this->serializer);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $this->assertEquals($this->serializer->serialize($user, JsonEncoder::FORMAT), $response->getContent());
+        $this->assertEquals($this->serializer->serialize($userDto, JsonEncoder::FORMAT), $response->getContent());
     }
 
     public function testSingleUserNotFound(): void
@@ -87,6 +87,7 @@ class UserControllerTest extends TestCase
         $userService->expects(self::once())
             ->method('findUser')
             ->willThrowException(new UserNotFoundException($userId));
+
         $userController = new UserController($userService);
 
         $response = $userController->singleUser($userId, $this->serializer);

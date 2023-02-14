@@ -7,6 +7,7 @@ use App\Controller\UserController;
 use App\Dto\UserEditableDto;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
+use App\Mapper\UserMapper;
 use App\Service\UserService;
 use App\Tests\Utils\RequestHelper;
 use Doctrine\ORM\EntityManager;
@@ -79,6 +80,7 @@ class UserControllerTest extends KernelTestCase
     public function testSingleUserSuccess(): void
     {
         $user = $this->addUser();
+        $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
@@ -87,7 +89,7 @@ class UserControllerTest extends KernelTestCase
         $response = $userController->singleUser($user->getId(), $this->serializer);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $this->assertEquals($this->serializer->serialize($user, JsonEncoder::FORMAT), $response->getContent());
+        $this->assertEquals($this->serializer->serialize($userDto, JsonEncoder::FORMAT), $response->getContent());
 
         $this->removeUser($user);
     }

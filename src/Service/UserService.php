@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Dto\UserDto;
 use App\Dto\UserEditableDto;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
@@ -32,16 +33,16 @@ class UserService implements UserServiceInterface {
 
     /**
      * @param int $userId
-     * @return User
+     * @return UserDto
      * @throws UserNotFoundException
      */
-    public function findUser(int $userId): User {
+    public function findUser(int $userId): UserDto {
         $user = $this->userRepository->find($userId);
         if(empty($user)) {
             throw new UserNotFoundException($userId);
         }
 
-        return $user;
+        return UserMapper::entityToDto($user);
     }
 
     /**
@@ -108,7 +109,7 @@ class UserService implements UserServiceInterface {
 
     /**
      * @param int $userId
-     * @param \App\Dto\UserEditableDto $userCreate
+     * @param UserEditableDto $userEditable
      * @return User
      * @throws InvalidRequestException
      * @throws UserNotFoundException

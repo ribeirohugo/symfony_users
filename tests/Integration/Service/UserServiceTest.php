@@ -7,6 +7,7 @@ use App\Dto\UserEditableDto;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
+use App\Mapper\UserMapper;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -62,13 +63,14 @@ class UserServiceTest extends KernelTestCase
     public function testFindUserSuccess(): void
     {
         $user = $this->addUser();
+        $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
 
         $response = $userService->findUser($user->getId());
 
-        $this->assertEquals($user, $response);
+        $this->assertEquals($userDto, $response);
 
         $this->removeUser($user);
     }
