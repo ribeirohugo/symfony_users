@@ -42,13 +42,14 @@ class UserServiceTest extends KernelTestCase
     public function testListUsersSuccess(): void
     {
         $user = $this->addUser();
+        $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
 
         $response = $userService->findAllUsers();
 
-        $this->assertEquals([$user], $response);
+        $this->assertEquals([$userDto], $response);
 
         $this->removeUser($user);
     }

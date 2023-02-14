@@ -78,6 +78,7 @@ class UserServiceTest extends TestCase
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
+        $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
@@ -88,7 +89,7 @@ class UserServiceTest extends TestCase
 
         $response = $userService->findAllUsers();
 
-        $this->assertEquals([$user], $response);
+        $this->assertEquals([$userDto], $response);
     }
 
     public function testFindAllUsersRepositoryError(): void

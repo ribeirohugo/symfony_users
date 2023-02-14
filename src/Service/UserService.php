@@ -61,10 +61,12 @@ class UserService implements UserServiceInterface {
     }
 
     /**
-     * @return array
+     * @return UserDto[]
      */
     public function findAllUsers(): array {
-        return $this->userRepository->findAll();
+        $users = $this->userRepository->findAll();
+
+        return UserMapper::entityToDtoArray($users);
     }
 
     /**

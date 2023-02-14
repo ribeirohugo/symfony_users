@@ -26,7 +26,7 @@ interface UserServiceInterface
     public function findUser(int $userId): UserDto;
 
     /**
-     * @return array
+     * @return UserDto[]
      */
     public function findAllUsers(): array;
 
