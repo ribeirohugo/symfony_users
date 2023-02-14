@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Dto\LoginDto;
+use App\Exception\UserNotFoundException;
 use App\Service\AuthenticationServiceInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,16 +27,22 @@ class AuthenticationController extends AbstractController
      */
     private AuthenticationServiceInterface $authenticationService;
 
-    function __construct(AuthenticationServiceInterface $authenticationService)
+    /**
+     * @var SerializerInterface
+     */
+    private  SerializerInterface $serializer;
+
+    function __construct(AuthenticationServiceInterface $authenticationService, SerializerInterface $serializer)
     {
         $this->authenticationService = $authenticationService;
+        $this->serializer = $serializer;
     }
 
-    #[Route('/login', name: 'login', methods: [Request::METHOD_GET])]
-    public function login(Request $request, SerializerInterface $serializer): Response
+    #[Route('/login', name: 'login', methods: [Request::METHOD_POST])]
+    public function login(Request $request, ): Response
     {
         try {
-            $loginDto = $serializer->deserialize($request->getContent(), LoginDto::class, JsonEncoder::FORMAT);
+            $loginDto = $this->serializer->deserialize($request->getContent(), LoginDto::class, JsonEncoder::FORMAT);
         } catch (\Exception $e) {
             error_log($e);
 
@@ -44,14 +51,25 @@ class AuthenticationController extends AbstractController
 
         try {
             $user = $this->authenticationService->login($loginDto);
+        } catch (UserNotFoundException $e) {
+            error_log($e);
+            return new Response("", Response::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
             error_log($e);
             return new Response("", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
+        if($user) {
+            return new Response(
+                $this->serializer->serialize($user, JsonEncoder::FORMAT),
+                Response::HTTP_OK,
+                ['Content-Type' => 'application/json;charset=UTF-8']
+            );
+        }
+
         return new Response(
-            $serializer->serialize($user, JsonEncoder::FORMAT),
-            Response::HTTP_OK,
+            "",
+            Response::HTTP_UNAUTHORIZED,
             ['Content-Type' => 'application/json;charset=UTF-8']
         );
     }
