@@ -4,14 +4,10 @@ namespace App\Service;
 
 use App\Dto\LoginDto;
 use App\Dto\UserDto;
-use App\Dto\UserEditableDto;
-use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Repository\UserRepositoryInterface;
-use Exception;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-interface AuthenticationInterface
+interface AuthenticationServiceInterface
 {
     /**
      * UserRepositoryInterface constructor.

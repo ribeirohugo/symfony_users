@@ -5,16 +5,14 @@ namespace App\Service;
 use App\Common\Password;
 use App\Dto\LoginDto;
 use App\Dto\UserDto;
-use App\Dto\UserEditableDto;
-use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Mapper\UserMapper;
 use App\Repository\UserRepositoryInterface;
 
 /**
- * AuthenticationService holds user service layer and parses data from controller into the repository layer.
+ * AuthenticationServiceService holds user service layer and parses data from controller into the repository layer.
  */
-class AuthenticationService implements AuthenticationInterface
+class AuthenticationServiceService implements AuthenticationServiceInterface
 {
     /**
      * @var UserRepositoryInterface
