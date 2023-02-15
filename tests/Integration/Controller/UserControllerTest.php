@@ -10,6 +10,7 @@ use App\Exception\InvalidRequestException;
 use App\Mapper\UserMapper;
 use App\Service\UserService;
 use App\Tests\Utils\ConstHelper;
+use App\Tests\Utils\FixtureHelper;
 use App\Tests\Utils\RequestHelper;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManager;
@@ -59,7 +60,7 @@ class UserControllerTest extends KernelTestCase
 
     public function testListUsersSuccess(): void
     {
-        $user = $this->addUser();
+        $user = FixtureHelper::addUser($this->entityManager);
         $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->entityManager->getRepository(User::class);
@@ -71,12 +72,12 @@ class UserControllerTest extends KernelTestCase
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals($this->serializer->serialize([$userDto], JsonEncoder::FORMAT), $response->getContent());
 
-        $this->removeUser($user);
+        FixtureHelper::removeUser($this->entityManager, $user);
     }
 
     public function testSingleUserSuccess(): void
     {
-        $user = $this->addUser();
+        $user = FixtureHelper::addUser($this->entityManager);
         $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->entityManager->getRepository(User::class);
@@ -88,7 +89,7 @@ class UserControllerTest extends KernelTestCase
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals($this->serializer->serialize($userDto, JsonEncoder::FORMAT), $response->getContent());
 
-        $this->removeUser($user);
+        FixtureHelper::removeUser($this->entityManager, $user);
     }
 
     public function testSingleUserNotFound(): void
@@ -104,7 +105,7 @@ class UserControllerTest extends KernelTestCase
 
     public function testFindUserByEmailSuccess(): void
     {
-        $user = $this->addUser();
+        $user = FixtureHelper::addUser($this->entityManager);
         $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->entityManager->getRepository(User::class);
@@ -118,7 +119,7 @@ class UserControllerTest extends KernelTestCase
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals($this->serializer->serialize($userDto, JsonEncoder::FORMAT), $response->getContent());
 
-        $this->removeUser($user);
+        FixtureHelper::removeUser($this->entityManager, $user);
     }
 
     public function testFindUserByEmailEmptyEmail(): void
@@ -148,7 +149,7 @@ class UserControllerTest extends KernelTestCase
 
     public function testRemoveUserSuccess(): void
     {
-        $user = $this->addUser();
+        $user = FixtureHelper::addUser($this->entityManager);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
@@ -157,6 +158,8 @@ class UserControllerTest extends KernelTestCase
         $response = $userController->removeUser($user->getId());
 
         $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+
+        FixtureHelper::removeUser($this->entityManager, $user);
     }
 
     public function testRemoveUserNotFound(): void
@@ -184,7 +187,7 @@ class UserControllerTest extends KernelTestCase
         $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
-        $request = $this->createRequest("/users", Request::METHOD_POST, $content);
+        $request = RequestHelper::createRequest("/users", Request::METHOD_POST, $content);
 
         $response = $userController->createUser($request, $this->serializer);
 
@@ -196,7 +199,7 @@ class UserControllerTest extends KernelTestCase
             $newUser = $userRepository->find($normalizedUser["id"]);
         }
 
-        $this->removeUser($newUser);
+        FixtureHelper::removeUser($this->entityManager, $newUser);
     }
 
     public function testCreateUserEmptyName(): void
@@ -215,7 +218,7 @@ class UserControllerTest extends KernelTestCase
         $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
-        $request = $this->createRequest("/users", Request::METHOD_POST, $content);
+        $request = RequestHelper::createRequest("/users", Request::METHOD_POST, $content);
 
         $response = $userController->createUser($request, $this->serializer);
 
@@ -239,7 +242,7 @@ class UserControllerTest extends KernelTestCase
         $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
-        $request = $this->createRequest("/users", Request::METHOD_POST, $content);
+        $request = RequestHelper::createRequest("/users", Request::METHOD_POST, $content);
 
         $response = $userController->createUser($request, $this->serializer);
 
@@ -263,7 +266,7 @@ class UserControllerTest extends KernelTestCase
         $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
-        $request = $this->createRequest("/users", Request::METHOD_POST, $content);
+        $request = RequestHelper::createRequest("/users", Request::METHOD_POST, $content);
 
         $response = $userController->createUser($request, $this->serializer);
 
@@ -273,7 +276,7 @@ class UserControllerTest extends KernelTestCase
 
     public function testUpdateUserSuccess(): void
     {
-        $existingUser = $this->addUser();
+        $existingUser = FixtureHelper::addUser($this->entityManager);
 
         $userCreate = new UserEditableDto(
             ConstHelper::NEW_USER_NAME_TEST,
@@ -287,18 +290,18 @@ class UserControllerTest extends KernelTestCase
         $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
-        $request = $this->createRequest("/users", Request::METHOD_PUT, $content);
+        $request = RequestHelper::createRequest("/users", Request::METHOD_PUT, $content);
 
         $response = $userController->updateUser($existingUser->getId(), $request, $this->serializer);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
-        $this->removeUser($existingUser);
+        FixtureHelper::removeUser($this->entityManager, $existingUser);
     }
 
     public function testUpdateUserEmptyName(): void
     {
-        $existingUser = $this->addUser();
+        $existingUser = FixtureHelper::addUser($this->entityManager);
 
         $userCreate = new UserEditableDto(
             "",
@@ -314,19 +317,19 @@ class UserControllerTest extends KernelTestCase
         $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
-        $request = $this->createRequest("/users", Request::METHOD_PUT, $content);
+        $request = RequestHelper::createRequest("/users", Request::METHOD_PUT, $content);
 
         $response = $userController->updateUser($existingUser->getId(), $request, $this->serializer);
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertEquals($errorMessage, $response->getContent());
 
-        $this->removeUser($existingUser);
+        FixtureHelper::removeUser($this->entityManager, $existingUser);
     }
 
     public function testUpdateUserEmptyEmail(): void
     {
-        $existingUser = $this->addUser();
+        $existingUser = FixtureHelper::addUser($this->entityManager);
 
         $userCreate = new UserEditableDto(
             ConstHelper::NEW_USER_NAME_TEST,
@@ -342,14 +345,14 @@ class UserControllerTest extends KernelTestCase
         $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
-        $request = $this->createRequest("/users", Request::METHOD_PUT, $content);
+        $request = RequestHelper::createRequest("/users", Request::METHOD_PUT, $content);
 
         $response = $userController->updateUser($existingUser->getId(), $request, $this->serializer);
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertEquals($errorMessage, $response->getContent());
 
-        $this->removeUser($existingUser);
+        FixtureHelper::removeUser($this->entityManager, $existingUser);
     }
 
     public function testUpdateUserNotFound(): void
@@ -366,7 +369,7 @@ class UserControllerTest extends KernelTestCase
         $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
-        $request = $this->createRequest("/users/1", Request::METHOD_PUT, $content);
+        $request = RequestHelper::createRequest("/users/1", Request::METHOD_PUT, $content);
 
         $response = $userController->updateUser(1, $request, $this->serializer);
 
@@ -374,7 +377,7 @@ class UserControllerTest extends KernelTestCase
     }
 
     public function testSaveUserFailWithDuplicatedEmail() {
-        $this->addUser();
+        FixtureHelper::addUser($this->entityManager);
 
         $conflictingUser = new User(
             ConstHelper::USER_NAME_TEST,
@@ -389,8 +392,7 @@ class UserControllerTest extends KernelTestCase
 
         $this->entityManager
             ->getRepository(User::class)
-            ->save($conflictingUser, true)
-        ;
+            ->save($conflictingUser, true);
     }
 
     protected function tearDown(): void
@@ -400,31 +402,5 @@ class UserControllerTest extends KernelTestCase
         // doing this is recommended to avoid memory leaks
         $this->entityManager->close();
         $this->entityManager = null;
-    }
-
-    protected function addUser(): ?User {
-        $user = new User(
-            ConstHelper::USER_NAME_TEST,
-            ConstHelper::USER_EMAIL_TEST,
-            ConstHelper::USER_PASSWORD_TEST,
-            ConstHelper::USER_PHONE_TEST,
-        );
-        $user->setCreatedAt(new \DateTime());
-        $user->setUpdatedAt(new \DateTime());
-
-        return $this->entityManager
-            ->getRepository(User::class)
-            ->save($user, true);
-    }
-
-    protected function removeUser(User $user): void {
-        $this->entityManager
-            ->getRepository(User::class)
-            ->remove($user, true)
-        ;
-    }
-
-    protected function createRequest(string $uri, string $method, string $content): Request {
-        return Request::create($uri, $method, [], [], [], [], $content);
     }
 }

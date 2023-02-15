@@ -11,6 +11,7 @@ use App\Exception\UserNotFoundException;
 use App\Service\UserService;
 use App\Service\UserServiceInterface;
 use App\Tests\Utils\ConstHelper;
+use App\Tests\Utils\RequestHelper;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -110,7 +111,7 @@ class UserControllerTest extends TestCase
         $userController = new UserController($userService);
 
         $parameters = ["email" => ConstHelper::USER_EMAIL_TEST];
-        $request = $this->createRequest("users/email", Request::METHOD_GET, "", $parameters);
+        $request = RequestHelper::createRequest("users/email", Request::METHOD_GET, "", $parameters);
 
         $response = $userController->findUserByEmail($request, $this->serializer);
 
@@ -123,7 +124,7 @@ class UserControllerTest extends TestCase
         $userService = $this->createMock(UserServiceInterface::class);
         $userController = new UserController($userService);
 
-        $request = $this->createRequest("users/email", Request::METHOD_GET, "");
+        $request = RequestHelper::createRequest("users/email", Request::METHOD_GET, "");
 
         $response = $userController->findUserByEmail($request, $this->serializer);
 
@@ -140,7 +141,7 @@ class UserControllerTest extends TestCase
         $userController = new UserController($userService);
 
         $parameters = ["email" => ConstHelper::USER_EMAIL_TEST];
-        $request = $this->createRequest("users/email", Request::METHOD_GET, "", $parameters);
+        $request = RequestHelper::createRequest("users/email", Request::METHOD_GET, "", $parameters);
 
         $response = $userController->findUserByEmail($request, $this->serializer);
 
@@ -213,7 +214,7 @@ class UserControllerTest extends TestCase
         $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
-        $request = $this->createRequest("users", Request::METHOD_POST, $content);
+        $request = RequestHelper::createRequest("users", Request::METHOD_POST, $content);
 
         $response = $userController->createUser($request, $this->serializer);
 
@@ -250,7 +251,7 @@ class UserControllerTest extends TestCase
         $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
-        $request = $this->createRequest("users", Request::METHOD_POST, $content);
+        $request = RequestHelper::createRequest("users", Request::METHOD_POST, $content);
 
         $response = $userController->createUser($request, $this->serializer);
 
@@ -274,7 +275,7 @@ class UserControllerTest extends TestCase
         $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
-        $request = $this->createRequest("users", Request::METHOD_POST, $content);
+        $request = RequestHelper::createRequest("users", Request::METHOD_POST, $content);
 
         $response = $userController->createUser($request, $this->serializer);
 
@@ -302,7 +303,7 @@ class UserControllerTest extends TestCase
         $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
-        $request = $this->createRequest("users/1", Request::METHOD_PUT, $content);
+        $request = RequestHelper::createRequest("users/1", Request::METHOD_PUT, $content);
 
         $response = $userController->updateUser(ConstHelper::USER_ID_TEST, $request, $this->serializer);
 
@@ -327,7 +328,7 @@ class UserControllerTest extends TestCase
         $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
-        $request = $this->createRequest("users/1", Request::METHOD_PUT, $content);
+        $request = RequestHelper::createRequest("users/1", Request::METHOD_PUT, $content);
 
         $response = $userController->updateUser($userId, $request, $this->serializer);
 
@@ -351,7 +352,7 @@ class UserControllerTest extends TestCase
         $userController = new UserController($userService);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
-        $request = $this->createRequest("users/1", Request::METHOD_PUT, $content);
+        $request = RequestHelper::createRequest("users/1", Request::METHOD_PUT, $content);
 
         $response = $userController->updateUser($userId, $request, $this->serializer);
 
@@ -361,9 +362,5 @@ class UserControllerTest extends TestCase
     protected function tearDown(): void
     {
         parent::tearDown();
-    }
-
-    protected function createRequest(string $uri, string $method, string $content, array $parameters = []) {
-        return Request::create($uri, $method, $parameters, [], [], [], $content);
     }
 }
