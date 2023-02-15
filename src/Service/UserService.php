@@ -9,10 +9,9 @@ use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Mapper\UserMapper;
 use App\Repository\UserRepositoryInterface;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
- * UserService holds user service layer and parses data from controller into the repository layer.
+ * UserService holds user service logic and maps data between controller and repository.
  */
 class UserService implements UserServiceInterface {
     const ERROR_EMPTY_USER_NAME = "user name should not be empty";

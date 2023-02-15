@@ -414,8 +414,7 @@ class UserControllerTest extends KernelTestCase
 
         return $this->entityManager
             ->getRepository(User::class)
-            ->save($user, true)
-            ;
+            ->save($user, true);
     }
 
     protected function removeUser(User $user): void {

@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Common\ErrorMessage;
-use App\Common\Password;
 use App\Dto\UserEditableDto;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
