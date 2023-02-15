@@ -4,6 +4,7 @@ namespace App\Tests\Integration\Repository;
 
 use App\Entity\User;
 use App\Tests\Utils\ConstHelper;
+use App\Tests\Utils\FixtureHelper;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -35,7 +36,7 @@ class UserRepositoryTest extends KernelTestCase
     }
 
     public function testFind() {
-        $user = $this->addUser();
+        $user = FixtureHelper::addUser($this->entityManager);
 
         $this->assertIsObject($user);
 
@@ -49,12 +50,12 @@ class UserRepositoryTest extends KernelTestCase
         $this->assertSame($user->getPassword(), $response->getPassword());
         $this->assertSame($user->getPhone(), $response->getPhone());
 
-        $this->removeUser($user);
+        FixtureHelper::removeUser($this->entityManager, $user);
     }
 
     public function testFindOneByName()
     {
-        $user = $this->addUser();
+        $user = FixtureHelper::addUser($this->entityManager);
 
         $response = $this->entityManager
             ->getRepository(User::class)
@@ -66,24 +67,23 @@ class UserRepositoryTest extends KernelTestCase
         $this->assertSame($user->getPassword(), $response->getPassword());
         $this->assertSame($user->getPhone(), $response->getPhone());
 
-        $this->removeUser($user);
+        FixtureHelper::removeUser($this->entityManager, $user);
     }
 
     public function testFindOneByEmail()
     {
-        $user = $this->addUser();
+        $user = FixtureHelper::addUser($this->entityManager);
 
         $response = $this->entityManager
             ->getRepository(User::class)
-            ->findOneBy(['email' => ConstHelper::USER_EMAIL_TEST])
-        ;
+            ->findOneBy(['email' => ConstHelper::USER_EMAIL_TEST]);
 
         $this->assertSame($user->getName(), $response->getName());
         $this->assertSame($user->getEmail(), $response->getEmail());
         $this->assertSame($user->getPassword(), $response->getPassword());
         $this->assertSame($user->getPhone(), $response->getPhone());
 
-        $this->removeUser($user);
+        FixtureHelper::removeUser($this->entityManager, $user);
     }
 
     public function testSaveUser() {
@@ -109,7 +109,7 @@ class UserRepositoryTest extends KernelTestCase
         $this->assertSame($timestamp, $createdUser->getCreatedAt());
         $this->assertSame($timestamp, $createdUser->getUpdatedAt());
 
-        $this->removeUser($createdUser);
+        FixtureHelper::removeUser($this->entityManager, $createdUser);
     }
 
     protected function tearDown(): void
@@ -119,28 +119,5 @@ class UserRepositoryTest extends KernelTestCase
         // doing this is recommended to avoid memory leaks
         $this->entityManager->close();
         $this->entityManager = null;
-    }
-
-    protected function addUser(): ?User {
-        $user = new User(
-            ConstHelper::USER_NAME_TEST,
-            ConstHelper::USER_EMAIL_TEST,
-            ConstHelper::USER_PASSWORD_TEST,
-            ConstHelper::USER_PHONE_TEST,
-        );
-        $user->setCreatedAt(new \DateTime());
-        $user->setUpdatedAt(new \DateTime());
-
-        return $this->entityManager
-            ->getRepository(User::class)
-            ->save($user, true)
-        ;
-    }
-
-    protected function removeUser(User $user): void {
-        $this->entityManager
-            ->getRepository(User::class)
-            ->remove($user, true)
-        ;
     }
 }
