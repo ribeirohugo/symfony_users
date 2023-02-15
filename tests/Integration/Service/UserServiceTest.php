@@ -10,6 +10,7 @@ use App\Exception\UserNotFoundException;
 use App\Mapper\UserMapper;
 use App\Service\UserService;
 use App\Tests\Utils\ConstHelper;
+use App\Tests\Utils\FixtureHelper;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -41,7 +42,7 @@ class UserServiceTest extends KernelTestCase
 
     public function testListUsersSuccess(): void
     {
-        $user = $this->addUser();
+        $user = FixtureHelper::addUser($this->entityManager);
         $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->entityManager->getRepository(User::class);
@@ -51,12 +52,12 @@ class UserServiceTest extends KernelTestCase
 
         $this->assertEquals([$userDto], $response);
 
-        $this->removeUser($user);
+        FixtureHelper::removeUser($this->entityManager, $user);
     }
 
     public function testFindUserSuccess(): void
     {
-        $user = $this->addUser();
+        $user = FixtureHelper::addUser($this->entityManager);
         $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->entityManager->getRepository(User::class);
@@ -66,24 +67,22 @@ class UserServiceTest extends KernelTestCase
 
         $this->assertEquals($userDto, $response);
 
-        $this->removeUser($user);
+        FixtureHelper::removeUser($this->entityManager, $user);
     }
 
     public function testSingleUserNotFound(): void
     {
-        $userId = 1;
-
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
 
         $this->expectException(UserNotFoundException::class);
 
-        $userService->findUser($userId);
+        $userService->findUser(ConstHelper::USER_ID_TEST);
     }
 
     public function testFindUserByEmailSuccess(): void
     {
-        $user = $this->addUser();
+        $user = FixtureHelper::addUser($this->entityManager);
         $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->entityManager->getRepository(User::class);
@@ -93,7 +92,7 @@ class UserServiceTest extends KernelTestCase
 
         $this->assertEquals($userDto, $response);
 
-        $this->removeUser($user);
+        FixtureHelper::removeUser($this->entityManager, $user);
     }
 
     public function testFindUserByEmailNotFound(): void
@@ -108,7 +107,7 @@ class UserServiceTest extends KernelTestCase
 
     public function testRemoveUserSuccess(): void
     {
-        $user = $this->addUser();
+        $user = FixtureHelper::addUser($this->entityManager);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
@@ -119,13 +118,12 @@ class UserServiceTest extends KernelTestCase
 
     public function testRemoveUserNotFound(): void
     {
-        $userId = 1;
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
 
         $this->expectException(UserNotFoundException::class);
 
-        $userService->removeUser($userId);
+        $userService->removeUser(ConstHelper::USER_ID_TEST);
     }
 
     public function testCreateUserSuccess(): void
@@ -149,7 +147,7 @@ class UserServiceTest extends KernelTestCase
 
     public function testUpdateUserSuccess(): void
     {
-        $existingUser = $this->addUser();
+        $existingUser = FixtureHelper::addUser($this->entityManager);
 
         $userCreate = new UserEditableDto(
             ConstHelper::NEW_USER_NAME_TEST,
@@ -166,11 +164,13 @@ class UserServiceTest extends KernelTestCase
         $this->assertEquals($userCreate->getName(), $response->getName());
         $this->assertEquals($userCreate->getEmail(), $response->getEmail());
         $this->assertEquals($userCreate->getPhone(), $response->getPhone());
+
+        FixtureHelper::removeUser($this->entityManager, $existingUser);
     }
 
     public function testUpdateUserEmptyName(): void
     {
-        $existingUser = $this->addUser();
+        $existingUser = FixtureHelper::addUser($this->entityManager);
 
         $userCreate = new UserEditableDto(
             "",
@@ -185,11 +185,13 @@ class UserServiceTest extends KernelTestCase
         $this->expectException(InvalidRequestException::class);
 
         $userService->updateUser($existingUser->getId(), $userCreate);
+
+        FixtureHelper::removeUser($this->entityManager, $existingUser);
     }
 
     public function testUpdateUserEmptyEmail(): void
     {
-        $existingUser = $this->addUser();
+        $existingUser = FixtureHelper::addUser($this->entityManager);
 
         $userCreate = new UserEditableDto(
             ConstHelper::NEW_USER_NAME_TEST,
@@ -204,11 +206,12 @@ class UserServiceTest extends KernelTestCase
         $this->expectException(InvalidRequestException::class);
 
         $userService->updateUser($existingUser->getId(), $userCreate);
+
+        FixtureHelper::removeUser($this->entityManager, $existingUser);
     }
 
     public function testUpdateUserNotFound(): void
     {
-        $userId = 1;
         $userCreate = new UserEditableDto(
             ConstHelper::NEW_USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
@@ -221,8 +224,7 @@ class UserServiceTest extends KernelTestCase
 
         $this->expectException(UserNotFoundException::class);
 
-        $userService->updateUser($userId, $userCreate);
-
+        $userService->updateUser(ConstHelper::USER_ID_TEST, $userCreate);
     }
 
     protected function tearDown(): void
@@ -232,28 +234,5 @@ class UserServiceTest extends KernelTestCase
         // doing this is recommended to avoid memory leaks
         $this->entityManager->close();
         $this->entityManager = null;
-    }
-
-    protected function addUser(): ?User {
-        $user = new User(
-            ConstHelper::USER_NAME_TEST,
-            ConstHelper::USER_EMAIL_TEST,
-            ConstHelper::USER_PASSWORD_TEST,
-            ConstHelper::USER_PHONE_TEST,
-        );
-        $user->setCreatedAt(new \DateTime());
-        $user->setUpdatedAt(new \DateTime());
-
-        return $this->entityManager
-            ->getRepository(User::class)
-            ->save($user, true)
-            ;
-    }
-
-    protected function removeUser(User $user): void {
-        $this->entityManager
-            ->getRepository(User::class)
-            ->remove($user, true)
-        ;
     }
 }
