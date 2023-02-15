@@ -163,6 +163,28 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Error'
+    /login:
+        post:
+            operationId: login
+            description: Checks if login data is valid and return the user data if the authentication is successful.
+            tags:
+                - Authentication
+            requestBody:
+                description: Login data body.
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/LoginDto'
+            responses:
+                '200':
+                    description: Returns a user.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserDto'
+                '401':
+                    description: Login data is invalid.
 components:
     schemas:
         UserDto:
@@ -195,6 +217,14 @@ components:
                 password:
                     type: string
                 phone:
+                    type: string
+        LoginDto:
+            type: object
+            properties:
+                email:
+                    type: string
+                    format: email
+                password:
                     type: string
         Error:
             type: object
