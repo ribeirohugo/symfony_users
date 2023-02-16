@@ -33,9 +33,9 @@ class UserController extends AbstractController
 
     /**
      * @param UserServiceInterface $userService
-     * @param SerializerInterface|null $serializer
+     * @param SerializerInterface $serializer
      */
-    function __construct(UserServiceInterface $userService, SerializerInterface $serializer = null)
+    function __construct(UserServiceInterface $userService, SerializerInterface $serializer)
     {
         $this->userService = $userService;
         $this->serializer = $serializer;
@@ -44,7 +44,6 @@ class UserController extends AbstractController
     /**
      * Returns all persisted users.
      *
-     * @param SerializerInterface $serializer
      * @return Response
      */
     #[Route('/users', name: 'listUsers', methods: [Request::METHOD_GET])]
@@ -69,11 +68,10 @@ class UserController extends AbstractController
      * Returns a not found response if user doesn't exist.
      *
      * @param int $userId
-     * @param SerializerInterface $serializer
      * @return Response
      */
     #[Route('/users/{userId}', name: 'singleUser', methods: [Request::METHOD_GET])]
-    public function singleUser(int $userId, SerializerInterface $serializer): Response
+    public function singleUser(int $userId): Response
     {
         try {
             $user = $this->userService->findUser($userId);
@@ -85,7 +83,7 @@ class UserController extends AbstractController
         }
 
         return new Response(
-            $serializer->serialize($user, JsonEncoder::FORMAT),
+            $this->serializer->serialize($user, JsonEncoder::FORMAT),
             Response::HTTP_OK,
             ['Content-Type' => 'application/json;charset=UTF-8']
         );
@@ -96,21 +94,20 @@ class UserController extends AbstractController
      * Returns user not found error if the user doesn't exist for the given email.
      *
      * @param Request $request
-     * @param SerializerInterface $serializer
      * @return Response
      */
     #[Route('/users/email', name: 'findUserByEmail', methods: [Request::METHOD_GET])]
-    public function findUserByEmail(Request $request, SerializerInterface $serializer): Response
+    public function findUserByEmail(Request $request): Response
     {
         $email = $request->query->get('email');
         if($email == "") {
-            return new Response(ErrorMessage::emptyEmailJSON($serializer), Response::HTTP_BAD_REQUEST);
+            return new Response(ErrorMessage::emptyEmailJSON($this->serializer), Response::HTTP_BAD_REQUEST);
         }
 
         try {
             $user = $this->userService->findUserByEmail($email);
         } catch(UserNotFoundException $e) {
-            $errorResponse = ErrorMessage::generateJSON($e, $serializer);
+            $errorResponse = ErrorMessage::generateJSON($e, $this->serializer);
 
             return new Response($errorResponse, Response::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
@@ -119,7 +116,7 @@ class UserController extends AbstractController
         }
 
         return new Response(
-            $serializer->serialize($user, JsonEncoder::FORMAT),
+            $this->serializer->serialize($user, JsonEncoder::FORMAT),
             Response::HTTP_OK,
             ['Content-Type' => 'application/json;charset=UTF-8']
         );
@@ -152,23 +149,22 @@ class UserController extends AbstractController
      * Returns bad request response when the user data isn't valid.
      *
      * @param Request $request
-     * @param SerializerInterface $serializer
      * @return Response
      */
     #[Route('/users', name: 'createUser', methods: [Request::METHOD_POST])]
-    public function createUser(Request $request, SerializerInterface $serializer): Response
+    public function createUser(Request $request): Response
     {
         try {
-            $userCreate = $serializer->deserialize($request->getContent(), UserEditableDto::class, JsonEncoder::FORMAT);
+            $userCreate = $this->serializer->deserialize($request->getContent(), UserEditableDto::class, JsonEncoder::FORMAT);
         } catch (\Exception $e) {
             error_log($e);
-            return new Response(ErrorMessage::invalidFormatJSON($serializer), Response::HTTP_BAD_REQUEST);
+            return new Response(ErrorMessage::invalidFormatJSON($this->serializer), Response::HTTP_BAD_REQUEST);
         }
 
         try {
             $user = $this->userService->createUser($userCreate);
         } catch (InvalidRequestException $e) {
-            $errorResponse = ErrorMessage::generateJSON($e, $serializer);
+            $errorResponse = ErrorMessage::generateJSON($e, $this->serializer);
 
             return new Response($errorResponse, Response::HTTP_BAD_REQUEST);
         } catch (\Exception $e) {
@@ -177,7 +173,7 @@ class UserController extends AbstractController
         }
 
         return new Response(
-            $serializer->serialize($user, JsonEncoder::FORMAT),
+            $this->serializer->serialize($user, JsonEncoder::FORMAT),
             Response::HTTP_OK,
             ['Content-Type' => 'application/json;charset=UTF-8']
         );
@@ -194,20 +190,20 @@ class UserController extends AbstractController
      * @return Response
      */
     #[Route('/users/{userId}', name: 'updateUser', methods: [Request::METHOD_PUT])]
-    public function updateUser(int $userId, Request $request, SerializerInterface $serializer): Response
+    public function updateUser(int $userId, Request $request): Response
     {
         try {
-            $userCreate = $serializer->deserialize($request->getContent(), UserEditableDto::class, JsonEncoder::FORMAT);
+            $userCreate = $this->serializer->deserialize($request->getContent(), UserEditableDto::class, JsonEncoder::FORMAT);
         } catch (\Exception $e) {
             error_log($e);
 
-            return new Response(ErrorMessage::invalidFormatJSON($serializer), Response::HTTP_BAD_REQUEST);
+            return new Response(ErrorMessage::invalidFormatJSON($this->serializer), Response::HTTP_BAD_REQUEST);
         }
 
         try {
             $user = $this->userService->updateUser($userId, $userCreate);
         } catch (InvalidRequestException $e) {
-            $errorResponse = ErrorMessage::generateJSON($e, $serializer);
+            $errorResponse = ErrorMessage::generateJSON($e, $this->serializer);
 
             return new Response($errorResponse,Response::HTTP_BAD_REQUEST);
         } catch (UserNotFoundException $e) {
@@ -219,7 +215,7 @@ class UserController extends AbstractController
         }
 
         return new Response(
-            $serializer->serialize($user, JsonEncoder::FORMAT),
+            $this->serializer->serialize($user, JsonEncoder::FORMAT),
             Response::HTTP_OK,
             ['Content-Type' => 'application/json;charset=UTF-8']
         );
