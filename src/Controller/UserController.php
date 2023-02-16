@@ -21,9 +21,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[AsController]
 class UserController extends AbstractController
 {
-    const INVALID_JSON_FORMAT = "invalid json format request";
-    const EMPTY_EMAIL = "no email was found";
-
     /**
      * @var UserServiceInterface
      */
@@ -100,13 +97,13 @@ class UserController extends AbstractController
     {
         $email = $request->query->get('email');
         if($email == "") {
-            return new Response(self::EMPTY_EMAIL, Response::HTTP_BAD_REQUEST);
+            return new Response(ErrorMessage::emptyEmailJSON($serializer), Response::HTTP_BAD_REQUEST);
         }
 
         try {
             $user = $this->userService->findUserByEmail($email);
         } catch(UserNotFoundException $e) {
-            $errorResponse = ErrorMessage::generate($e, $serializer);
+            $errorResponse = ErrorMessage::generateJSON($e, $serializer);
 
             return new Response($errorResponse, Response::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
@@ -158,13 +155,13 @@ class UserController extends AbstractController
             $userCreate = $serializer->deserialize($request->getContent(), UserEditableDto::class, JsonEncoder::FORMAT);
         } catch (\Exception $e) {
             error_log($e);
-            return new Response(self::INVALID_JSON_FORMAT, Response::HTTP_BAD_REQUEST);
+            return new Response(ErrorMessage::invalidFormatJSON($serializer), Response::HTTP_BAD_REQUEST);
         }
 
         try {
             $user = $this->userService->createUser($userCreate);
         } catch (InvalidRequestException $e) {
-            $errorResponse = ErrorMessage::generate($e, $serializer);
+            $errorResponse = ErrorMessage::generateJSON($e, $serializer);
 
             return new Response($errorResponse, Response::HTTP_BAD_REQUEST);
         } catch (\Exception $e) {
@@ -197,13 +194,13 @@ class UserController extends AbstractController
         } catch (\Exception $e) {
             error_log($e);
 
-            return new Response(self::INVALID_JSON_FORMAT, Response::HTTP_BAD_REQUEST);
+            return new Response(ErrorMessage::invalidFormatJSON($serializer), Response::HTTP_BAD_REQUEST);
         }
 
         try {
             $user = $this->userService->updateUser($userId, $userCreate);
         } catch (InvalidRequestException $e) {
-            $errorResponse = ErrorMessage::generate($e, $serializer);
+            $errorResponse = ErrorMessage::generateJSON($e, $serializer);
 
             return new Response($errorResponse,Response::HTTP_BAD_REQUEST);
         } catch (UserNotFoundException $e) {

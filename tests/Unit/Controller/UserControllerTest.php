@@ -129,10 +129,10 @@ class UserControllerTest extends TestCase
         $response = $userController->findUserByEmail($request, $this->serializer);
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-        $this->assertEquals(UserController::EMPTY_EMAIL, $response->getContent());
+        $this->assertEquals(ErrorMessage::emptyEmailJSON($this->serializer), $response->getContent());
     }
 
-    public function testFindUserByEmailNotFound(): void
+    public function testFindUserByEmailUserNotFound(): void
     {
         $userService = $this->createMock(UserServiceInterface::class);
         $userService->expects(self::once())
@@ -256,7 +256,7 @@ class UserControllerTest extends TestCase
         $response = $userController->createUser($request, $this->serializer);
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-        $this->assertEquals(ErrorMessage::generate($expectedException, $this->serializer), $response->getContent());
+        $this->assertEquals(ErrorMessage::generateJSON($expectedException, $this->serializer), $response->getContent());
     }
 
     public function testCreateUserRepositoryError(): void

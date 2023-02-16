@@ -211,7 +211,7 @@ class UserControllerTest extends KernelTestCase
             ConstHelper::USER_PHONE_TEST,
         );
         $exception = new InvalidRequestException(UserService::ERROR_EMPTY_USER_NAME);
-        $errorMessage = ErrorMessage::generate($exception, $this->serializer);
+        $errorMessage = ErrorMessage::generateJSON($exception, $this->serializer);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
@@ -235,7 +235,7 @@ class UserControllerTest extends KernelTestCase
             ConstHelper::USER_PHONE_TEST,
         );
         $exception = new InvalidRequestException(UserService::ERROR_EMPTY_USER_EMAIL);
-        $errorMessage = ErrorMessage::generate($exception, $this->serializer);
+        $errorMessage = ErrorMessage::generateJSON($exception, $this->serializer);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
@@ -259,7 +259,7 @@ class UserControllerTest extends KernelTestCase
             ConstHelper::USER_PHONE_TEST,
         );
         $exception = new InvalidRequestException(UserService::ERROR_EMPTY_USER_PASSWORD);
-        $errorMessage = ErrorMessage::generate($exception, $this->serializer);
+        $errorMessage = ErrorMessage::generateJSON($exception, $this->serializer);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
@@ -310,7 +310,7 @@ class UserControllerTest extends KernelTestCase
             ConstHelper::NEW_USER_PHONE_TEST,
         );
         $exception = new InvalidRequestException(UserService::ERROR_EMPTY_USER_NAME);
-        $errorMessage = ErrorMessage::generate($exception, $this->serializer);
+        $errorMessage = ErrorMessage::generateJSON($exception, $this->serializer);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
@@ -338,7 +338,7 @@ class UserControllerTest extends KernelTestCase
             ConstHelper::NEW_USER_PHONE_TEST,
         );
         $exception = new InvalidRequestException(UserService::ERROR_EMPTY_USER_EMAIL);
-        $errorMessage = ErrorMessage::generate($exception, $this->serializer);
+        $errorMessage = ErrorMessage::generateJSON($exception, $this->serializer);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
