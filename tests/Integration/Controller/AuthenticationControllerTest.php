@@ -120,6 +120,7 @@ class AuthenticationControllerTest extends KernelTestCase
         $response = $authController->login($request);
 
         $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::authenticationFailed($this->serializer), $response->getContent());
 
         FixtureHelper::removeUser($this->entityManager, $user);
     }

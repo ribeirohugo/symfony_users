@@ -75,11 +75,11 @@ class UserController extends AbstractController
     {
         try {
             $user = $this->userService->findUser($userId);
-        } catch(UserNotFoundException) {
-            return new Response("", Response::HTTP_NOT_FOUND);
+        } catch(UserNotFoundException $e) {
+            return new Response(ErrorMessage::generateJSON($e, $this->serializer), Response::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
             error_log($e);
-            return new Response("", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new Response(ErrorMessage::internalError($this->serializer), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return new Response(
@@ -112,7 +112,7 @@ class UserController extends AbstractController
             return new Response($errorResponse, Response::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
             error_log($e);
-            return new Response("", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new Response(ErrorMessage::internalError($this->serializer), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return new Response(
@@ -134,11 +134,11 @@ class UserController extends AbstractController
     {
         try {
             $this->userService->removeUser($userId);
-        } catch(UserNotFoundException) {
-            return new Response("", Response::HTTP_NOT_FOUND);
+        } catch(UserNotFoundException $e) {
+            return new Response(ErrorMessage::generateJSON($e, $this->serializer), Response::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
             error_log($e);
-            return new Response("", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new Response(ErrorMessage::internalError($this->serializer), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return new Response("", Response::HTTP_NO_CONTENT);
@@ -169,7 +169,7 @@ class UserController extends AbstractController
             return new Response($errorResponse, Response::HTTP_BAD_REQUEST);
         } catch (\Exception $e) {
             error_log($e);
-            return new Response("", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new Response(ErrorMessage::internalError($this->serializer), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return new Response(
@@ -186,7 +186,6 @@ class UserController extends AbstractController
      *
      * @param int $userId
      * @param Request $request
-     * @param SerializerInterface $serializer
      * @return Response
      */
     #[Route('/users/{userId}', name: 'updateUser', methods: [Request::METHOD_PUT])]
@@ -208,10 +207,10 @@ class UserController extends AbstractController
             return new Response($errorResponse,Response::HTTP_BAD_REQUEST);
         } catch (UserNotFoundException $e) {
             error_log($e);
-            return new Response("", Response::HTTP_NOT_FOUND);
+            return new Response(ErrorMessage::generateJSON($e, $this->serializer), Response::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
             error_log($e);
-            return new Response("", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new Response(ErrorMessage::internalError($this->serializer), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return new Response(
