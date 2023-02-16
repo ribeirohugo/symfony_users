@@ -13,6 +13,8 @@ use Symfony\Component\Serializer\SerializerInterface;
 class ErrorMessage {
     const INVALID_JSON_FORMAT = "invalid json format request";
     const EMPTY_EMAIL = "no email was found";
+    const INVALID_AUTHENTICATION = "authentication failed";
+    const INTERNAL_ERROR = "a unexpected error occurred";
 
     /**
      * @param Exception $error
@@ -33,8 +35,7 @@ class ErrorMessage {
             self::INVALID_JSON_FORMAT
         );
 
-        $errorDTO = new ErrorDto($exception);
-        return $serializer->serialize($errorDTO, JsonEncoder::FORMAT);
+        return self::generateJSON($exception, $serializer);
     }
 
     /**
@@ -46,7 +47,30 @@ class ErrorMessage {
             self::EMPTY_EMAIL
         );
 
-        $errorDTO = new ErrorDto($exception);
-        return $serializer->serialize($errorDTO, JsonEncoder::FORMAT);
+        return self::generateJSON($exception, $serializer);
+    }
+
+    /**
+     * @param SerializerInterface $serializer
+     * @return string
+     */
+    public static function authenticationFailed(SerializerInterface $serializer): string {
+        $exception = new Exception(
+            self::INVALID_AUTHENTICATION
+        );
+
+        return self::generateJSON($exception, $serializer);
+    }
+
+    /**
+     * @param SerializerInterface $serializer
+     * @return string
+     */
+    public static function internalError(SerializerInterface $serializer): string {
+        $exception = new Exception(
+            self::INVALID_AUTHENTICATION
+        );
+
+        return self::generateJSON($exception, $serializer);
     }
 }

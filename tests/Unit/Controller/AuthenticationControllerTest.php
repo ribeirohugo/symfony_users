@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Controller;
 
+use App\Common\ErrorMessage;
 use App\Controller\AuthenticationController;
 use App\Dto\LoginDto;
 use App\Dto\UserDto;
@@ -84,7 +85,8 @@ class AuthenticationControllerTest extends TestCase
 
         $response = $userController->login($request);
 
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::authenticationFailed($this->serializer), $response->getContent());
     }
 
     public function testLoginUnauthorized(): void

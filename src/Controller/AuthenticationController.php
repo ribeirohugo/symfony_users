@@ -2,14 +2,12 @@
 
 namespace App\Controller;
 
+use App\Common\ErrorMessage;
 use App\Dto\LoginDto;
 use App\Exception\UserNotFoundException;
 use App\Service\AuthenticationServiceInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-
-
-use App\Service\UserServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -32,6 +30,10 @@ class AuthenticationController extends AbstractController
      */
     private  SerializerInterface $serializer;
 
+    /**
+     * @param AuthenticationServiceInterface $authenticationService
+     * @param SerializerInterface $serializer
+     */
     function __construct(AuthenticationServiceInterface $authenticationService, SerializerInterface $serializer)
     {
         $this->authenticationService = $authenticationService;
@@ -39,24 +41,24 @@ class AuthenticationController extends AbstractController
     }
 
     #[Route('/login', name: 'login', methods: [Request::METHOD_POST])]
-    public function login(Request $request, ): Response
+    public function login(Request $request): Response
     {
         try {
             $loginDto = $this->serializer->deserialize($request->getContent(), LoginDto::class, JsonEncoder::FORMAT);
         } catch (\Exception $e) {
             error_log($e);
 
-            return new Response("", Response::HTTP_BAD_REQUEST);
+            return new Response(ErrorMessage::invalidFormatJSON($this->serializer), Response::HTTP_BAD_REQUEST);
         }
 
         try {
             $user = $this->authenticationService->login($loginDto);
         } catch (UserNotFoundException $e) {
             error_log($e);
-            return new Response("", Response::HTTP_NOT_FOUND);
+            return new Response(ErrorMessage::authenticationFailed($this->serializer), Response::HTTP_UNAUTHORIZED);
         } catch (\Exception $e) {
             error_log($e);
-            return new Response("", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new Response(ErrorMessage::internalError($this->serializer), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         if($user) {
