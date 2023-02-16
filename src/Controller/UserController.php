@@ -27,11 +27,18 @@ class UserController extends AbstractController
     private UserServiceInterface $userService;
 
     /**
-     * @param UserServiceInterface $userService
+     * @var SerializerInterface
      */
-    function __construct(UserServiceInterface $userService)
+    private  SerializerInterface $serializer;
+
+    /**
+     * @param UserServiceInterface $userService
+     * @param SerializerInterface|null $serializer
+     */
+    function __construct(UserServiceInterface $userService, SerializerInterface $serializer = null)
     {
         $this->userService = $userService;
+        $this->serializer = $serializer;
     }
 
     /**
@@ -41,7 +48,7 @@ class UserController extends AbstractController
      * @return Response
      */
     #[Route('/users', name: 'listUsers', methods: [Request::METHOD_GET])]
-    public function listUsers(SerializerInterface $serializer): Response
+    public function listUsers(): Response
     {
         try {
             $users = $this->userService->findAllUsers();
@@ -51,7 +58,7 @@ class UserController extends AbstractController
         }
 
         return new Response(
-            $serializer->serialize($users, JsonEncoder::FORMAT),
+            $this->serializer->serialize($users, JsonEncoder::FORMAT),
             Response::HTTP_OK,
             ['Content-Type' => 'application/json;charset=UTF-8']
         );
