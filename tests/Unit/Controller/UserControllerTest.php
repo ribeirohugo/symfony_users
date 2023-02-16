@@ -81,18 +81,19 @@ class UserControllerTest extends TestCase
 
     public function testSingleUserNotFound(): void
     {
-        $userId = 1;
+        $exception = new UserNotFoundException(ConstHelper::USER_ID_TEST);
 
         $userService = $this->createMock(UserServiceInterface::class);
         $userService->expects(self::once())
             ->method('findUser')
-            ->willThrowException(new UserNotFoundException($userId));
+            ->willThrowException($exception);
 
         $userController = new UserController($userService, $this->serializer);
 
-        $response = $userController->singleUser($userId);
+        $response = $userController->singleUser(ConstHelper::USER_ID_TEST);
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::generateJSON($exception, $this->serializer), $response->getContent());
     }
 
     public function testFindUserByEmailSuccess(): void
@@ -134,10 +135,12 @@ class UserControllerTest extends TestCase
 
     public function testFindUserByEmailUserNotFound(): void
     {
+        $exception = new UserNotFoundException(ConstHelper::USER_EMAIL_TEST);
+
         $userService = $this->createMock(UserServiceInterface::class);
         $userService->expects(self::once())
             ->method('findUserByEmail')
-            ->willThrowException(new UserNotFoundException(ConstHelper::USER_EMAIL_TEST));
+            ->willThrowException($exception);
         $userController = new UserController($userService, $this->serializer);
 
         $parameters = ["email" => ConstHelper::USER_EMAIL_TEST];
@@ -146,6 +149,7 @@ class UserControllerTest extends TestCase
         $response = $userController->findUserByEmail($request);
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::generateJSON($exception, $this->serializer), $response->getContent());
     }
 
     public function testRemoveUserSuccess(): void
@@ -164,22 +168,23 @@ class UserControllerTest extends TestCase
 
     public function testRemoveUserNotFound(): void
     {
-        $userId = 1;
+        $exception = new UserNotFoundException(ConstHelper::USER_ID_TEST);
 
         $userService = $this->createMock(UserServiceInterface::class);
         $userService->expects(self::once())
             ->method('removeUser')
-            ->willThrowException(new UserNotFoundException($userId));
+            ->willThrowException($exception);
         $userController = new UserController($userService, $this->serializer);
 
-        $response = $userController->removeUser($userId);
+        $response = $userController->removeUser(ConstHelper::USER_ID_TEST);
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::generateJSON($exception, $this->serializer), $response->getContent());
     }
 
     public function testRemoveUserServiceError(): void
     {
-        $userId = 1;
+        $exception = new \Exception();
 
         $userService = $this->createMock(UserServiceInterface::class);
         $userService->expects(self::once())
@@ -187,9 +192,10 @@ class UserControllerTest extends TestCase
             ->willThrowException(new \Exception());
         $userController = new UserController($userService, $this->serializer);
 
-        $response = $userController->removeUser($userId);
+        $response = $userController->removeUser(ConstHelper::USER_ID_TEST);
 
         $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::internalError($this->serializer), $response->getContent());
     }
 
     public function testCreateUserSuccess(): void
@@ -280,6 +286,7 @@ class UserControllerTest extends TestCase
         $response = $userController->createUser($request);
 
         $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::internalError($this->serializer), $response->getContent());
     }
 
     public function testUpdateUserSuccess(): void
@@ -313,7 +320,6 @@ class UserControllerTest extends TestCase
 
     public function testUpdateUserNotfound(): void
     {
-        $userId = 1;
         $userCreate = new UserEditableDto(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
@@ -324,39 +330,44 @@ class UserControllerTest extends TestCase
         $userService = $this->createMock(UserServiceInterface::class);
         $userService->expects(self::once())
             ->method('updateUser')
-            ->willThrowException(new UserNotFoundException($userId));
+            ->willThrowException(new UserNotFoundException(ConstHelper::USER_ID_TEST));
         $userController = new UserController($userService, $this->serializer);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("users/1", Request::METHOD_PUT, $content);
 
-        $response = $userController->updateUser($userId, $request);
+        $response = $userController->updateUser(ConstHelper::USER_ID_TEST, $request);
+
+        $exception = new UserNotFoundException(ConstHelper::USER_ID_TEST);
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::generateJSON($exception, $this->serializer), $response->getContent());
     }
 
     public function testUpdateUserError(): void
     {
-        $userId = 1;
         $userCreate = new UserEditableDto(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
+        $exception = new \Exception();
 
         $userService = $this->createMock(UserServiceInterface::class);
         $userService->expects(self::once())
             ->method('updateUser')
-            ->willThrowException(new \Exception());
+            ->willThrowException($exception);
         $userController = new UserController($userService, $this->serializer);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("users/1", Request::METHOD_PUT, $content);
 
-        $response = $userController->updateUser($userId, $request);
+        $response = $userController->updateUser(ConstHelper::USER_ID_TEST, $request);
 
         $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::internalError($this->serializer), $response->getContent());
+
     }
 
     protected function tearDown(): void
