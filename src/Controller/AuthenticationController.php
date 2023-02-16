@@ -70,7 +70,7 @@ class AuthenticationController extends AbstractController
         }
 
         return new Response(
-            "",
+            ErrorMessage::authenticationFailed($this->serializer),
             Response::HTTP_UNAUTHORIZED,
             ['Content-Type' => 'application/json;charset=UTF-8']
         );
