@@ -1,4 +1,4 @@
-name: Symfony
+name: Linter
 
 on:
   workflow_dispatch:
