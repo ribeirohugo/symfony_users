@@ -72,6 +72,7 @@
         "ext-pdo": "*",
         "dama/doctrine-test-bundle": "^7.2",
         "phpunit/php-code-coverage": "^10.0",
-        "phpunit/phpunit": "^10.0"
+        "phpunit/phpunit": "^10.0",
+        "symfony/maker-bundle": "^1.48"
     }
 }
