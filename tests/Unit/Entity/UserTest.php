@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Entity;
 
+use App\Entity\Roles;
 use App\Entity\User;
 use App\Tests\Utils\ConstHelper;
 use PHPUnit\Framework\TestCase;
@@ -79,5 +80,15 @@ class UserTest extends TestCase{
         $user->setUpdatedAt($updatedAt);
 
         $this->assertEquals($updatedAt, $user->getUpdatedAt());
+    }
+
+    public function testUserRoles() {
+        $user = new User("", "", "", "");
+
+        $roles = [Roles::ROLE_USER, Roles::ROLE_ADMIN];
+
+        $user->setRoles($roles);
+
+        $this->assertEquals($roles, $user->getRoles());
     }
 }
