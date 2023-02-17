@@ -3,12 +3,14 @@
 namespace App\Tests\Unit\Dto;
 
 use App\DTO\UserDTO;
+use App\Entity\Roles;
 use App\Tests\Utils\ConstHelper;
 use PHPUnit\Framework\TestCase;
 
 class UserDtoTest extends TestCase{
     public function testUserDtoConstruct() {
         $timestamp = new \DateTime();
+        $expectedRoles = [Roles::ROLE_USER, Roles::ROLE_ADMIN];
 
         $user = new UserDto(
             ConstHelper::USER_ID_TEST,
@@ -27,6 +29,7 @@ class UserDtoTest extends TestCase{
         $this->assertEquals(ConstHelper::USER_PHONE_TEST, $user->getPhone());
         $this->assertEquals($timestamp, $user->getCreatedAt());
         $this->assertEquals($timestamp, $user->getUpdatedAt());
+        $this->assertEquals($expectedRoles, $user->getRoles());
     }
 
     public function testUserDtoId() {

@@ -40,12 +40,18 @@ class UserDto
     private ?DateTimeInterface $updatedAt;
 
     /**
-     * @param int $int
+     * @var string[]
+     */
+    private array $roles;
+
+    /**
+     * @param int $id
      * @param string $name
      * @param string $email
      * @param string $phone
      * @param DateTimeInterface|null $createdAt
      * @param DateTimeInterface|null $updatedAt
+     * @param array $roles
      */
     public function __construct(
         int                $id,
@@ -54,6 +60,7 @@ class UserDto
         string             $phone,
         ?DateTimeInterface $createdAt = null,
         ?DateTimeInterface $updatedAt = null,
+        array $roles = [],
     ) {
         $this->id = $id;
         $this->name = $name;
@@ -61,6 +68,7 @@ class UserDto
         $this->phone = $phone;
         $this->createdAt = $createdAt;
         $this->updatedAt = $updatedAt;
+        $this->roles = $roles;
     }
 
     /**
@@ -124,6 +132,21 @@ class UserDto
     }
 
     /**
+     * @return string[]
+     */
+    public function getRoles(): array {
+        return $this->roles;
+    }
+
+    /**
+     * @param array $roles
+     * @return void
+     */
+    public function setRoles(array $roles): void {
+        $this->roles = $roles;
+    }
+
+        /**
      * @return DateTimeInterface
      */
     public function getCreatedAt(): DateTimeInterface {
