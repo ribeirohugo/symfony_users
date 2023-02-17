@@ -366,8 +366,8 @@ class UserControllerTest extends KernelTestCase
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
+        // Check if roles were properly updated
         $existingUser = $userRepository->find($existingUser->getId());
-
         $this->assertEquals($expectedRoles, $existingUser->getRoles());
 
         FixtureHelper::removeUser($this->entityManager, $existingUser);
