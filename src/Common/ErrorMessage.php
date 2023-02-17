@@ -68,7 +68,7 @@ class ErrorMessage {
      */
     public static function internalError(SerializerInterface $serializer): string {
         $exception = new Exception(
-            self::INVALID_AUTHENTICATION
+            self::INTERNAL_ERROR
         );
 
         return self::generateJSON($exception, $serializer);

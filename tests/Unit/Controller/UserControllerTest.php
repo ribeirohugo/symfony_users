@@ -184,8 +184,6 @@ class UserControllerTest extends TestCase
 
     public function testRemoveUserServiceError(): void
     {
-        $exception = new \Exception();
-
         $userService = $this->createMock(UserServiceInterface::class);
         $userService->expects(self::once())
             ->method('removeUser')
