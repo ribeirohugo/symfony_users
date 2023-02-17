@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 class UserDtoTest extends TestCase{
     public function testUserDtoConstruct() {
         $timestamp = new \DateTime();
-        $expectedRoles = [Roles::ROLE_USER, Roles::ROLE_ADMIN];
+        $expectedRoles = [Roles::ROLE_USER];
 
         $user = new UserDto(
             ConstHelper::USER_ID_TEST,
@@ -19,6 +19,7 @@ class UserDtoTest extends TestCase{
             ConstHelper::USER_PHONE_TEST,
             $timestamp,
             $timestamp,
+            $expectedRoles,
         );
         $user->setId(ConstHelper::USER_ID_TEST);
 
