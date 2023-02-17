@@ -2,10 +2,10 @@
 
 namespace App\Tests\Integration\Repository;
 
+use App\Entity\Roles;
 use App\Entity\User;
 use App\Tests\Utils\ConstHelper;
 use App\Tests\Utils\FixtureHelper;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -49,6 +49,7 @@ class UserRepositoryTest extends KernelTestCase
         $this->assertSame($user->getEmail(), $response->getEmail());
         $this->assertSame($user->getPassword(), $response->getPassword());
         $this->assertSame($user->getPhone(), $response->getPhone());
+        $this->assertSame($user->getRoles(), $response->getRoles());
 
         FixtureHelper::removeUser($this->entityManager, $user);
     }
@@ -66,6 +67,7 @@ class UserRepositoryTest extends KernelTestCase
         $this->assertSame($user->getEmail(), $response->getEmail());
         $this->assertSame($user->getPassword(), $response->getPassword());
         $this->assertSame($user->getPhone(), $response->getPhone());
+        $this->assertSame($user->getRoles(), $response->getRoles());
 
         FixtureHelper::removeUser($this->entityManager, $user);
     }
@@ -82,16 +84,19 @@ class UserRepositoryTest extends KernelTestCase
         $this->assertSame($user->getEmail(), $response->getEmail());
         $this->assertSame($user->getPassword(), $response->getPassword());
         $this->assertSame($user->getPhone(), $response->getPhone());
+        $this->assertSame($user->getRoles(), $response->getRoles());
 
         FixtureHelper::removeUser($this->entityManager, $user);
     }
 
     public function testSaveUser() {
+        $expectedRoles = [Roles::ROLE_ADMIN, Roles::ROLE_USER];
         $user = new User(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
+            $expectedRoles,
         );
         $timestamp = new \DateTime();
         $user->setCreatedAt($timestamp);
@@ -99,8 +104,7 @@ class UserRepositoryTest extends KernelTestCase
 
         $createdUser = $this->entityManager
             ->getRepository(User::class)
-            ->save($user, true)
-        ;
+            ->save($user, true);
 
         $this->assertSame($user->getName(), $createdUser->getName());
         $this->assertSame($user->getEmail(), $createdUser->getEmail());
@@ -108,6 +112,7 @@ class UserRepositoryTest extends KernelTestCase
         $this->assertSame($user->getPhone(), $createdUser->getPhone());
         $this->assertSame($timestamp, $createdUser->getCreatedAt());
         $this->assertSame($timestamp, $createdUser->getUpdatedAt());
+        $this->assertEquals($expectedRoles, $createdUser->getRoles());
 
         FixtureHelper::removeUser($this->entityManager, $createdUser);
     }
