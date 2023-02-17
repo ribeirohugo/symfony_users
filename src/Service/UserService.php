@@ -134,6 +134,7 @@ class UserService implements UserServiceInterface {
         $user->setName($userEditable->getName());
         $user->setEmail($userEditable->getEmail());
         $user->setPhone($userEditable->getPhone());
+        $user->setRoles($userEditable->getRoles());
         $user->setUpdatedAt(new \DateTime());
 
         if($userEditable->getPassword()!="") {

@@ -3,6 +3,7 @@
 namespace App\Tests\Utils;
 
 use App\Common\Password;
+use App\Entity\Roles;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
 
@@ -12,11 +13,14 @@ class FixtureHelper {
      * @return User|null
      */
     public static function addUser(EntityManager $entityManager): ?User {
+        $expectedRoles = [Roles::ROLE_USER, Roles::ROLE_ADMIN];
+
         $user = new User(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
+            $expectedRoles,
         );
         $user->setCreatedAt(new \DateTime());
         $user->setUpdatedAt(new \DateTime());

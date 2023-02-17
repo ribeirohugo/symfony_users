@@ -3,6 +3,7 @@
 namespace App\Tests\Integration\Service;
 
 use App\Dto\UserEditableDto;
+use App\Entity\Roles;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
@@ -141,6 +142,29 @@ class UserServiceTest extends KernelTestCase
         $this->assertEquals($userCreate->getName(), $response->getName());
         $this->assertEquals($userCreate->getEmail(), $response->getEmail());
         $this->assertEquals($userCreate->getPhone(), $response->getPhone());
+        $this->assertEquals([Roles::ROLE_USER], $response->getRoles());
+    }
+
+    public function testCreateUserSuccessWithRoles(): void
+    {
+        $expectedRoles = [Roles::ROLE_USER, Roles::ROLE_ADMIN];
+        $userCreate = new UserEditableDto(
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
+            $expectedRoles
+        );
+
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+
+        $response = $userService->createUser($userCreate);
+
+        $this->assertEquals($userCreate->getName(), $response->getName());
+        $this->assertEquals($userCreate->getEmail(), $response->getEmail());
+        $this->assertEquals($userCreate->getPhone(), $response->getPhone());
+        $this->assertEquals($expectedRoles, $response->getRoles());
     }
 
     public function testUpdateUserSuccess(): void
@@ -162,6 +186,33 @@ class UserServiceTest extends KernelTestCase
         $this->assertEquals($userCreate->getName(), $response->getName());
         $this->assertEquals($userCreate->getEmail(), $response->getEmail());
         $this->assertEquals($userCreate->getPhone(), $response->getPhone());
+        $this->assertEquals([Roles::ROLE_USER], $response->getRoles());
+
+        FixtureHelper::removeUser($this->entityManager, $existingUser);
+    }
+
+    public function testUpdateUserSuccessWithRoles(): void
+    {
+        $existingUser = FixtureHelper::addUser($this->entityManager);
+
+        $expectedRoles = [Roles::ROLE_USER, Roles::ROLE_ADMIN];
+        $userCreate = new UserEditableDto(
+            ConstHelper::NEW_USER_NAME_TEST,
+            ConstHelper::NEW_USER_EMAIL_TEST,
+            ConstHelper::NEW_USER_PASSWORD_TEST,
+            ConstHelper::NEW_USER_PHONE_TEST,
+            $expectedRoles
+        );
+
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+
+        $response = $userService->updateUser($existingUser->getId(), $userCreate);
+
+        $this->assertEquals($userCreate->getName(), $response->getName());
+        $this->assertEquals($userCreate->getEmail(), $response->getEmail());
+        $this->assertEquals($userCreate->getPhone(), $response->getPhone());
+        $this->assertEquals($expectedRoles, $response->getRoles());
 
         FixtureHelper::removeUser($this->entityManager, $existingUser);
     }

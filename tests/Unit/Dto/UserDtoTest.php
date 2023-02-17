@@ -3,12 +3,14 @@
 namespace App\Tests\Unit\Dto;
 
 use App\DTO\UserDTO;
+use App\Entity\Roles;
 use App\Tests\Utils\ConstHelper;
 use PHPUnit\Framework\TestCase;
 
 class UserDtoTest extends TestCase{
     public function testUserDtoConstruct() {
         $timestamp = new \DateTime();
+        $expectedRoles = [Roles::ROLE_USER];
 
         $user = new UserDto(
             ConstHelper::USER_ID_TEST,
@@ -17,6 +19,7 @@ class UserDtoTest extends TestCase{
             ConstHelper::USER_PHONE_TEST,
             $timestamp,
             $timestamp,
+            $expectedRoles,
         );
         $user->setId(ConstHelper::USER_ID_TEST);
 
@@ -27,6 +30,7 @@ class UserDtoTest extends TestCase{
         $this->assertEquals(ConstHelper::USER_PHONE_TEST, $user->getPhone());
         $this->assertEquals($timestamp, $user->getCreatedAt());
         $this->assertEquals($timestamp, $user->getUpdatedAt());
+        $this->assertEquals($expectedRoles, $user->getRoles());
     }
 
     public function testUserDtoId() {
@@ -113,5 +117,20 @@ class UserDtoTest extends TestCase{
 
         $this->assertIsObject($user);
         $this->assertEquals($timestamp, $user->getUpdatedAt());
+    }
+
+    public function testUserDtoRoles() {
+        $user = new UserDto(
+            ConstHelper::USER_ID_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PHONE_TEST,
+        );
+        $expectedRoles = [Roles::ROLE_USER, Roles::ROLE_ADMIN];
+
+        $user->setRoles($expectedRoles);
+
+        $this->assertIsObject($user);
+        $this->assertEquals($expectedRoles, $user->getRoles());
     }
 }

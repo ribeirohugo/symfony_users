@@ -2,12 +2,34 @@
 
 namespace App\Tests\Unit\Entity;
 
+use App\Entity\Roles;
 use App\Entity\User;
 use App\Tests\Utils\ConstHelper;
 use PHPUnit\Framework\TestCase;
 
 class UserTest extends TestCase{
     public function testUserCreate() {
+        $expectedRoles = [Roles::ROLE_USER, Roles::ROLE_ADMIN];
+
+        $user = new User(
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
+            $expectedRoles,
+        );
+
+        $this->assertIsObject($user);
+        $this->assertEquals(ConstHelper::USER_NAME_TEST, $user->getName());
+        $this->assertEquals(ConstHelper::USER_EMAIL_TEST, $user->getEmail());
+        $this->assertEquals(ConstHelper::USER_PASSWORD_TEST, $user->getPassword());
+        $this->assertEquals(ConstHelper::USER_PHONE_TEST, $user->getPhone());
+        $this->assertEquals($expectedRoles, $user->getRoles());
+    }
+
+    public function testUserCreateWithNoRoleSet() {
+        $expectedRoles = [Roles::ROLE_USER];
+
         $user = new User(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
@@ -20,6 +42,7 @@ class UserTest extends TestCase{
         $this->assertEquals(ConstHelper::USER_EMAIL_TEST, $user->getEmail());
         $this->assertEquals(ConstHelper::USER_PASSWORD_TEST, $user->getPassword());
         $this->assertEquals(ConstHelper::USER_PHONE_TEST, $user->getPhone());
+        $this->assertEquals($expectedRoles, $user->getRoles());
     }
 
     public function testUserId() {
@@ -79,5 +102,27 @@ class UserTest extends TestCase{
         $user->setUpdatedAt($updatedAt);
 
         $this->assertEquals($updatedAt, $user->getUpdatedAt());
+    }
+
+    public function testUserRoles() {
+        $user = new User("", "", "", "");
+
+        $roles = [Roles::ROLE_USER, Roles::ROLE_ADMIN];
+
+        $user->setRoles($roles);
+
+        $this->assertEquals($roles, $user->getRoles());
+    }
+
+    public function testUserGetSalt() {
+        $user = new User("", "", "", "");
+
+        $this->assertNull($user->getSalt());
+    }
+
+    public function testUserIdentifier() {
+        $user = new User("", ConstHelper::USER_EMAIL_TEST, "", "");
+
+        $this->assertEquals(ConstHelper::USER_EMAIL_TEST, $user->getUserIdentifier());
     }
 }

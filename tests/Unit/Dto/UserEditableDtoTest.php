@@ -3,11 +3,31 @@
 namespace App\Tests\Unit\Dto;
 
 use App\Dto\UserEditableDto;
+use App\Entity\Roles;
 use App\Tests\Utils\ConstHelper;
 use PHPUnit\Framework\TestCase;
 
 class UserEditableDtoTest extends TestCase{
     public function testUserEditableDtoConstruct() {
+        $expectedRoles = [Roles::ROLE_USER, Roles::ROLE_ADMIN];
+
+        $user = new UserEditableDto(
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
+            $expectedRoles,
+        );
+
+        $this->assertIsObject($user);
+        $this->assertEquals(ConstHelper::USER_NAME_TEST, $user->getName());
+        $this->assertEquals(ConstHelper::USER_EMAIL_TEST, $user->getEmail());
+        $this->assertEquals(ConstHelper::USER_PASSWORD_TEST, $user->getPassword());
+        $this->assertEquals(ConstHelper::USER_PHONE_TEST, $user->getPhone());
+        $this->assertEquals($expectedRoles, $user->getRoles());
+    }
+
+    public function testUserEditableDtoConstructWithoutRoles() {
         $user = new UserEditableDto(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
@@ -20,6 +40,7 @@ class UserEditableDtoTest extends TestCase{
         $this->assertEquals(ConstHelper::USER_EMAIL_TEST, $user->getEmail());
         $this->assertEquals(ConstHelper::USER_PASSWORD_TEST, $user->getPassword());
         $this->assertEquals(ConstHelper::USER_PHONE_TEST, $user->getPhone());
+        $this->assertEmpty($user->getRoles());
     }
 
     public function testUserEditableDtoName() {
@@ -76,5 +97,20 @@ class UserEditableDtoTest extends TestCase{
 
         $this->assertIsObject($user);
         $this->assertEquals(ConstHelper::NEW_USER_PHONE_TEST, $user->getPhone());
+    }
+
+    public function testUserEditableDtoRoles() {
+        $user = new UserEditableDto(
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
+        );
+        $expectedRoles = [Roles::ROLE_USER, Roles::ROLE_ADMIN];
+
+        $user->setRoles($expectedRoles);
+
+        $this->assertIsObject($user);
+        $this->assertEquals($expectedRoles, $user->getRoles());
     }
 }

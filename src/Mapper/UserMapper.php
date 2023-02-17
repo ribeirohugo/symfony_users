@@ -19,6 +19,7 @@ class UserMapper {
             $entity->getPhone(),
             $entity->getCreatedAt(),
             $entity->getUpdatedAt(),
+            $entity->getRoles(),
         );
     }
 
@@ -46,6 +47,7 @@ class UserMapper {
             $userEditableDto->getEmail(),
             $userEditableDto->getPassword(),
             $userEditableDto->getPhone(),
+            $userEditableDto->getRoles(),
         );
     }
 }

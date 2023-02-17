@@ -28,16 +28,23 @@ class UserEditableDto
     private ?string $phone = null;
 
     /**
+     * @var array
+     */
+    private array $roles;
+
+    /**
      * @param string $name
      * @param string $email
      * @param string $password
      * @param string $phone
+     * @param array $roles
      */
-    public function __construct(string $name, string $email, string $password, string $phone) {
+    public function __construct(string $name, string $email, string $password, string $phone, array $roles = []) {
         $this->name = $name;
         $this->email = $email;
         $this->password = $password;
         $this->phone = $phone;
+        $this->roles = $roles;
     }
 
     /**
@@ -98,5 +105,20 @@ class UserEditableDto
      */
     public function setPassword(string $password): void {
         $this->password = $password;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getRoles(): array {
+        return $this->roles;
+    }
+
+    /**
+     * @param array $roles
+     * @return void
+     */
+    public function setRoles(array $roles): void {
+        $this->roles = $roles;
     }
 }
