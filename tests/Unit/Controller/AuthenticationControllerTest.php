@@ -10,7 +10,9 @@ use App\Exception\UserNotFoundException;
 use App\Service\AuthenticationServiceInterface;
 use App\Tests\Utils\ConstHelper;
 use App\Tests\Utils\RequestHelper;
+use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -24,12 +26,19 @@ class AuthenticationControllerTest extends TestCase
      */
     private Serializer $serializer;
 
+    /**
+     * @var LoggerInterface
+     */
+    private LoggerInterface $logger;
+
     protected function setUp(): void
     {
         $encoders = array(new JsonEncoder());
         $normalizers = array(new ObjectNormalizer());
 
         $this->serializer = new Serializer($normalizers, $encoders);
+
+        $this->logger = new Logger("test");
     }
 
     public function testLoginSuccess(): void
@@ -49,7 +58,7 @@ class AuthenticationControllerTest extends TestCase
         $authService->expects(self::once())
             ->method('login')
             ->willReturn($userDto);
-        $userController = new AuthenticationController($authService, $this->serializer);
+        $userController = new AuthenticationController($authService, $this->serializer, $this->logger);
 
         $content = $this->serializer->serialize($loginDto, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("login", Request::METHOD_POST, $content);
@@ -62,12 +71,6 @@ class AuthenticationControllerTest extends TestCase
 
     public function testLoginUserNotFound(): void
     {
-        $userDto = new UserDto(
-            ConstHelper::USER_ID_TEST,
-            ConstHelper::USER_NAME_TEST,
-            ConstHelper::USER_EMAIL_TEST,
-            ConstHelper::USER_PHONE_TEST,
-        );
         $loginDto = new LoginDto(
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PASSWORD_TEST,
@@ -78,7 +81,7 @@ class AuthenticationControllerTest extends TestCase
             ->method('login')
             ->willThrowException(new UserNotFoundException(ConstHelper::USER_EMAIL_TEST));
 
-        $userController = new AuthenticationController($authService, $this->serializer);
+        $userController = new AuthenticationController($authService, $this->serializer, $this->logger);
 
         $content = $this->serializer->serialize($loginDto, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("login", Request::METHOD_POST, $content);
@@ -100,7 +103,7 @@ class AuthenticationControllerTest extends TestCase
         $authService->expects(self::once())
             ->method('login')
             ->willReturn(false);
-        $userController = new AuthenticationController($authService, $this->serializer);
+        $userController = new AuthenticationController($authService, $this->serializer, $this->logger);
 
         $content = $this->serializer->serialize($loginDto, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("login", Request::METHOD_POST, $content);
@@ -122,7 +125,7 @@ class AuthenticationControllerTest extends TestCase
         $authService->expects(self::once())
             ->method('login')
             ->willThrowException(new \Exception());
-        $userController = new AuthenticationController($authService, $this->serializer);
+        $userController = new AuthenticationController($authService, $this->serializer, $this->logger);
 
         $content = $this->serializer->serialize($loginDto, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("login", Request::METHOD_POST, $content);

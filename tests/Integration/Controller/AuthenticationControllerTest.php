@@ -12,6 +12,8 @@ use App\Tests\Utils\ConstHelper;
 use App\Tests\Utils\FixtureHelper;
 use App\Tests\Utils\RequestHelper;
 use Doctrine\ORM\EntityManager;
+use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -34,6 +36,11 @@ class AuthenticationControllerTest extends KernelTestCase
      */
     private Serializer $serializer;
 
+    /**
+     * @var LoggerInterface
+     */
+    private LoggerInterface $logger;
+
     protected function setUp(): void
     {
         $kernel = self::bootKernel();
@@ -54,6 +61,8 @@ class AuthenticationControllerTest extends KernelTestCase
         $normalizers = array(new DateTimeNormalizer(), new ObjectNormalizer());
 
         $this->serializer = new Serializer($normalizers, $encoders);
+
+        $this->logger = new Logger("test");
     }
 
     public function testLoginSuccess(): void
@@ -68,7 +77,7 @@ class AuthenticationControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $authService = new AuthenticationService($userRepository);
-        $authController = new AuthenticationController($authService, $this->serializer);
+        $authController = new AuthenticationController($authService, $this->serializer, $this->logger);
 
         $content = $this->serializer->serialize($loginDto, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("login", Request::METHOD_PUT, $content);
@@ -90,7 +99,7 @@ class AuthenticationControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $authService = new AuthenticationService($userRepository);
-        $authController = new AuthenticationController($authService, $this->serializer);
+        $authController = new AuthenticationController($authService, $this->serializer, $this->logger);
 
         $content = $this->serializer->serialize($loginDto, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("login", Request::METHOD_PUT, $content);
@@ -112,7 +121,7 @@ class AuthenticationControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $authService = new AuthenticationService($userRepository);
-        $authController = new AuthenticationController($authService, $this->serializer);
+        $authController = new AuthenticationController($authService, $this->serializer, $this->logger);
 
         $content = $this->serializer->serialize($loginDto, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("login", Request::METHOD_PUT, $content);
