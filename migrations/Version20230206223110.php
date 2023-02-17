@@ -8,13 +8,13 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * Adds User entity table
+ * Adds User entity table.
  */
 final class Version20230206223110 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Add User entity table';
+        return 'Add User entity table.';
     }
 
     public function up(Schema $schema): void
