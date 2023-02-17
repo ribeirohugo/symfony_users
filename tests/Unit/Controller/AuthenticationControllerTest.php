@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Controller;
 
+use App\Common\ErrorMessage;
 use App\Controller\AuthenticationController;
 use App\Dto\LoginDto;
 use App\Dto\UserDto;
@@ -51,7 +52,7 @@ class AuthenticationControllerTest extends TestCase
         $userController = new AuthenticationController($authService, $this->serializer);
 
         $content = $this->serializer->serialize($loginDto, JsonEncoder::FORMAT);
-        $request = RequestHelper::createRequest("login", Request::METHOD_PUT, $content);
+        $request = RequestHelper::createRequest("login", Request::METHOD_POST, $content);
 
         $response = $userController->login($request);
 
@@ -84,7 +85,8 @@ class AuthenticationControllerTest extends TestCase
 
         $response = $userController->login($request);
 
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::authenticationFailed($this->serializer), $response->getContent());
     }
 
     public function testLoginUnauthorized(): void
@@ -101,10 +103,33 @@ class AuthenticationControllerTest extends TestCase
         $userController = new AuthenticationController($authService, $this->serializer);
 
         $content = $this->serializer->serialize($loginDto, JsonEncoder::FORMAT);
-        $request = RequestHelper::createRequest("login", Request::METHOD_PUT, $content);
+        $request = RequestHelper::createRequest("login", Request::METHOD_POST, $content);
 
         $response = $userController->login($request);
 
         $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::authenticationFailed($this->serializer), $response->getContent());
+    }
+
+    public function testLoginServiceException(): void
+    {
+        $loginDto = new LoginDto(
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+        );
+
+        $authService = $this->createMock(AuthenticationServiceInterface::class);
+        $authService->expects(self::once())
+            ->method('login')
+            ->willThrowException(new \Exception());
+        $userController = new AuthenticationController($authService, $this->serializer);
+
+        $content = $this->serializer->serialize($loginDto, JsonEncoder::FORMAT);
+        $request = RequestHelper::createRequest("login", Request::METHOD_POST, $content);
+
+        $response = $userController->login($request);
+
+        $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::internalError($this->serializer), $response->getContent());
     }
 }

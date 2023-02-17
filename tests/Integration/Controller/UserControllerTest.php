@@ -7,6 +7,7 @@ use App\Controller\UserController;
 use App\Dto\UserEditableDto;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
+use App\Exception\UserNotFoundException;
 use App\Mapper\UserMapper;
 use App\Service\UserService;
 use App\Tests\Utils\ConstHelper;
@@ -65,9 +66,9 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService);
+        $userController = new UserController($userService, $this->serializer);
 
-        $response = $userController->listUsers($this->serializer);
+        $response = $userController->listUsers();
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals($this->serializer->serialize([$userDto], JsonEncoder::FORMAT), $response->getContent());
@@ -82,9 +83,9 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService);
+        $userController = new UserController($userService, $this->serializer);
 
-        $response = $userController->singleUser($user->getId(), $this->serializer);
+        $response = $userController->singleUser($user->getId());
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals($this->serializer->serialize($userDto, JsonEncoder::FORMAT), $response->getContent());
@@ -96,11 +97,14 @@ class UserControllerTest extends KernelTestCase
     {
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService);
+        $userController = new UserController($userService, $this->serializer);
 
-        $response = $userController->singleUser(1, $this->serializer);
+        $response = $userController->singleUser(ConstHelper::USER_ID_TEST);
+
+        $expectedError = new UserNotFoundException(ConstHelper::USER_ID_TEST);
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::generateJSON($expectedError, $this->serializer), $response->getContent());
     }
 
     public function testFindUserByEmailSuccess(): void
@@ -110,11 +114,11 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService);
+        $userController = new UserController($userService, $this->serializer);
 
         $parameters = ["email" => ConstHelper::USER_EMAIL_TEST];
         $request = RequestHelper::createRequest("/users/email", Request::METHOD_GET, "", $parameters);
-        $response = $userController->findUserByEmail($request, $this->serializer);
+        $response = $userController->findUserByEmail($request);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals($this->serializer->serialize($userDto, JsonEncoder::FORMAT), $response->getContent());
@@ -126,25 +130,29 @@ class UserControllerTest extends KernelTestCase
     {
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService);
+        $userController = new UserController($userService, $this->serializer);
 
         $request = RequestHelper::createRequest("/users/email", Request::METHOD_GET, "");
-        $response = $userController->findUserByEmail($request, $this->serializer);
+        $response = $userController->findUserByEmail($request);
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::emptyEmailJSON($this->serializer), $response->getContent());
     }
 
     public function testFindUserByEmailNotFound(): void
     {
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService);
+        $userController = new UserController($userService, $this->serializer);
 
         $parameters = ["email" => ConstHelper::USER_EMAIL_TEST];
         $request = RequestHelper::createRequest("/users/email", Request::METHOD_GET, "", $parameters);
-        $response = $userController->findUserByEmail($request, $this->serializer);
+        $response = $userController->findUserByEmail($request);
+
+        $exception = new UserNotFoundException(ConstHelper::USER_EMAIL_TEST);
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::generateJSON($exception, $this->serializer), $response->getContent());
     }
 
     public function testRemoveUserSuccess(): void
@@ -153,7 +161,7 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService);
+        $userController = new UserController($userService, $this->serializer);
 
         $response = $userController->removeUser($user->getId());
 
@@ -166,11 +174,14 @@ class UserControllerTest extends KernelTestCase
     {
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService);
+        $userController = new UserController($userService, $this->serializer);
 
-        $response = $userController->removeUser(1);
+        $response = $userController->removeUser(ConstHelper::USER_ID_TEST);
+
+        $exception = new UserNotFoundException(ConstHelper::USER_ID_TEST);
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::generateJSON($exception, $this->serializer), $response->getContent());
     }
 
     public function testCreateUserSuccess(): void
@@ -184,12 +195,12 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService);
+        $userController = new UserController($userService, $this->serializer);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users", Request::METHOD_POST, $content);
 
-        $response = $userController->createUser($request, $this->serializer);
+        $response = $userController->createUser($request);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
@@ -211,16 +222,16 @@ class UserControllerTest extends KernelTestCase
             ConstHelper::USER_PHONE_TEST,
         );
         $exception = new InvalidRequestException(UserService::ERROR_EMPTY_USER_NAME);
-        $errorMessage = ErrorMessage::generate($exception, $this->serializer);
+        $errorMessage = ErrorMessage::generateJSON($exception, $this->serializer);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService);
+        $userController = new UserController($userService, $this->serializer);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users", Request::METHOD_POST, $content);
 
-        $response = $userController->createUser($request, $this->serializer);
+        $response = $userController->createUser($request);
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertEquals($errorMessage, $response->getContent());
@@ -235,19 +246,18 @@ class UserControllerTest extends KernelTestCase
             ConstHelper::USER_PHONE_TEST,
         );
         $exception = new InvalidRequestException(UserService::ERROR_EMPTY_USER_EMAIL);
-        $errorMessage = ErrorMessage::generate($exception, $this->serializer);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService);
+        $userController = new UserController($userService, $this->serializer);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users", Request::METHOD_POST, $content);
 
-        $response = $userController->createUser($request, $this->serializer);
+        $response = $userController->createUser($request);
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-        $this->assertEquals($errorMessage, $response->getContent());
+        $this->assertEquals(ErrorMessage::generateJSON($exception, $this->serializer), $response->getContent());
     }
 
     public function testCreateUserEmptyPassword(): void
@@ -259,19 +269,18 @@ class UserControllerTest extends KernelTestCase
             ConstHelper::USER_PHONE_TEST,
         );
         $exception = new InvalidRequestException(UserService::ERROR_EMPTY_USER_PASSWORD);
-        $errorMessage = ErrorMessage::generate($exception, $this->serializer);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService);
+        $userController = new UserController($userService, $this->serializer);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users", Request::METHOD_POST, $content);
 
-        $response = $userController->createUser($request, $this->serializer);
+        $response = $userController->createUser($request);
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-        $this->assertEquals($errorMessage, $response->getContent());
+        $this->assertEquals(ErrorMessage::generateJSON($exception, $this->serializer), $response->getContent());
     }
 
     public function testUpdateUserSuccess(): void
@@ -287,12 +296,12 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService);
+        $userController = new UserController($userService, $this->serializer);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users", Request::METHOD_PUT, $content);
 
-        $response = $userController->updateUser($existingUser->getId(), $request, $this->serializer);
+        $response = $userController->updateUser($existingUser->getId(), $request);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
@@ -310,19 +319,18 @@ class UserControllerTest extends KernelTestCase
             ConstHelper::NEW_USER_PHONE_TEST,
         );
         $exception = new InvalidRequestException(UserService::ERROR_EMPTY_USER_NAME);
-        $errorMessage = ErrorMessage::generate($exception, $this->serializer);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService);
+        $userController = new UserController($userService, $this->serializer);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users", Request::METHOD_PUT, $content);
 
-        $response = $userController->updateUser($existingUser->getId(), $request, $this->serializer);
+        $response = $userController->updateUser($existingUser->getId(), $request);
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-        $this->assertEquals($errorMessage, $response->getContent());
+        $this->assertEquals(ErrorMessage::generateJSON($exception, $this->serializer), $response->getContent());
 
         FixtureHelper::removeUser($this->entityManager, $existingUser);
     }
@@ -338,19 +346,18 @@ class UserControllerTest extends KernelTestCase
             ConstHelper::NEW_USER_PHONE_TEST,
         );
         $exception = new InvalidRequestException(UserService::ERROR_EMPTY_USER_EMAIL);
-        $errorMessage = ErrorMessage::generate($exception, $this->serializer);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService);
+        $userController = new UserController($userService, $this->serializer);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users", Request::METHOD_PUT, $content);
 
-        $response = $userController->updateUser($existingUser->getId(), $request, $this->serializer);
+        $response = $userController->updateUser($existingUser->getId(), $request);
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-        $this->assertEquals($errorMessage, $response->getContent());
+        $this->assertEquals(ErrorMessage::generateJSON($exception, $this->serializer), $response->getContent());
 
         FixtureHelper::removeUser($this->entityManager, $existingUser);
     }
@@ -363,17 +370,19 @@ class UserControllerTest extends KernelTestCase
             ConstHelper::NEW_USER_PASSWORD_TEST,
             ConstHelper::NEW_USER_PHONE_TEST,
         );
+        $exception = new UserNotFoundException(ConstHelper::USER_ID_TEST);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService);
+        $userController = new UserController($userService, $this->serializer);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users/1", Request::METHOD_PUT, $content);
 
-        $response = $userController->updateUser(1, $request, $this->serializer);
+        $response = $userController->updateUser(ConstHelper::USER_ID_TEST, $request);
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::generateJSON($exception, $this->serializer), $response->getContent());
     }
 
     public function testSaveUserFailWithDuplicatedEmail() {

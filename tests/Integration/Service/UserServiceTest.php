@@ -2,7 +2,6 @@
 
 namespace App\Tests\Integration\Service;
 
-use App\Controller\UserController;
 use App\Dto\UserEditableDto;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
@@ -111,9 +110,8 @@ class UserServiceTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService);
 
-        $userController->removeUser($user->getId());
+        $userService->removeUser($user->getId());
     }
 
     public function testRemoveUserNotFound(): void

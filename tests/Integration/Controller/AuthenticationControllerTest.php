@@ -2,6 +2,7 @@
 
 namespace App\Tests\Integration\Controller;
 
+use App\Common\ErrorMessage;
 use App\Controller\AuthenticationController;
 use App\Dto\LoginDto;
 use App\Entity\User;
@@ -96,7 +97,8 @@ class AuthenticationControllerTest extends KernelTestCase
 
         $response = $authController->login($request);
 
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::authenticationFailed($this->serializer), $response->getContent());
     }
 
     public function testLoginUserUnauthorized(): void
@@ -118,6 +120,7 @@ class AuthenticationControllerTest extends KernelTestCase
         $response = $authController->login($request);
 
         $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::authenticationFailed($this->serializer), $response->getContent());
 
         FixtureHelper::removeUser($this->entityManager, $user);
     }
