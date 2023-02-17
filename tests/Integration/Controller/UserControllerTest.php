@@ -5,6 +5,7 @@ namespace App\Tests\Integration\Controller;
 use App\Common\ErrorMessage;
 use App\Controller\UserController;
 use App\Dto\UserEditableDto;
+use App\Entity\Roles;
 use App\Entity\User;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
@@ -215,11 +216,13 @@ class UserControllerTest extends KernelTestCase
 
     public function testCreateUserSuccessWithRoles(): void
     {
+        $expectedRoles = [Roles::ROLE_ADMIN, Roles::ROLE_USER];
         $userCreate = new UserEditableDto(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
+            $expectedRoles,
         );
 
         $userRepository = $this->entityManager->getRepository(User::class);
@@ -238,6 +241,8 @@ class UserControllerTest extends KernelTestCase
         if($normalizedUser["id"] != null) {
             $newUser = $userRepository->find($normalizedUser["id"]);
         }
+
+        $this->assertEquals($expectedRoles, $newUser->getRoles());
 
         FixtureHelper::removeUser($this->entityManager, $newUser);
     }
@@ -333,6 +338,37 @@ class UserControllerTest extends KernelTestCase
         $response = $userController->updateUser($existingUser->getId(), $request);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        FixtureHelper::removeUser($this->entityManager, $existingUser);
+    }
+
+    public function testUpdateUserSuccessWithRoles(): void
+    {
+        $existingUser = FixtureHelper::addUser($this->entityManager);
+
+        $expectedRoles = [Roles::ROLE_USER, Roles::ROLE_ADMIN];
+        $userCreate = new UserEditableDto(
+            ConstHelper::NEW_USER_NAME_TEST,
+            ConstHelper::NEW_USER_EMAIL_TEST,
+            ConstHelper::NEW_USER_PASSWORD_TEST,
+            ConstHelper::NEW_USER_PHONE_TEST,
+            $expectedRoles
+        );
+
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+        $userController = new UserController($userService, $this->serializer);
+
+        $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
+        $request = RequestHelper::createRequest("/users", Request::METHOD_PUT, $content);
+
+        $response = $userController->updateUser($existingUser->getId(), $request);
+
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $existingUser = $userRepository->find($existingUser->getId());
+
+        $this->assertEquals($expectedRoles, $existingUser->getRoles());
 
         FixtureHelper::removeUser($this->entityManager, $existingUser);
     }
