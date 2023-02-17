@@ -91,4 +91,16 @@ class UserTest extends TestCase{
 
         $this->assertEquals($roles, $user->getRoles());
     }
+
+    public function testUserGetSalt() {
+        $user = new User("", "", "", "");
+
+        $this->assertNull($user->getSalt());
+    }
+
+    public function testUserIdentifier() {
+        $user = new User("", ConstHelper::USER_EMAIL_TEST, "", "");
+
+        $this->assertEquals(ConstHelper::USER_EMAIL_TEST, $user->getUserIdentifier());
+    }
 }
