@@ -8,7 +8,6 @@ use App\Entity\User;
 use App\Mapper\UserMapper;
 use App\Tests\Utils\ConstHelper;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Security\Core\Role\Role;
 
 class UserMapperTest extends TestCase{
     public function testEntityToDto() {

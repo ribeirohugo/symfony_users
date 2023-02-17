@@ -213,6 +213,35 @@ class UserControllerTest extends KernelTestCase
         FixtureHelper::removeUser($this->entityManager, $newUser);
     }
 
+    public function testCreateUserSuccessWithRoles(): void
+    {
+        $userCreate = new UserEditableDto(
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
+        );
+
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+        $userController = new UserController($userService, $this->serializer);
+
+        $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
+        $request = RequestHelper::createRequest("/users", Request::METHOD_POST, $content);
+
+        $response = $userController->createUser($request);
+
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        // Fix: get user from response
+        $normalizedUser = json_decode($response->getContent(), true);
+        if($normalizedUser["id"] != null) {
+            $newUser = $userRepository->find($normalizedUser["id"]);
+        }
+
+        FixtureHelper::removeUser($this->entityManager, $newUser);
+    }
+
     public function testCreateUserEmptyName(): void
     {
         $userCreate = new UserEditableDto(
