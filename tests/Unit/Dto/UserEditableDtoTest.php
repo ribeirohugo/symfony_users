@@ -98,4 +98,19 @@ class UserEditableDtoTest extends TestCase{
         $this->assertIsObject($user);
         $this->assertEquals(ConstHelper::NEW_USER_PHONE_TEST, $user->getPhone());
     }
+
+    public function testUserEditableDtoRoles() {
+        $user = new UserEditableDto(
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
+        );
+        $expectedRoles = [Roles::ROLE_USER, Roles::ROLE_ADMIN];
+
+        $user->setRoles($expectedRoles);
+
+        $this->assertIsObject($user);
+        $this->assertEquals($expectedRoles, $user->getRoles());
+    }
 }

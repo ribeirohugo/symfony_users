@@ -118,4 +118,19 @@ class UserDtoTest extends TestCase{
         $this->assertIsObject($user);
         $this->assertEquals($timestamp, $user->getUpdatedAt());
     }
+
+    public function testUserDtoRoles() {
+        $user = new UserDto(
+            ConstHelper::USER_ID_TEST,
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PHONE_TEST,
+        );
+        $expectedRoles = [Roles::ROLE_USER, Roles::ROLE_ADMIN];
+
+        $user->setRoles($expectedRoles);
+
+        $this->assertIsObject($user);
+        $this->assertEquals($expectedRoles, $user->getRoles());
+    }
 }
