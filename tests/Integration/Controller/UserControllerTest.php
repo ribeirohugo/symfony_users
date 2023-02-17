@@ -16,6 +16,8 @@ use App\Tests\Utils\FixtureHelper;
 use App\Tests\Utils\RequestHelper;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManager;
+use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -38,6 +40,11 @@ class UserControllerTest extends KernelTestCase
      */
     private Serializer $serializer;
 
+    /**
+     * @var LoggerInterface
+     */
+    private LoggerInterface $logger;
+
     protected function setUp(): void
     {
         $kernel = self::bootKernel();
@@ -58,6 +65,8 @@ class UserControllerTest extends KernelTestCase
         $normalizers = array(new DateTimeNormalizer(), new ObjectNormalizer());
 
         $this->serializer = new Serializer($normalizers, $encoders);
+
+        $this->logger = new Logger("test");
     }
 
     public function testListUsersSuccess(): void
@@ -67,7 +76,7 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService, $this->serializer);
+        $userController = new UserController($userService, $this->serializer, $this->logger);
 
         $response = $userController->listUsers();
 
@@ -84,7 +93,7 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService, $this->serializer);
+        $userController = new UserController($userService, $this->serializer, $this->logger);
 
         $response = $userController->singleUser($user->getId());
 
@@ -98,7 +107,7 @@ class UserControllerTest extends KernelTestCase
     {
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService, $this->serializer);
+        $userController = new UserController($userService, $this->serializer, $this->logger);
 
         $response = $userController->singleUser(ConstHelper::USER_ID_TEST);
 
@@ -115,7 +124,7 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService, $this->serializer);
+        $userController = new UserController($userService, $this->serializer, $this->logger);
 
         $parameters = ["email" => ConstHelper::USER_EMAIL_TEST];
         $request = RequestHelper::createRequest("/users/email", Request::METHOD_GET, "", $parameters);
@@ -131,7 +140,7 @@ class UserControllerTest extends KernelTestCase
     {
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService, $this->serializer);
+        $userController = new UserController($userService, $this->serializer, $this->logger);
 
         $request = RequestHelper::createRequest("/users/email", Request::METHOD_GET, "");
         $response = $userController->findUserByEmail($request);
@@ -144,7 +153,7 @@ class UserControllerTest extends KernelTestCase
     {
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService, $this->serializer);
+        $userController = new UserController($userService, $this->serializer, $this->logger);
 
         $parameters = ["email" => ConstHelper::USER_EMAIL_TEST];
         $request = RequestHelper::createRequest("/users/email", Request::METHOD_GET, "", $parameters);
@@ -162,7 +171,7 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService, $this->serializer);
+        $userController = new UserController($userService, $this->serializer, $this->logger);
 
         $response = $userController->removeUser($user->getId());
 
@@ -175,7 +184,7 @@ class UserControllerTest extends KernelTestCase
     {
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService, $this->serializer);
+        $userController = new UserController($userService, $this->serializer, $this->logger);
 
         $response = $userController->removeUser(ConstHelper::USER_ID_TEST);
 
@@ -196,7 +205,7 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService, $this->serializer);
+        $userController = new UserController($userService, $this->serializer, $this->logger);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users", Request::METHOD_POST, $content);
@@ -227,7 +236,7 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService, $this->serializer);
+        $userController = new UserController($userService, $this->serializer, $this->logger);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users", Request::METHOD_POST, $content);
@@ -260,7 +269,7 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService, $this->serializer);
+        $userController = new UserController($userService, $this->serializer, $this->logger);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users", Request::METHOD_POST, $content);
@@ -283,7 +292,7 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService, $this->serializer);
+        $userController = new UserController($userService, $this->serializer, $this->logger);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users", Request::METHOD_POST, $content);
@@ -306,7 +315,7 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService, $this->serializer);
+        $userController = new UserController($userService, $this->serializer, $this->logger);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users", Request::METHOD_POST, $content);
@@ -330,7 +339,7 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService, $this->serializer);
+        $userController = new UserController($userService, $this->serializer, $this->logger);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users", Request::METHOD_PUT, $content);
@@ -357,7 +366,7 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService, $this->serializer);
+        $userController = new UserController($userService, $this->serializer, $this->logger);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users", Request::METHOD_PUT, $content);
@@ -387,7 +396,7 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService, $this->serializer);
+        $userController = new UserController($userService, $this->serializer, $this->logger);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users", Request::METHOD_PUT, $content);
@@ -414,7 +423,7 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService, $this->serializer);
+        $userController = new UserController($userService, $this->serializer, $this->logger);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users", Request::METHOD_PUT, $content);
@@ -439,7 +448,7 @@ class UserControllerTest extends KernelTestCase
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
-        $userController = new UserController($userService, $this->serializer);
+        $userController = new UserController($userService, $this->serializer, $this->logger);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users/1", Request::METHOD_PUT, $content);

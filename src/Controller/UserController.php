@@ -7,6 +7,7 @@ use App\Dto\UserEditableDto;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Service\UserServiceInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,16 +30,23 @@ class UserController extends AbstractController
     /**
      * @var SerializerInterface
      */
-    private  SerializerInterface $serializer;
+    private SerializerInterface $serializer;
+
+    /**
+     * @var LoggerInterface
+     */
+    private LoggerInterface $logger;
 
     /**
      * @param UserServiceInterface $userService
      * @param SerializerInterface $serializer
+     * @param LoggerInterface $logger
      */
-    function __construct(UserServiceInterface $userService, SerializerInterface $serializer)
+    function __construct(UserServiceInterface $userService, SerializerInterface $serializer, LoggerInterface $logger)
     {
         $this->userService = $userService;
         $this->serializer = $serializer;
+        $this->logger = $logger;
     }
 
     /**
@@ -52,8 +60,8 @@ class UserController extends AbstractController
         try {
             $users = $this->userService->findAllUsers();
         } catch (\Exception $e) {
-            error_log($e);
-            return new Response("", Response::HTTP_INTERNAL_SERVER_ERROR);
+            $this->logger->error($e);
+            return new Response(ErrorMessage::internalError($this->serializer), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return new Response(
@@ -76,9 +84,10 @@ class UserController extends AbstractController
         try {
             $user = $this->userService->findUser($userId);
         } catch(UserNotFoundException $e) {
+            $this->logger->warning($e);
             return new Response(ErrorMessage::generateJSON($e, $this->serializer), Response::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
-            error_log($e);
+            $this->logger->error($e);
             return new Response(ErrorMessage::internalError($this->serializer), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
@@ -108,10 +117,9 @@ class UserController extends AbstractController
             $user = $this->userService->findUserByEmail($email);
         } catch(UserNotFoundException $e) {
             $errorResponse = ErrorMessage::generateJSON($e, $this->serializer);
-
             return new Response($errorResponse, Response::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
-            error_log($e);
+            $this->logger->error($e);
             return new Response(ErrorMessage::internalError($this->serializer), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
@@ -137,7 +145,7 @@ class UserController extends AbstractController
         } catch(UserNotFoundException $e) {
             return new Response(ErrorMessage::generateJSON($e, $this->serializer), Response::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
-            error_log($e);
+            $this->logger->error($e);
             return new Response(ErrorMessage::internalError($this->serializer), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
@@ -157,7 +165,7 @@ class UserController extends AbstractController
         try {
             $userCreate = $this->serializer->deserialize($request->getContent(), UserEditableDto::class, JsonEncoder::FORMAT);
         } catch (\Exception $e) {
-            error_log($e);
+            $this->logger->error($e);
             return new Response(ErrorMessage::invalidFormatJSON($this->serializer), Response::HTTP_BAD_REQUEST);
         }
 
@@ -168,7 +176,7 @@ class UserController extends AbstractController
 
             return new Response($errorResponse, Response::HTTP_BAD_REQUEST);
         } catch (\Exception $e) {
-            error_log($e);
+            $this->logger->error($e);
             return new Response(ErrorMessage::internalError($this->serializer), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
@@ -194,8 +202,7 @@ class UserController extends AbstractController
         try {
             $userCreate = $this->serializer->deserialize($request->getContent(), UserEditableDto::class, JsonEncoder::FORMAT);
         } catch (\Exception $e) {
-            error_log($e);
-
+            $this->logger->error($e);
             return new Response(ErrorMessage::invalidFormatJSON($this->serializer), Response::HTTP_BAD_REQUEST);
         }
 
@@ -206,10 +213,9 @@ class UserController extends AbstractController
 
             return new Response($errorResponse,Response::HTTP_BAD_REQUEST);
         } catch (UserNotFoundException $e) {
-            error_log($e);
             return new Response(ErrorMessage::generateJSON($e, $this->serializer), Response::HTTP_NOT_FOUND);
         } catch (\Exception $e) {
-            error_log($e);
+            $this->logger->error($e);
             return new Response(ErrorMessage::internalError($this->serializer), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
