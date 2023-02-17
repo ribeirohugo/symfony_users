@@ -66,12 +66,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @param string $email
      * @param string $password
      * @param string $phone
+     * @param array $roles
      */
-    public function __construct(string $name, string $email, string $password, string $phone) {
+    public function __construct(
+        string $name, string $email,
+        string $password,
+        string $phone,
+        array $roles = [Roles::ROLE_USER],
+    ) {
         $this->name = $name;
         $this->email = $email;
         $this->password = $password;
         $this->phone = $phone;
+        $this->roles = $roles;
 
         $this->createdAt = new \DateTime();
     }

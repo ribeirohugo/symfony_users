@@ -9,6 +9,27 @@ use PHPUnit\Framework\TestCase;
 
 class UserTest extends TestCase{
     public function testUserCreate() {
+        $expectedRoles = [Roles::ROLE_USER, Roles::ROLE_ADMIN];
+
+        $user = new User(
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
+            $expectedRoles,
+        );
+
+        $this->assertIsObject($user);
+        $this->assertEquals(ConstHelper::USER_NAME_TEST, $user->getName());
+        $this->assertEquals(ConstHelper::USER_EMAIL_TEST, $user->getEmail());
+        $this->assertEquals(ConstHelper::USER_PASSWORD_TEST, $user->getPassword());
+        $this->assertEquals(ConstHelper::USER_PHONE_TEST, $user->getPhone());
+        $this->assertEquals($expectedRoles, $user->getRoles());
+    }
+
+    public function testUserCreateWithNoRoleSet() {
+        $expectedRoles = [Roles::ROLE_USER];
+
         $user = new User(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
@@ -21,6 +42,7 @@ class UserTest extends TestCase{
         $this->assertEquals(ConstHelper::USER_EMAIL_TEST, $user->getEmail());
         $this->assertEquals(ConstHelper::USER_PASSWORD_TEST, $user->getPassword());
         $this->assertEquals(ConstHelper::USER_PHONE_TEST, $user->getPhone());
+        $this->assertEquals($expectedRoles, $user->getRoles());
     }
 
     public function testUserId() {
