@@ -23,6 +23,7 @@ final class Version20230218004313 extends AbstractMigration
         $table = $schema->getTable("users");
 
         $table->addColumn("external_id", UuidType::NAME);
+        $table->addUniqueIndex(["external_id"]);
     }
 
     public function down(Schema $schema): void
