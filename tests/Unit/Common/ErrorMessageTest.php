@@ -89,4 +89,17 @@ class ErrorMessageTest extends TestCase
 
         $this->assertEquals($expectedJSON, $response);
     }
+
+    public function testDuplicatedEmail() {
+        $exception = new Exception(
+            ErrorMessage::EMAIL_ALREADY_EXIST
+        );
+
+        $errorDTO = new ErrorDto($exception);
+        $expectedJSON = $this->serializer->serialize($errorDTO, JsonEncoder::FORMAT);
+
+        $response = ErrorMessage::duplicatedEmailJSON($this->serializer);
+
+        $this->assertEquals($expectedJSON, $response);
+    }
 }

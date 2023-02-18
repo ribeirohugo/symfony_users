@@ -13,12 +13,12 @@ class FixtureHelper {
      * @param EntityManager $entityManager
      * @return User|null
      */
-    public static function addUser(EntityManager $entityManager): ?User {
+    public static function addUser(EntityManager $entityManager, $email = ConstHelper::USER_EMAIL_TEST): ?User {
         $expectedRoles = [Roles::ROLE_USER, Roles::ROLE_ADMIN];
 
         $user = new User(
             ConstHelper::USER_NAME_TEST,
-            ConstHelper::USER_EMAIL_TEST,
+            $email,
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
             $expectedRoles,

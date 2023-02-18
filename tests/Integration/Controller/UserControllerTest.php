@@ -263,6 +263,30 @@ class UserControllerTest extends KernelTestCase
         FixtureHelper::removeUser($this->entityManager, $newUser);
     }
 
+    public function testCreateUserDuplicatedEmail(): void
+    {
+        FixtureHelper::addUser($this->entityManager);
+
+        $userCreate = new UserEditableDto(
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
+        );
+
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+        $userController = new UserController($userService, $this->serializer, $this->logger);
+
+        $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
+        $request = RequestHelper::createRequest("/users", Request::METHOD_POST, $content);
+
+        $response = $userController->createUser($request);
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::duplicatedEmailJSON($this->serializer), $response->getContent());
+    }
+
     public function testCreateUserEmptyName(): void
     {
         $userCreate = new UserEditableDto(
@@ -387,6 +411,31 @@ class UserControllerTest extends KernelTestCase
         $this->assertEquals($expectedRoles, $existingUser->getRoles());
 
         FixtureHelper::removeUser($this->entityManager, $existingUser);
+    }
+
+    public function testUpdateUserDuplicatedEmail(): void
+    {
+        $existingUser = FixtureHelper::addUser($this->entityManager);
+        FixtureHelper::addUser($this->entityManager, ConstHelper::NEW_USER_EMAIL_TEST);
+
+        $userCreate = new UserEditableDto(
+            ConstHelper::NEW_USER_NAME_TEST,
+            ConstHelper::NEW_USER_EMAIL_TEST,
+            ConstHelper::NEW_USER_PASSWORD_TEST,
+            ConstHelper::NEW_USER_PHONE_TEST,
+        );
+
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+        $userController = new UserController($userService, $this->serializer, $this->logger);
+
+        $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
+        $request = RequestHelper::createRequest("/users", Request::METHOD_PUT, $content);
+
+        $response = $userController->updateUser($existingUser->getExternalId(), $request);
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::duplicatedEmailJSON($this->serializer), $response->getContent());
     }
 
     public function testUpdateUserEmptyName(): void

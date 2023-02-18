@@ -6,6 +6,7 @@ use App\Common\ErrorMessage;
 use App\Controller\UserController;
 use App\Dto\UserDto;
 use App\Dto\UserEditableDto;
+use App\Exception\EmailAlreadyInUseException;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Service\UserService;
@@ -241,6 +242,31 @@ class UserControllerTest extends TestCase
         $this->assertEquals($this->serializer->serialize($userDto, JsonEncoder::FORMAT), $response->getContent());
     }
 
+    public function testCreateUserDuplicatedEmail(): void
+    {
+        $userCreate = new UserEditableDto(
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
+        );
+        $exception = new EmailAlreadyInUseException();
+
+        $userService = $this->createMock(UserServiceInterface::class);
+        $userService->expects(self::once())
+            ->method('createUser')
+            ->willThrowException($exception);
+        $userController = new UserController($userService, $this->serializer, $this->logger);
+
+        $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
+        $request = RequestHelper::createRequest("users", Request::METHOD_POST, $content);
+
+        $response = $userController->createUser($request);
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::duplicatedEmailJSON($this->serializer), $response->getContent());
+    }
+
     public function testCreateUserInvalidBody(): void
     {
         $userService = $this->createMock(UserServiceInterface::class);
@@ -251,6 +277,7 @@ class UserControllerTest extends TestCase
         $response = $userController->createUser($request);
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::invalidFormatJSON($this->serializer), $response->getContent());
     }
 
     public function testCreateUserInvalidRequestException(): void
@@ -317,10 +344,12 @@ class UserControllerTest extends TestCase
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
+
         $userService = $this->createMock(UserService::class);
         $userService->expects(self::once())
             ->method('updateUser')
             ->willReturn($userDto);
+
         $userController = new UserController($userService, $this->serializer, $this->logger);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
@@ -330,6 +359,33 @@ class UserControllerTest extends TestCase
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals($this->serializer->serialize($userDto, JsonEncoder::FORMAT), $response->getContent());
+    }
+
+    public function testUpdateUserDuplicatedEmail(): void
+    {
+        $externalId = Uuid::v4();
+        $userCreate = new UserEditableDto(
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
+        );
+        $exception = new EmailAlreadyInUseException();
+
+        $userService = $this->createMock(UserService::class);
+        $userService->expects(self::once())
+            ->method('updateUser')
+            ->willThrowException($exception);
+
+        $userController = new UserController($userService, $this->serializer, $this->logger);
+
+        $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
+        $request = RequestHelper::createRequest("users/1", Request::METHOD_PUT, $content);
+
+        $response = $userController->updateUser(Uuid::v4(), $request);
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals(ErrorMessage::duplicatedEmailJSON($this->serializer), $response->getContent());
     }
 
     public function testUpdateUserNotfound(): void
