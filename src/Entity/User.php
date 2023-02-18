@@ -190,16 +190,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @param \DateTime|string $createdAt
+     * @param \DateTime $createdAt
      * @return void
      */
-    public function setCreatedAt(\DateTime|string $createdAt): void {
-        // Fix: deserialize set datetime error
-        if(gettype($createdAt) == "string") {
-            $this->createdAt = date_create_from_format(\DateTimeInterface::RFC3339, $createdAt);
-            return;
-        }
-
+    public function setCreatedAt(\DateTime $createdAt): void {
         $this->createdAt = $createdAt;
     }
 
@@ -211,16 +205,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @param \DateTime|string $updatedAt
+     * @param \DateTime $updatedAt
      * @return void
      */
-    public function setUpdatedAt(\DateTime|string $updatedAt): void {
-        // Fix: deserialize set datetime error
-        if(gettype($updatedAt) == "string") {
-            $this->createdAt = date_create_from_format(\DateTimeInterface::RFC3339, $updatedAt);
-            return;
-        }
-
+    public function setUpdatedAt(\DateTime $updatedAt): void {
         $this->updatedAt = $updatedAt;
     }
 

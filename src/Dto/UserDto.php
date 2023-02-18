@@ -154,16 +154,10 @@ class UserDto
     }
 
     /**
-     * @param DateTimeInterface|string $createdAt
+     * @param DateTimeInterface $createdAt
      * @return void
      */
-    public function setCreatedAt(DateTimeInterface|string $createdAt): void {
-        // Fix: deserialize set datetime error
-        if(gettype($createdAt) == "string") {
-            $this->createdAt = date_create_from_format(DateTimeInterface::RFC3339, $createdAt);
-            return;
-        }
-
+    public function setCreatedAt(DateTimeInterface $createdAt): void {
         $this->createdAt = $createdAt;
     }
 
@@ -175,16 +169,10 @@ class UserDto
     }
 
     /**
-     * @param DateTimeInterface|string|null $updatedAt
+     * @param DateTimeInterface|null $updatedAt
      * @return void
      */
-    public function setUpdatedAt(DateTimeInterface|string|null $updatedAt): void {
-        // Fix: deserialize set datetime error
-        if(gettype($updatedAt) == "string") {
-            $this->createdAt = date_create_from_format(DateTimeInterface::RFC3339, $updatedAt);
-            return;
-        }
-
+    public function setUpdatedAt(DateTimeInterface|null $updatedAt): void {
         $this->updatedAt = $updatedAt;
     }
 }
