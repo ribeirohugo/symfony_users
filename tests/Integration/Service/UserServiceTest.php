@@ -15,6 +15,7 @@ use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Uid\Uuid;
 
 class UserServiceTest extends KernelTestCase
 {
@@ -22,6 +23,11 @@ class UserServiceTest extends KernelTestCase
      * @var EntityManager
      */
     private EntityManager $entityManager;
+
+    /**
+     * @var Uuid
+     */
+    private Uuid $userUuidTest;
 
     protected function setUp(): void
     {
@@ -38,6 +44,8 @@ class UserServiceTest extends KernelTestCase
         $commandTester->execute(['n']);
 
         $commandTester->assertCommandIsSuccessful();
+
+        $this->userUuidTest = Uuid::v4();
     }
 
     public function testListUsersSuccess(): void
@@ -63,7 +71,7 @@ class UserServiceTest extends KernelTestCase
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
 
-        $response = $userService->findUser($user->getId());
+        $response = $userService->findUser($user->getExternalId());
 
         $this->assertEquals($userDto, $response);
 
@@ -77,7 +85,7 @@ class UserServiceTest extends KernelTestCase
 
         $this->expectException(UserNotFoundException::class);
 
-        $userService->findUser(ConstHelper::USER_ID_TEST);
+        $userService->findUser($this->userUuidTest);
     }
 
     public function testFindUserByEmailSuccess(): void
@@ -112,7 +120,7 @@ class UserServiceTest extends KernelTestCase
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
 
-        $userService->removeUser($user->getId());
+        $userService->removeUser($user->getExternalId());
     }
 
     public function testRemoveUserNotFound(): void
@@ -122,7 +130,7 @@ class UserServiceTest extends KernelTestCase
 
         $this->expectException(UserNotFoundException::class);
 
-        $userService->removeUser(ConstHelper::USER_ID_TEST);
+        $userService->removeUser($this->userUuidTest);
     }
 
     public function testCreateUserSuccess(): void
@@ -181,7 +189,7 @@ class UserServiceTest extends KernelTestCase
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
 
-        $response = $userService->updateUser($existingUser->getId(), $userCreate);
+        $response = $userService->updateUser($existingUser->getExternalId(), $userCreate);
 
         $this->assertEquals($userCreate->getName(), $response->getName());
         $this->assertEquals($userCreate->getEmail(), $response->getEmail());
@@ -207,7 +215,7 @@ class UserServiceTest extends KernelTestCase
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
 
-        $response = $userService->updateUser($existingUser->getId(), $userCreate);
+        $response = $userService->updateUser($existingUser->getExternalId(), $userCreate);
 
         $this->assertEquals($userCreate->getName(), $response->getName());
         $this->assertEquals($userCreate->getEmail(), $response->getEmail());
@@ -233,7 +241,7 @@ class UserServiceTest extends KernelTestCase
 
         $this->expectException(InvalidRequestException::class);
 
-        $userService->updateUser($existingUser->getId(), $userCreate);
+        $userService->updateUser($existingUser->getExternalId(), $userCreate);
 
         FixtureHelper::removeUser($this->entityManager, $existingUser);
     }
@@ -254,7 +262,7 @@ class UserServiceTest extends KernelTestCase
 
         $this->expectException(InvalidRequestException::class);
 
-        $userService->updateUser($existingUser->getId(), $userCreate);
+        $userService->updateUser($existingUser->getExternalId(), $userCreate);
 
         FixtureHelper::removeUser($this->entityManager, $existingUser);
     }
@@ -273,7 +281,7 @@ class UserServiceTest extends KernelTestCase
 
         $this->expectException(UserNotFoundException::class);
 
-        $userService->updateUser(ConstHelper::USER_ID_TEST, $userCreate);
+        $userService->updateUser($this->userUuidTest, $userCreate);
     }
 
     protected function tearDown(): void

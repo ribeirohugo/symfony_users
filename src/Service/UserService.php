@@ -38,9 +38,9 @@ class UserService implements UserServiceInterface {
      * @throws UserNotFoundException
      */
     public function findUser(Uuid $userId): UserDto {
-        $user = $this->userRepository->findOneBy(["external_id" => $userId]);
+        $user = $this->userRepository->findOneBy(["externalId" => $userId]);
         if(empty($user)) {
-            throw new UserNotFoundException($userId);
+            throw new UserNotFoundException($userId->toRfc4122());
         }
 
         return UserMapper::entityToDto($user);
@@ -73,12 +73,13 @@ class UserService implements UserServiceInterface {
     /**
      * @param Uuid $userId
      * @return void
+     *
      * @throws UserNotFoundException
      */
     public function removeUser(Uuid $userId): void {
-        $user = $this->userRepository->findOneBy(["external_id" => $userId]);
+        $user = $this->userRepository->findOneBy(["externalId" => $userId]);
         if(empty($user)) {
-            throw new UserNotFoundException($userId);
+            throw new UserNotFoundException($userId->toRfc4122());
         }
 
         $this->userRepository->remove($user, true);
@@ -87,6 +88,7 @@ class UserService implements UserServiceInterface {
     /**
      * @param UserEditableDto $userEditable
      * @return UserDto
+     *
      * @throws InvalidRequestException
      */
     public function createUser(UserEditableDto $userEditable): UserDto {
@@ -128,9 +130,9 @@ class UserService implements UserServiceInterface {
             throw new InvalidRequestException(self::ERROR_EMPTY_USER_EMAIL);
         }
 
-        $user = $this->userRepository->findOneBy(["external_id" => $userId]);
+        $user = $this->userRepository->findOneBy(["externalId" => $userId]);
         if(empty($user)) {
-            throw new UserNotFoundException($userId);
+            throw new UserNotFoundException($userId->toRfc4122());
         }
 
         $user->setName($userEditable->getName());
