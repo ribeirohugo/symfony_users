@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * User entity class.
@@ -24,12 +25,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     /**
-     * @var UuidType
+     * @var Uuid
      */
     #[ORM\Column(type: UuidType::NAME, unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
-    private UuidType $externalId;
+    private Uuid $externalId;
 
     /**
      * @var string
@@ -105,6 +106,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function setId(int $id): void {
         $this->id = $id;
+    }
+
+    /**
+     * @return Uuid
+     */
+    public function getExternalId(): Uuid {
+        return $this->externalId;
+    }
+
+    /**
+     * @param Uuid $externalId
+     * @return void
+     */
+    public function setExternalId(Uuid $externalId): void {
+        $this->externalId = $externalId;
     }
 
     /**

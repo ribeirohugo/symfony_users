@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Uid\Uuid;
 
 class UserRepositoryTest extends KernelTestCase
 {
@@ -101,6 +102,7 @@ class UserRepositoryTest extends KernelTestCase
         $timestamp = new \DateTime();
         $user->setCreatedAt($timestamp);
         $user->setUpdatedAt($timestamp);
+        $user->setExternalId(Uuid::v4());
 
         $createdUser = $this->entityManager
             ->getRepository(User::class)
