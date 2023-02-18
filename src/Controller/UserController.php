@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Common\ErrorMessage;
 use App\Dto\UserEditableDto;
+use App\Exception\EmailAlreadyInUseException;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Service\UserServiceInterface;
@@ -173,6 +174,8 @@ class UserController extends AbstractController
 
         try {
             $user = $this->userService->createUser($userCreate);
+        } catch (EmailAlreadyInUseException) {
+            return new Response(ErrorMessage::duplicatedEmailJSON($this->serializer), Response::HTTP_BAD_REQUEST);
         } catch (InvalidRequestException $e) {
             $errorResponse = ErrorMessage::generateJSON($e, $this->serializer);
 
@@ -210,9 +213,10 @@ class UserController extends AbstractController
 
         try {
             $user = $this->userService->updateUser($userId, $userCreate);
+        } catch (EmailAlreadyInUseException) {
+            return new Response(ErrorMessage::duplicatedEmailJSON($this->serializer), Response::HTTP_BAD_REQUEST);
         } catch (InvalidRequestException $e) {
             $errorResponse = ErrorMessage::generateJSON($e, $this->serializer);
-
             return new Response($errorResponse,Response::HTTP_BAD_REQUEST);
         } catch (UserNotFoundException $e) {
             return new Response(ErrorMessage::generateJSON($e, $this->serializer), Response::HTTP_NOT_FOUND);

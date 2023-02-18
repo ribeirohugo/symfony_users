@@ -5,11 +5,13 @@ namespace App\Service;
 use App\Common\Password;
 use App\Dto\UserDto;
 use App\Dto\UserEditableDto;
+use App\Exception\EmailAlreadyInUseException;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Mapper\UserMapper;
 use App\Repository\UserRepositoryInterface;
 use DateTime;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -90,7 +92,7 @@ class UserService implements UserServiceInterface {
      * @param UserEditableDto $userEditable
      * @return UserDto
      *
-     * @throws InvalidRequestException
+     * @throws InvalidRequestException|EmailAlreadyInUseException
      */
     public function createUser(UserEditableDto $userEditable): UserDto {
         if($userEditable->getName() == "") {
@@ -110,7 +112,11 @@ class UserService implements UserServiceInterface {
         $hashedPassword = $passwordHasher->hashPassword($user, $user->getPassword());
         $user->setPassword($hashedPassword);
 
-        $newUser = $this->userRepository->save($user, true);
+        try {
+            $newUser = $this->userRepository->save($user, true);
+        } catch (UniqueConstraintViolationException) {
+            throw new EmailAlreadyInUseException();
+        }
 
         return UserMapper::entityToDto($newUser);
     }
@@ -120,8 +126,7 @@ class UserService implements UserServiceInterface {
      * @param UserEditableDto $userEditable
      * @return UserDto
      *
-     * @throws InvalidRequestException
-     * @throws UserNotFoundException
+     * @throws UserNotFoundException|InvalidRequestException|EmailAlreadyInUseException
      */
     public function updateUser(Uuid $userId, UserEditableDto $userEditable): UserDto {
         if($userEditable->getName() == "") {
@@ -151,7 +156,11 @@ class UserService implements UserServiceInterface {
         $hashedPassword = $passwordHasher->hashPassword($user, $user->getPassword());
         $user->setPassword($hashedPassword);
 
-        $updatedUser = $this->userRepository->save($user, true);
+        try {
+            $updatedUser = $this->userRepository->save($user, true);
+        } catch (UniqueConstraintViolationException) {
+            throw new EmailAlreadyInUseException();
+        }
 
         return UserMapper::entityToDto($updatedUser);
     }

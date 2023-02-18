@@ -5,6 +5,8 @@ namespace App\Repository;
 use App\Entity\User;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Exception;
 
 interface UserRepositoryInterface extends ServiceEntityRepositoryInterface
 {
@@ -23,6 +25,9 @@ interface UserRepositoryInterface extends ServiceEntityRepositoryInterface
      * @param User $user
      * @param bool $flush
      * @return User
+     *
+     * @throws UniqueConstraintViolationException
+     * @throws Exception
      */
     function save(User $user, bool $flush = false): User;
 
