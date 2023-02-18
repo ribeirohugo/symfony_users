@@ -10,22 +10,22 @@ class UserEditableDto
     /**
      * @var string|null
      */
-    private ?string $name = null;
+    private ?string $name;
 
     /**
      * @var string|null
      */
-    private ?string $email = null;
+    private ?string $email;
 
     /**
      * @var string|null
      */
-    private ?string $password = null;
+    private ?string $password;
 
     /**
      * @var string|null
      */
-    private ?string $phone = null;
+    private ?string $phone;
 
     /**
      * @var array

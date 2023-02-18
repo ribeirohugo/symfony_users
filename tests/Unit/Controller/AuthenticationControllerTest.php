@@ -10,6 +10,7 @@ use App\Exception\UserNotFoundException;
 use App\Service\AuthenticationServiceInterface;
 use App\Tests\Utils\ConstHelper;
 use App\Tests\Utils\RequestHelper;
+use Exception;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -126,7 +127,7 @@ class AuthenticationControllerTest extends TestCase
         $authService = $this->createMock(AuthenticationServiceInterface::class);
         $authService->expects(self::once())
             ->method('login')
-            ->willThrowException(new \Exception());
+            ->willThrowException(new Exception());
         $userController = new AuthenticationController($authService, $this->serializer, $this->logger);
 
         $content = $this->serializer->serialize($loginDto, JsonEncoder::FORMAT);

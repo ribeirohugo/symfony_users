@@ -9,6 +9,7 @@ use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Mapper\UserMapper;
 use App\Repository\UserRepositoryInterface;
+use DateTime;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -139,7 +140,7 @@ class UserService implements UserServiceInterface {
         $user->setEmail($userEditable->getEmail());
         $user->setPhone($userEditable->getPhone());
         $user->setRoles($userEditable->getRoles());
-        $user->setUpdatedAt(new \DateTime());
+        $user->setUpdatedAt(new DateTime());
 
         if($userEditable->getPassword()!="") {
             $user->setPassword($userEditable->getPassword());

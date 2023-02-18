@@ -3,6 +3,7 @@
 namespace App\Tests\Unit\Dto;
 
 use App\Dto\ErrorDto;
+use Exception;
 use PHPUnit\Framework\TestCase;
 
 class ErrorDtoTest extends TestCase{
@@ -10,7 +11,7 @@ class ErrorDtoTest extends TestCase{
     const DEFAULT_ERROR_CODE = 20;
 
     public function testErrorDtoConstruct() {
-        $exception = new \Exception(self::DEFAULT_ERROR_MESSAGE, self::DEFAULT_ERROR_CODE);
+        $exception = new Exception(self::DEFAULT_ERROR_MESSAGE, self::DEFAULT_ERROR_CODE);
 
         $user = new ErrorDto($exception);
 
@@ -20,7 +21,7 @@ class ErrorDtoTest extends TestCase{
     }
 
     public function testErrorDtoMessage() {
-        $testException = new \Exception();
+        $testException = new Exception();
 
         $user = new ErrorDto($testException);
 
@@ -30,7 +31,7 @@ class ErrorDtoTest extends TestCase{
     }
 
     public function testErrorDtoCode() {
-        $testException = new \Exception();
+        $testException = new Exception();
 
         $user = new ErrorDto($testException);
 

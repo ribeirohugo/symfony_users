@@ -12,6 +12,7 @@ use App\Service\UserService;
 use App\Service\UserServiceInterface;
 use App\Tests\Utils\ConstHelper;
 use App\Tests\Utils\RequestHelper;
+use Exception;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -201,7 +202,7 @@ class UserControllerTest extends TestCase
         $userService = $this->createMock(UserServiceInterface::class);
         $userService->expects(self::once())
             ->method('removeUser')
-            ->willThrowException(new \Exception());
+            ->willThrowException(new Exception());
         $userController = new UserController($userService, $this->serializer, $this->logger);
 
         $response = $userController->removeUser($this->userUuidTest);
@@ -289,7 +290,7 @@ class UserControllerTest extends TestCase
         $userService = $this->createMock(UserServiceInterface::class);
         $userService->expects(self::once())
             ->method('createUser')
-            ->willThrowException(new \Exception());
+            ->willThrowException(new Exception());
         $userController = new UserController($userService, $this->serializer, $this->logger);
 
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
@@ -365,7 +366,7 @@ class UserControllerTest extends TestCase
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
-        $exception = new \Exception();
+        $exception = new Exception();
 
         $userService = $this->createMock(UserServiceInterface::class);
         $userService->expects(self::once())
@@ -381,10 +382,5 @@ class UserControllerTest extends TestCase
         $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
         $this->assertEquals(ErrorMessage::internalError($this->serializer), $response->getContent());
 
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
     }
 }
