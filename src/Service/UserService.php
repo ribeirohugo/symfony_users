@@ -9,6 +9,7 @@ use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Mapper\UserMapper;
 use App\Repository\UserRepositoryInterface;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * UserService holds user service logic and maps data between controller and repository.
@@ -100,9 +101,9 @@ class UserService implements UserServiceInterface {
         }
 
         $user = UserMapper::userEditableDtoToEntity($userEditable);
+        $user->setExternalId(Uuid::v1());
 
         $passwordHasher = Password::autoUserHasher();
-
         $hashedPassword = $passwordHasher->hashPassword($user, $user->getPassword());
         $user->setPassword($hashedPassword);
 
