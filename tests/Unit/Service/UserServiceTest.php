@@ -10,8 +10,8 @@ use App\Mapper\UserMapper;
 use App\Repository\UserRepository;
 use App\Service\UserService;
 use App\Tests\Utils\ConstHelper;
+use Exception;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Uid\Uuid;
 
 class UserServiceTest extends TestCase
@@ -63,11 +63,11 @@ class UserServiceTest extends TestCase
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
             ->method('findOneBy')
-            ->willThrowException(new \Exception());
+            ->willThrowException(new Exception());
 
         $userService = new UserService($userRepository);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $userService->findUser($userUuid);
     }
@@ -102,11 +102,11 @@ class UserServiceTest extends TestCase
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
             ->method('findAll')
-            ->willThrowException(new \Exception());
+            ->willThrowException(new Exception());
 
         $userService = new UserService($userRepository);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $userService->findAllUsers();
     }
@@ -150,11 +150,11 @@ class UserServiceTest extends TestCase
             ->willReturn($user);
         $userRepository->expects(self::once())
             ->method('remove')
-            ->willThrowException(new \Exception());
+            ->willThrowException(new Exception());
 
         $userService = new UserService($userRepository);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $userService->removeUser($userUuid);
     }
@@ -176,11 +176,11 @@ class UserServiceTest extends TestCase
             ->willReturn($user);
         $userRepository->expects(self::once())
             ->method('remove')
-            ->willThrowException(new \Exception());
+            ->willThrowException(new Exception());
 
         $userService = new UserService($userRepository);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $userService->removeUser($userUuid);
     }
@@ -278,11 +278,11 @@ class UserServiceTest extends TestCase
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
             ->method('save')
-            ->willThrowException(new \Exception());
+            ->willThrowException(new Exception());
 
         $userService = new UserService($userRepository);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $userService->createUser($userCreate);
     }
@@ -376,7 +376,7 @@ class UserServiceTest extends TestCase
 
         $userService = new UserService($userRepository);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $userService->updateUser($userUuid, $userCreate);
     }
@@ -394,11 +394,11 @@ class UserServiceTest extends TestCase
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
             ->method('findOneBy')
-            ->willThrowException(new \Exception());
+            ->willThrowException(new Exception());
 
         $userService = new UserService($userRepository);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $userService->updateUser($uuid, $userCreate);
     }
@@ -433,14 +433,5 @@ class UserServiceTest extends TestCase
         $this->expectException(\Exception::class);
 
         $userService->updateUser($userUuid, $userCreate);
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-    }
-
-    protected function createRequest(string $uri, string $method, string $content) {
-        return Request::create($uri, $method, [], [], [], [], $content);
     }
 }

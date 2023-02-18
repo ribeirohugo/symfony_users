@@ -5,6 +5,7 @@ namespace App\Tests\Unit\Entity;
 use App\Entity\Roles;
 use App\Entity\User;
 use App\Tests\Utils\ConstHelper;
+use DateTime;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\Uuid;
 
@@ -98,7 +99,7 @@ class UserTest extends TestCase{
     public function testUserCreatedAt() {
         $user = new User("", "", "", "");
 
-        $createdAt = new \DateTime();
+        $createdAt = new DateTime();
 
         $user->setCreatedAt($createdAt);
 
@@ -108,7 +109,7 @@ class UserTest extends TestCase{
     public function testUserUpdatedAt() {
         $user = new User("", "", "", "");
 
-        $updatedAt = new \DateTime();
+        $updatedAt = new DateTime();
 
         $user->setUpdatedAt($updatedAt);
 

@@ -5,13 +5,14 @@ namespace App\Tests\Unit\Dto;
 use App\DTO\UserDTO;
 use App\Entity\Roles;
 use App\Tests\Utils\ConstHelper;
+use DateTime;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\Uuid;
 
 class UserDtoTest extends TestCase{
     public function testUserDtoConstruct() {
         $userUuid = Uuid::v4();
-        $timestamp = new \DateTime();
+        $timestamp = new DateTime();
         $expectedRoles = [Roles::ROLE_USER];
 
         $user = new UserDto(
@@ -104,7 +105,7 @@ class UserDtoTest extends TestCase{
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
-        $timestamp = new \DateTime();
+        $timestamp = new DateTime();
 
         $user->setCreatedAt($timestamp);
 
@@ -120,7 +121,7 @@ class UserDtoTest extends TestCase{
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
-        $timestamp = new \DateTime();
+        $timestamp = new DateTime();
 
         $user->setUpdatedAt($timestamp);
 

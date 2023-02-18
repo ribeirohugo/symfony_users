@@ -14,6 +14,7 @@ use App\Service\UserService;
 use App\Tests\Utils\ConstHelper;
 use App\Tests\Utils\FixtureHelper;
 use App\Tests\Utils\RequestHelper;
+use DateTime;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManager;
 use Monolog\Logger;
@@ -475,8 +476,8 @@ class UserControllerTest extends KernelTestCase
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
-        $conflictingUser->setCreatedAt(new \DateTime());
-        $conflictingUser->setUpdatedAt(new \DateTime());
+        $conflictingUser->setCreatedAt(new DateTime());
+        $conflictingUser->setUpdatedAt(new DateTime());
         $conflictingUser->setExternalId($user->getExternalId());
 
         $this->expectException(UniqueConstraintViolationException::class);
