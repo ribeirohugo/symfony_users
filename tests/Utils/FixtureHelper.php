@@ -6,6 +6,7 @@ use App\Common\Password;
 use App\Entity\Roles;
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
+use Symfony\Component\Uid\Uuid;
 
 class FixtureHelper {
     /**
@@ -24,6 +25,7 @@ class FixtureHelper {
         );
         $user->setCreatedAt(new \DateTime());
         $user->setUpdatedAt(new \DateTime());
+        $user->setExternalId(Uuid::v4());
 
         $hasher = Password::autoUserHasher();
         $hashedPasswod = $hasher->hashPassword($user, ConstHelper::USER_PASSWORD_TEST);

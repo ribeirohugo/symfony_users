@@ -27,6 +27,7 @@ use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Uid\Uuid;
 
 class UserControllerTest extends KernelTestCase
 {
@@ -470,6 +471,7 @@ class UserControllerTest extends KernelTestCase
         );
         $conflictingUser->setCreatedAt(new \DateTime());
         $conflictingUser->setUpdatedAt(new \DateTime());
+        $conflictingUser->setExternalId(Uuid::v4());
 
         $this->expectException(UniqueConstraintViolationException::class);
 
