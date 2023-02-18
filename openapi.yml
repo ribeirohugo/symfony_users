@@ -47,6 +47,12 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                '409':
+                    description: Given e-mail is already registered.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
     /users/{userId}:
         get:
             operationId: singleUser
@@ -109,6 +115,12 @@ paths:
                                 $ref: '#/components/schemas/Error'
                 '404':
                     description: User with the given user Id doesn't exist.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                '409':
+                    description: Given e-mail is already registered.
                     content:
                         application/json:
                             schema:
