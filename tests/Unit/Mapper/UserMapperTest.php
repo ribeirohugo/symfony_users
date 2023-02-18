@@ -8,9 +8,11 @@ use App\Entity\User;
 use App\Mapper\UserMapper;
 use App\Tests\Utils\ConstHelper;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Uid\Uuid;
 
 class UserMapperTest extends TestCase{
     public function testEntityToDto() {
+        $userUuid = Uuid::v4();
         $expectedRoles = [Roles::ROLE_USER, Roles::ROLE_ADMIN];
         $user = new User(
             ConstHelper::USER_NAME_TEST,
@@ -19,7 +21,7 @@ class UserMapperTest extends TestCase{
             ConstHelper::USER_PHONE_TEST,
             $expectedRoles,
         );
-        $user->setId(ConstHelper::USER_ID_TEST);
+        $user->setExternalId($userUuid);
 
         $dto = UserMapper::entityToDto($user);
 
@@ -32,16 +34,18 @@ class UserMapperTest extends TestCase{
     }
 
     public function testEntityToDtoWithoutRoles() {
+        $userUuid = Uuid::v4();
         $user = new User(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
-        $user->setId(ConstHelper::USER_ID_TEST);
+        $user->setExternalId($userUuid);
 
         $dto = UserMapper::entityToDto($user);
 
+        $this->assertEquals($user->getExternalId(), $dto->getId());
         $this->assertEquals($user->getName(), $dto->getName());
         $this->assertEquals($user->getEmail(), $dto->getEmail());
         $this->assertEquals($user->getPhone(), $dto->getPhone());
@@ -51,6 +55,7 @@ class UserMapperTest extends TestCase{
     }
 
     public function testEntityToDtoArray() {
+        $userUuid = Uuid::v4();
         $expectedRoles = [Roles::ROLE_USER, Roles::ROLE_ADMIN];
         $user = new User(
             ConstHelper::USER_NAME_TEST,
@@ -59,12 +64,13 @@ class UserMapperTest extends TestCase{
             ConstHelper::USER_PHONE_TEST,
             $expectedRoles,
         );
-        $user->setId(ConstHelper::USER_ID_TEST);
+        $user->setExternalId($userUuid);
         $users[] = $user;
 
         $dto = UserMapper::entityToDtoArray($users);
 
         $this->assertNotEmpty($dto);
+        $this->assertEquals($user->getExternalId(), $dto[0]->getId());
         $this->assertEquals($user->getName(), $dto[0]->getName());
         $this->assertEquals($user->getEmail(), $dto[0]->getEmail());
         $this->assertEquals($user->getPhone(), $dto[0]->getPhone());
@@ -74,18 +80,20 @@ class UserMapperTest extends TestCase{
     }
 
     public function testEntityToDtoArrayWithoutRoles() {
+        $userUuid = Uuid::v4();
         $user = new User(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
-        $user->setId(ConstHelper::USER_ID_TEST);
+        $user->setExternalId($userUuid);
         $users[] = $user;
 
         $dto = UserMapper::entityToDtoArray($users);
 
         $this->assertNotEmpty($dto);
+        $this->assertEquals($user->getExternalId(), $dto[0]->getId());
         $this->assertEquals($user->getName(), $dto[0]->getName());
         $this->assertEquals($user->getEmail(), $dto[0]->getEmail());
         $this->assertEquals($user->getPhone(), $dto[0]->getPhone());

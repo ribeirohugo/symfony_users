@@ -12,69 +12,77 @@ use App\Service\UserService;
 use App\Tests\Utils\ConstHelper;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Uid\Uuid;
 
 class UserServiceTest extends TestCase
 {
     public function testFindUserSuccess(): void
     {
+        $userUuid = Uuid::v4();
         $user = new User(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
-        $user->setId(ConstHelper::USER_ID_TEST);
+        $user->setExternalId($userUuid);
         $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
-            ->method('find')
+            ->method('findOneBy')
             ->willReturn($user);
 
         $userService = new UserService($userRepository);
 
-        $response = $userService->findUser(ConstHelper::USER_ID_TEST);
+        $response = $userService->findUser($userUuid);
 
         $this->assertEquals($userDto, $response);
     }
 
     public function testFindUserNotFound(): void
     {
+        $userUuid = Uuid::v4();
+
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
-            ->method('find')
+            ->method('findOneBy')
             ->willReturn(null);
 
         $userService = new UserService($userRepository);
 
         $this->expectException(UserNotFoundException::class);
 
-        $userService->findUser(ConstHelper::USER_ID_TEST);
+        $userService->findUser($userUuid);
     }
 
     public function testFindUserRepositoryError(): void
     {
+        $userUuid = Uuid::v4();
+
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
-            ->method('find')
+            ->method('findOneBy')
             ->willThrowException(new \Exception());
 
         $userService = new UserService($userRepository);
 
         $this->expectException(\Exception::class);
 
-        $userService->findUser(ConstHelper::USER_ID_TEST);
+        $userService->findUser($userUuid);
     }
 
     public function testFindAllUsersSuccess(): void
     {
+        $userUuid = Uuid::v4();
+
         $user = new User(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
-        $user->setId(ConstHelper::USER_ID_TEST);
+        $user->setExternalId($userUuid);
         $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->createMock(UserRepository::class);
@@ -105,37 +113,40 @@ class UserServiceTest extends TestCase
 
     public function testRemoveUserSuccess(): void
     {
+        $userUuid = Uuid::v4();
         $user = new User(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
+        $user->setExternalId($userUuid);
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
-            ->method('find')
+            ->method('findOneBy')
             ->willReturn($user);
         $userRepository->expects(self::once())
             ->method('remove');
 
         $userService = new UserService($userRepository);
-        $userService->removeUser(ConstHelper::USER_ID_TEST);
+        $userService->removeUser($userUuid);
     }
 
     public function testRemoveUserRepositoryFindError(): void
     {
-        $userId = 1;
+        $userUuid = Uuid::v4();
         $user = new User(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
+        $user->setExternalId($userUuid);
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
-            ->method('find')
+            ->method('findOneBy')
             ->willReturn($user);
         $userRepository->expects(self::once())
             ->method('remove')
@@ -145,22 +156,23 @@ class UserServiceTest extends TestCase
 
         $this->expectException(\Exception::class);
 
-        $userService->removeUser($userId);
+        $userService->removeUser($userUuid);
     }
 
     public function testRemoveUserRepositoryRemoveError(): void
     {
-        $userId = 1;
+        $userUuid = Uuid::v4();
         $user = new User(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
+        $user->setExternalId($userUuid);
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
-            ->method('find')
+            ->method('findOneBy')
             ->willReturn($user);
         $userRepository->expects(self::once())
             ->method('remove')
@@ -170,11 +182,12 @@ class UserServiceTest extends TestCase
 
         $this->expectException(\Exception::class);
 
-        $userService->removeUser($userId);
+        $userService->removeUser($userUuid);
     }
 
     public function testCreateUserSuccess(): void
     {
+        $userUuid = Uuid::v4();
         $userCreate = new UserEditableDto(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
@@ -187,7 +200,7 @@ class UserServiceTest extends TestCase
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
-        $user->setId(ConstHelper::USER_ID_TEST);
+        $user->setExternalId($userUuid);
         $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->createMock(UserRepository::class);
@@ -276,6 +289,7 @@ class UserServiceTest extends TestCase
 
     public function testUpdateUserSuccess(): void
     {
+        $externalUuid = Uuid::v4();
         $userCreate = new UserEditableDto(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
@@ -288,12 +302,12 @@ class UserServiceTest extends TestCase
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
-        $user->setId(ConstHelper::USER_ID_TEST);
+        $user->setExternalId($externalUuid);
         $userDto = UserMapper::entityToDto($user);
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
-            ->method('find')
+            ->method('findOneBy')
             ->willReturn($user);
         $userRepository->expects(self::once())
             ->method('save')
@@ -301,7 +315,7 @@ class UserServiceTest extends TestCase
 
         $userService = new UserService($userRepository);
 
-        $response = $userService->updateUser(ConstHelper::USER_ID_TEST, $userCreate);
+        $response = $userService->updateUser($externalUuid, $userCreate);
 
         // Set current timestamp to update date
         $userDto->setUpdatedAt($response->getUpdatedAt());
@@ -311,7 +325,7 @@ class UserServiceTest extends TestCase
 
     public function testUpdateUserEmptyName(): void
     {
-        $userId = 1;
+        $uuid = Uuid::v4();
         $userCreate = new UserEditableDto(
             "",
             ConstHelper::USER_EMAIL_TEST,
@@ -324,12 +338,12 @@ class UserServiceTest extends TestCase
 
         $this->expectException(InvalidRequestException::class);
 
-        $userService->updateUser($userId, $userCreate);
+        $userService->updateUser($uuid, $userCreate);
     }
 
     public function testUpdateUserEmptyEmail(): void
     {
-        $userId = 1;
+        $uuid = Uuid::v4();
         $userCreate = new UserEditableDto(
             ConstHelper::USER_NAME_TEST,
             "",
@@ -342,12 +356,12 @@ class UserServiceTest extends TestCase
 
         $this->expectException(InvalidRequestException::class);
 
-        $userService->updateUser($userId, $userCreate);
+        $userService->updateUser($uuid, $userCreate);
     }
 
     public function testUpdateUserNotFound(): void
     {
-        $userId = 1;
+        $userUuid = Uuid::v4();
         $userCreate = new UserEditableDto(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
@@ -357,19 +371,19 @@ class UserServiceTest extends TestCase
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
-            ->method('find')
+            ->method('findOneBy')
             ->willReturn(null);
 
         $userService = new UserService($userRepository);
 
         $this->expectException(\Exception::class);
 
-        $userService->updateUser($userId, $userCreate);
+        $userService->updateUser($userUuid, $userCreate);
     }
 
     public function testUpdateUserRepositoryFindError(): void
     {
-        $userId = 1;
+        $uuid = Uuid::v4();
         $userCreate = new UserEditableDto(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
@@ -379,19 +393,19 @@ class UserServiceTest extends TestCase
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
-            ->method('find')
+            ->method('findOneBy')
             ->willThrowException(new \Exception());
 
         $userService = new UserService($userRepository);
 
         $this->expectException(\Exception::class);
 
-        $userService->updateUser($userId, $userCreate);
+        $userService->updateUser($uuid, $userCreate);
     }
 
     public function testUpdateUserRepositorySaveError(): void
     {
-        $userId = 1;
+        $userUuid = Uuid::v4();
         $userCreate = new UserEditableDto(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
@@ -404,10 +418,11 @@ class UserServiceTest extends TestCase
             ConstHelper::USER_PASSWORD_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
+        $user->setExternalId($userUuid);
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())
-            ->method('find')
+            ->method('findOneBy')
             ->willReturn($user);
         $userRepository->expects(self::once())
             ->method('save')
@@ -417,7 +432,7 @@ class UserServiceTest extends TestCase
 
         $this->expectException(\Exception::class);
 
-        $userService->updateUser($userId, $userCreate);
+        $userService->updateUser($userUuid, $userCreate);
     }
 
     protected function tearDown(): void
