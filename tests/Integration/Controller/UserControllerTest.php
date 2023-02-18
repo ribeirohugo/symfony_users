@@ -283,7 +283,7 @@ class UserControllerTest extends KernelTestCase
 
         $response = $userController->createUser($request);
 
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_CONFLICT, $response->getStatusCode());
         $this->assertEquals(ErrorMessage::duplicatedEmailJSON($this->serializer), $response->getContent());
     }
 
@@ -434,7 +434,7 @@ class UserControllerTest extends KernelTestCase
 
         $response = $userController->updateUser($existingUser->getExternalId(), $request);
 
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_CONFLICT, $response->getStatusCode());
         $this->assertEquals(ErrorMessage::duplicatedEmailJSON($this->serializer), $response->getContent());
     }
 

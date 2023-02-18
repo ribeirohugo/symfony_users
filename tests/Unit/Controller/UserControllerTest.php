@@ -263,7 +263,7 @@ class UserControllerTest extends TestCase
 
         $response = $userController->createUser($request);
 
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_CONFLICT, $response->getStatusCode());
         $this->assertEquals(ErrorMessage::duplicatedEmailJSON($this->serializer), $response->getContent());
     }
 
@@ -363,7 +363,6 @@ class UserControllerTest extends TestCase
 
     public function testUpdateUserDuplicatedEmail(): void
     {
-        $externalId = Uuid::v4();
         $userCreate = new UserEditableDto(
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
@@ -384,7 +383,7 @@ class UserControllerTest extends TestCase
 
         $response = $userController->updateUser(Uuid::v4(), $request);
 
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_CONFLICT, $response->getStatusCode());
         $this->assertEquals(ErrorMessage::duplicatedEmailJSON($this->serializer), $response->getContent());
     }
 
