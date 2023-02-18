@@ -11,11 +11,13 @@ use App\Repository\UserRepository;
 use App\Service\AuthenticationService;
 use App\Tests\Utils\ConstHelper;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Uid\Uuid;
 
-class LoginServiceTest extends TestCase
+class AuthenticationServiceTest extends TestCase
 {
     public function testLoginSuccess(): void
     {
+        $userUuid = Uuid::v4();
         $loginDto = new LoginDto(
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PASSWORD_TEST,
@@ -26,7 +28,7 @@ class LoginServiceTest extends TestCase
             "",
             ConstHelper::USER_PHONE_TEST,
         );
-        $user->setId(ConstHelper::USER_ID_TEST);
+        $user->setExternalId($userUuid);
 
         $hasher = Password::autoUserHasher();
         $user->setPassword($hasher->hashPassword($user, ConstHelper::USER_PASSWORD_TEST));
@@ -47,6 +49,7 @@ class LoginServiceTest extends TestCase
 
     public function testLoginInvalidPassword(): void
     {
+        $userUuid = Uuid::v4();
         $loginDto = new LoginDto(
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PASSWORD_TEST,
@@ -57,7 +60,7 @@ class LoginServiceTest extends TestCase
             "",
             ConstHelper::USER_PHONE_TEST,
         );
-        $user->setId(ConstHelper::USER_ID_TEST);
+        $user->setExternalId($userUuid);
 
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->expects(self::once())

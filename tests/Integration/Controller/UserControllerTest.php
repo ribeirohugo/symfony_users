@@ -26,6 +26,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Normalizer\UidNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Uid\Uuid;
 
@@ -63,7 +64,7 @@ class UserControllerTest extends KernelTestCase
         $commandTester->assertCommandIsSuccessful();
 
         $encoders = array(new JsonEncoder());
-        $normalizers = array(new DateTimeNormalizer(), new ObjectNormalizer());
+        $normalizers = array(new DateTimeNormalizer(), new UidNormalizer(), new ObjectNormalizer());
 
         $this->serializer = new Serializer($normalizers, $encoders);
 
@@ -96,7 +97,7 @@ class UserControllerTest extends KernelTestCase
         $userService = new UserService($userRepository);
         $userController = new UserController($userService, $this->serializer, $this->logger);
 
-        $response = $userController->singleUser($user->getId());
+        $response = $userController->singleUser($user->getExternalId());
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals($this->serializer->serialize($userDto, JsonEncoder::FORMAT), $response->getContent());
@@ -106,13 +107,15 @@ class UserControllerTest extends KernelTestCase
 
     public function testSingleUserNotFound(): void
     {
+        $userUuid = Uuid::v4();
+
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
         $userController = new UserController($userService, $this->serializer, $this->logger);
 
-        $response = $userController->singleUser(ConstHelper::USER_ID_TEST);
+        $response = $userController->singleUser($userUuid);
 
-        $expectedError = new UserNotFoundException(ConstHelper::USER_ID_TEST);
+        $expectedError = new UserNotFoundException($userUuid);
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
         $this->assertEquals(ErrorMessage::generateJSON($expectedError, $this->serializer), $response->getContent());
@@ -174,7 +177,7 @@ class UserControllerTest extends KernelTestCase
         $userService = new UserService($userRepository);
         $userController = new UserController($userService, $this->serializer, $this->logger);
 
-        $response = $userController->removeUser($user->getId());
+        $response = $userController->removeUser($user->getExternalId());
 
         $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
@@ -183,13 +186,15 @@ class UserControllerTest extends KernelTestCase
 
     public function testRemoveUserNotFound(): void
     {
+        $userUuid = Uuid::v4();
+
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
         $userController = new UserController($userService, $this->serializer, $this->logger);
 
-        $response = $userController->removeUser(ConstHelper::USER_ID_TEST);
+        $response = $userController->removeUser($userUuid);
 
-        $exception = new UserNotFoundException(ConstHelper::USER_ID_TEST);
+        $exception = new UserNotFoundException($userUuid);
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
         $this->assertEquals(ErrorMessage::generateJSON($exception, $this->serializer), $response->getContent());
@@ -218,7 +223,7 @@ class UserControllerTest extends KernelTestCase
         // Fix: get user from response
         $normalizedUser = json_decode($response->getContent(), true);
         if($normalizedUser["id"] != null) {
-            $newUser = $userRepository->find($normalizedUser["id"]);
+            $newUser = $userRepository->findOneBy(["externalId" => $normalizedUser["id"]]);
         }
 
         FixtureHelper::removeUser($this->entityManager, $newUser);
@@ -249,7 +254,7 @@ class UserControllerTest extends KernelTestCase
         // Fix: get user from response
         $normalizedUser = json_decode($response->getContent(), true);
         if($normalizedUser["id"] != null) {
-            $newUser = $userRepository->find($normalizedUser["id"]);
+            $newUser = $userRepository->findOneBy(["externalId" => $normalizedUser["id"]]);
         }
 
         $this->assertEquals($expectedRoles, $newUser->getRoles());
@@ -345,7 +350,7 @@ class UserControllerTest extends KernelTestCase
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users", Request::METHOD_PUT, $content);
 
-        $response = $userController->updateUser($existingUser->getId(), $request);
+        $response = $userController->updateUser($existingUser->getExternalId(), $request);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
@@ -372,7 +377,7 @@ class UserControllerTest extends KernelTestCase
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users", Request::METHOD_PUT, $content);
 
-        $response = $userController->updateUser($existingUser->getId(), $request);
+        $response = $userController->updateUser($existingUser->getExternalId(), $request);
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
@@ -402,7 +407,7 @@ class UserControllerTest extends KernelTestCase
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users", Request::METHOD_PUT, $content);
 
-        $response = $userController->updateUser($existingUser->getId(), $request);
+        $response = $userController->updateUser($existingUser->getExternalId(), $request);
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertEquals(ErrorMessage::generateJSON($exception, $this->serializer), $response->getContent());
@@ -429,7 +434,7 @@ class UserControllerTest extends KernelTestCase
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users", Request::METHOD_PUT, $content);
 
-        $response = $userController->updateUser($existingUser->getId(), $request);
+        $response = $userController->updateUser($existingUser->getExternalId(), $request);
 
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertEquals(ErrorMessage::generateJSON($exception, $this->serializer), $response->getContent());
@@ -439,13 +444,14 @@ class UserControllerTest extends KernelTestCase
 
     public function testUpdateUserNotFound(): void
     {
+        $userUuid = Uuid::v4();
         $userCreate = new UserEditableDto(
             ConstHelper::NEW_USER_NAME_TEST,
             ConstHelper::NEW_USER_EMAIL_TEST,
             ConstHelper::NEW_USER_PASSWORD_TEST,
             ConstHelper::NEW_USER_PHONE_TEST,
         );
-        $exception = new UserNotFoundException(ConstHelper::USER_ID_TEST);
+        $exception = new UserNotFoundException($userUuid);
 
         $userRepository = $this->entityManager->getRepository(User::class);
         $userService = new UserService($userRepository);
@@ -454,14 +460,14 @@ class UserControllerTest extends KernelTestCase
         $content = $this->serializer->serialize($userCreate, JsonEncoder::FORMAT);
         $request = RequestHelper::createRequest("/users/1", Request::METHOD_PUT, $content);
 
-        $response = $userController->updateUser(ConstHelper::USER_ID_TEST, $request);
+        $response = $userController->updateUser($userUuid, $request);
 
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
         $this->assertEquals(ErrorMessage::generateJSON($exception, $this->serializer), $response->getContent());
     }
 
     public function testSaveUserFailWithDuplicatedEmail() {
-        FixtureHelper::addUser($this->entityManager);
+        $user = FixtureHelper::addUser($this->entityManager);
 
         $conflictingUser = new User(
             ConstHelper::USER_NAME_TEST,
@@ -471,7 +477,7 @@ class UserControllerTest extends KernelTestCase
         );
         $conflictingUser->setCreatedAt(new \DateTime());
         $conflictingUser->setUpdatedAt(new \DateTime());
-        $conflictingUser->setExternalId(Uuid::v4());
+        $conflictingUser->setExternalId($user->getExternalId());
 
         $this->expectException(UniqueConstraintViolationException::class);
 

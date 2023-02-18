@@ -8,6 +8,7 @@ use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Repository\UserRepositoryInterface;
 use Exception;
+use Symfony\Component\Uid\Uuid;
 
 interface UserServiceInterface
 {
@@ -18,11 +19,12 @@ interface UserServiceInterface
     public function __construct(UserRepositoryInterface $userRepository);
 
     /**
-     * @param int $userId
+     * @param Uuid $userId
      * @return UserDto
+     *
      * @throws UserNotFoundException
      */
-    public function findUser(int $userId): UserDto;
+    public function findUser(Uuid $userId): UserDto;
 
     /**
      * @return UserDto[]
@@ -32,28 +34,37 @@ interface UserServiceInterface
     /**
      * @param string $email
      * @return UserDto
+     *
      * @throws UserNotFoundException
      * @throws Exception
      */
     public function findUserByEmail(string $email): UserDto;
 
     /**
+     * @param Uuid $userId
+     * @return void
+     *
      * @throws UserNotFoundException
      * @throws Exception
      */
-    public function removeUser(int $userId): void;
+    public function removeUser(Uuid $userId): void;
 
     /**
      * @param UserEditableDto $userEditable
      * @return UserDto
+     *
      * @throws Exception
      */
     public function createUser(UserEditableDto $userEditable): UserDto;
 
     /**
+     * @param Uuid $userId
+     * @param UserEditableDto $userEditable
+     * @return UserDto
+     *
      * @throws InvalidRequestException
      * @throws UserNotFoundException
      * @throws Exception
      */
-    public function updateUser(int $userId, UserEditableDto $userEditable): UserDto;
+    public function updateUser(Uuid $userId, UserEditableDto $userEditable): UserDto;
 }

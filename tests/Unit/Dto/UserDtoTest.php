@@ -6,14 +6,16 @@ use App\DTO\UserDTO;
 use App\Entity\Roles;
 use App\Tests\Utils\ConstHelper;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Uid\Uuid;
 
 class UserDtoTest extends TestCase{
     public function testUserDtoConstruct() {
+        $userUuid = Uuid::v4();
         $timestamp = new \DateTime();
         $expectedRoles = [Roles::ROLE_USER];
 
         $user = new UserDto(
-            ConstHelper::USER_ID_TEST,
+            $userUuid,
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PHONE_TEST,
@@ -21,10 +23,10 @@ class UserDtoTest extends TestCase{
             $timestamp,
             $expectedRoles,
         );
-        $user->setId(ConstHelper::USER_ID_TEST);
+        $user->setId($userUuid);
 
         $this->assertIsObject($user);
-        $this->assertEquals(ConstHelper::USER_ID_TEST, $user->getId());
+        $this->assertEquals($userUuid, $user->getId());
         $this->assertEquals(ConstHelper::USER_NAME_TEST, $user->getName());
         $this->assertEquals(ConstHelper::USER_EMAIL_TEST, $user->getEmail());
         $this->assertEquals(ConstHelper::USER_PHONE_TEST, $user->getPhone());
@@ -34,22 +36,25 @@ class UserDtoTest extends TestCase{
     }
 
     public function testUserDtoId() {
+        $userUuid = Uuid::v4();
+        $newUserUuid = Uuid::v4();
         $user = new UserDto(
-            ConstHelper::USER_ID_TEST,
+            $userUuid,
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PHONE_TEST,
         );
 
-        $user->setId(ConstHelper::NEW_USER_ID_TEST);
+        $user->setId($newUserUuid);
 
         $this->assertIsObject($user);
-        $this->assertEquals(ConstHelper::NEW_USER_ID_TEST, $user->getId());
+        $this->assertEquals($newUserUuid, $user->getId());
     }
 
     public function testUserDtoName() {
+        $userUuid = Uuid::v4();
         $user = new UserDto(
-            ConstHelper::USER_ID_TEST,
+            $userUuid,
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PHONE_TEST,
@@ -62,8 +67,9 @@ class UserDtoTest extends TestCase{
     }
 
     public function testUserDtoEmail() {
+        $userUuid = Uuid::v4();
         $user = new UserDto(
-            ConstHelper::USER_ID_TEST,
+            $userUuid,
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PHONE_TEST,
@@ -76,8 +82,9 @@ class UserDtoTest extends TestCase{
     }
 
     public function testUserDtoPhone() {
+        $userUuid = Uuid::v4();
         $user = new UserDto(
-            ConstHelper::USER_ID_TEST,
+            $userUuid,
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PHONE_TEST,
@@ -90,8 +97,9 @@ class UserDtoTest extends TestCase{
     }
 
     public function testUserDtoCreatedAt() {
+        $userUuid = Uuid::v4();
         $user = new UserDto(
-            ConstHelper::USER_ID_TEST,
+            $userUuid,
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PHONE_TEST,
@@ -105,8 +113,9 @@ class UserDtoTest extends TestCase{
     }
 
     public function testUserDtoUpdatedAt() {
+        $userUuid = Uuid::v4();
         $user = new UserDto(
-            ConstHelper::USER_ID_TEST,
+            $userUuid,
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PHONE_TEST,
@@ -120,8 +129,9 @@ class UserDtoTest extends TestCase{
     }
 
     public function testUserDtoRoles() {
+        $userUuid = Uuid::v4();
         $user = new UserDto(
-            ConstHelper::USER_ID_TEST,
+            $userUuid,
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PHONE_TEST,

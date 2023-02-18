@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Uid\Uuid;
 
 class AuthenticationControllerTest extends TestCase
 {
@@ -43,8 +44,9 @@ class AuthenticationControllerTest extends TestCase
 
     public function testLoginSuccess(): void
     {
+        $userUuid = Uuid::v4();
         $userDto = new UserDto(
-            ConstHelper::USER_ID_TEST,
+            $userUuid,
             ConstHelper::USER_NAME_TEST,
             ConstHelper::USER_EMAIL_TEST,
             ConstHelper::USER_PHONE_TEST,

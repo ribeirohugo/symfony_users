@@ -15,6 +15,7 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * UserController holds user related controller methods and routing configs.
@@ -75,11 +76,11 @@ class UserController extends AbstractController
      * Returns a user, for a given user ID persisted users.
      * Returns a not found response if user doesn't exist.
      *
-     * @param int $userId
+     * @param Uuid $userId
      * @return Response
      */
     #[Route('/users/{userId}', name: 'singleUser', methods: [Request::METHOD_GET])]
-    public function singleUser(int $userId): Response
+    public function singleUser(Uuid $userId): Response
     {
         try {
             $user = $this->userService->findUser($userId);
@@ -134,11 +135,11 @@ class UserController extends AbstractController
      * Removes a user for a given user ID.
      * Returns user not found response if user doesn't exist.
      *
-     * @param int $userId
+     * @param Uuid $userId
      * @return Response
      */
     #[Route('/users/{userId}', name: 'removeUser', methods: [Request::METHOD_DELETE])]
-    public function removeUser(int $userId): Response
+    public function removeUser(Uuid $userId): Response
     {
         try {
             $this->userService->removeUser($userId);
@@ -192,12 +193,12 @@ class UserController extends AbstractController
      * Returns not found status if the user doesn't exist.
      * Returns bad request response when the user data isn't valid.
      *
-     * @param int $userId
+     * @param Uuid $userId
      * @param Request $request
      * @return Response
      */
     #[Route('/users/{userId}', name: 'updateUser', methods: [Request::METHOD_PUT])]
-    public function updateUser(int $userId, Request $request): Response
+    public function updateUser(Uuid $userId, Request $request): Response
     {
         try {
             $userCreate = $this->serializer->deserialize($request->getContent(), UserEditableDto::class, JsonEncoder::FORMAT);

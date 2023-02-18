@@ -21,7 +21,7 @@ final class Version20230217175801 extends AbstractMigration
     {
         $table = $schema->getTable("users");
 
-        $table->addColumn("roles", "json");
+        $table->addColumn("roles", "json")->setDefault("[]");
     }
     public function down(Schema $schema): void
     {
