@@ -6,6 +6,7 @@ use App\Entity\Roles;
 use App\Entity\User;
 use App\Tests\Utils\ConstHelper;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Uid\Uuid;
 
 class UserTest extends TestCase{
     public function testUserCreate() {
@@ -51,6 +52,16 @@ class UserTest extends TestCase{
         $user->setId(ConstHelper::USER_ID_TEST);
 
         $this->assertEquals(ConstHelper::USER_ID_TEST, $user->getId());
+    }
+
+    public function testUserExternalId() {
+        $user = new User("", "", "", "");
+
+        $uuid = Uuid::v4();
+
+        $user->setExternalId($uuid);
+
+        $this->assertEquals($uuid, $user->getExternalId());
     }
 
     public function testUserName() {
