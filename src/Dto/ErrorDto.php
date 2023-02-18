@@ -2,6 +2,8 @@
 
 namespace App\Dto;
 
+use Exception;
+
 /**
  * ErrorDto holds basic error data.
  */
@@ -10,7 +12,7 @@ class ErrorDto
     /**
      * @var string
      */
-    private string $message = "";
+    private string $message;
 
     /**
      * @var int|mixed
@@ -18,9 +20,9 @@ class ErrorDto
     private int $code;
 
     /**
-     * @param \Exception $exception
+     * @param Exception $exception
      */
-    public function __construct(\Exception $exception) {
+    public function __construct(Exception $exception) {
         $this->message = $exception->getMessage();
         $this->code = $exception->getCode();
     }

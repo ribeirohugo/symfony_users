@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -47,7 +49,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string|null
      */
     #[ORM\Column(length: 255)]
-    private ?string $password = null;
+    private ?string $password;
 
     /**
      * @var string
@@ -56,19 +58,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private string $phone;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      */
     #[ORM\Column(length: 255)]
-    private \DateTime $createdAt;
+    private DateTime $createdAt;
 
     /**
-     * @var \DateTime|null
+     * @var DateTime|null
      */
     #[ORM\Column(length: 255)]
-    private ?\DateTime $updatedAt = null;
+    private ?DateTime $updatedAt = null;
 
     #[ORM\Column(type: 'json')]
-    private array $roles = [];
+    private array $roles;
 
     /**
      * @param string $name
@@ -89,7 +91,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->phone = $phone;
         $this->roles = $roles;
 
-        $this->createdAt = new \DateTime();
+        $this->createdAt = new DateTime();
     }
 
     /**
@@ -183,32 +185,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getCreatedAt(): \DateTime {
+    public function getCreatedAt(): DateTime {
         return $this->createdAt;
     }
 
     /**
-     * @param \DateTime $createdAt
+     * @param DateTime $createdAt
      * @return void
      */
-    public function setCreatedAt(\DateTime $createdAt): void {
+    public function setCreatedAt(DateTime $createdAt): void {
         $this->createdAt = $createdAt;
     }
 
     /**
-     * @return \DateTimeInterface|null
+     * @return DateTimeInterface|null
      */
-    public function getUpdatedAt(): ?\DateTimeInterface {
+    public function getUpdatedAt(): ?DateTimeInterface {
         return $this->updatedAt;
     }
 
     /**
-     * @param \DateTime $updatedAt
+     * @param DateTime $updatedAt
      * @return void
      */
-    public function setUpdatedAt(\DateTime $updatedAt): void {
+    public function setUpdatedAt(DateTime $updatedAt): void {
         $this->updatedAt = $updatedAt;
     }
 

@@ -7,6 +7,7 @@ use App\Dto\UserEditableDto;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Service\UserServiceInterface;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -60,7 +61,7 @@ class UserController extends AbstractController
     {
         try {
             $users = $this->userService->findAllUsers();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error($e);
             return new Response(ErrorMessage::internalError($this->serializer), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -87,7 +88,7 @@ class UserController extends AbstractController
         } catch(UserNotFoundException $e) {
             $this->logger->warning($e);
             return new Response(ErrorMessage::generateJSON($e, $this->serializer), Response::HTTP_NOT_FOUND);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error($e);
             return new Response(ErrorMessage::internalError($this->serializer), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -119,7 +120,7 @@ class UserController extends AbstractController
         } catch(UserNotFoundException $e) {
             $errorResponse = ErrorMessage::generateJSON($e, $this->serializer);
             return new Response($errorResponse, Response::HTTP_NOT_FOUND);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error($e);
             return new Response(ErrorMessage::internalError($this->serializer), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -145,7 +146,7 @@ class UserController extends AbstractController
             $this->userService->removeUser($userId);
         } catch(UserNotFoundException $e) {
             return new Response(ErrorMessage::generateJSON($e, $this->serializer), Response::HTTP_NOT_FOUND);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error($e);
             return new Response(ErrorMessage::internalError($this->serializer), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -165,7 +166,7 @@ class UserController extends AbstractController
     {
         try {
             $userCreate = $this->serializer->deserialize($request->getContent(), UserEditableDto::class, JsonEncoder::FORMAT);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error($e);
             return new Response(ErrorMessage::invalidFormatJSON($this->serializer), Response::HTTP_BAD_REQUEST);
         }
@@ -176,7 +177,7 @@ class UserController extends AbstractController
             $errorResponse = ErrorMessage::generateJSON($e, $this->serializer);
 
             return new Response($errorResponse, Response::HTTP_BAD_REQUEST);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error($e);
             return new Response(ErrorMessage::internalError($this->serializer), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -202,7 +203,7 @@ class UserController extends AbstractController
     {
         try {
             $userCreate = $this->serializer->deserialize($request->getContent(), UserEditableDto::class, JsonEncoder::FORMAT);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error($e);
             return new Response(ErrorMessage::invalidFormatJSON($this->serializer), Response::HTTP_BAD_REQUEST);
         }
@@ -215,7 +216,7 @@ class UserController extends AbstractController
             return new Response($errorResponse,Response::HTTP_BAD_REQUEST);
         } catch (UserNotFoundException $e) {
             return new Response(ErrorMessage::generateJSON($e, $this->serializer), Response::HTTP_NOT_FOUND);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error($e);
             return new Response(ErrorMessage::internalError($this->serializer), Response::HTTP_INTERNAL_SERVER_ERROR);
         }

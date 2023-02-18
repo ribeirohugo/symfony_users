@@ -6,6 +6,7 @@ use App\Common\ErrorMessage;
 use App\Dto\LoginDto;
 use App\Exception\UserNotFoundException;
 use App\Service\AuthenticationServiceInterface;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -57,7 +58,7 @@ class AuthenticationController extends AbstractController
     {
         try {
             $loginDto = $this->serializer->deserialize($request->getContent(), LoginDto::class, JsonEncoder::FORMAT);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error($e);
             return new Response(ErrorMessage::invalidFormatJSON($this->serializer), Response::HTTP_BAD_REQUEST);
         }
@@ -66,7 +67,7 @@ class AuthenticationController extends AbstractController
             $user = $this->authenticationService->login($loginDto);
         } catch (UserNotFoundException) {
             return new Response(ErrorMessage::authenticationFailed($this->serializer), Response::HTTP_UNAUTHORIZED);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error($e);
             return new Response(ErrorMessage::internalError($this->serializer), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
