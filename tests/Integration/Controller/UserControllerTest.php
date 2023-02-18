@@ -471,7 +471,7 @@ class UserControllerTest extends KernelTestCase
         );
         $conflictingUser->setCreatedAt(new \DateTime());
         $conflictingUser->setUpdatedAt(new \DateTime());
-        $conflictingUser->setExternalId(new Uuid());
+        $conflictingUser->setExternalId(Uuid::v4());
 
         $this->expectException(UniqueConstraintViolationException::class);
 
