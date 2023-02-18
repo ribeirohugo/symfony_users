@@ -33,12 +33,12 @@ class UserService implements UserServiceInterface {
     }
 
     /**
-     * @param int $userId
+     * @param Uuid $userId
      * @return UserDto
      * @throws UserNotFoundException
      */
-    public function findUser(int $userId): UserDto {
-        $user = $this->userRepository->find($userId);
+    public function findUser(Uuid $userId): UserDto {
+        $user = $this->userRepository->findOneBy(["external_id" => $userId]);
         if(empty($user)) {
             throw new UserNotFoundException($userId);
         }
@@ -71,12 +71,12 @@ class UserService implements UserServiceInterface {
     }
 
     /**
-     * @param int $userId
+     * @param Uuid $userId
      * @return void
      * @throws UserNotFoundException
      */
-    public function removeUser(int $userId): void {
-        $user = $this->userRepository->find($userId);
+    public function removeUser(Uuid $userId): void {
+        $user = $this->userRepository->findOneBy(["external_id" => $userId]);
         if(empty($user)) {
             throw new UserNotFoundException($userId);
         }
@@ -101,7 +101,7 @@ class UserService implements UserServiceInterface {
         }
 
         $user = UserMapper::userEditableDtoToEntity($userEditable);
-        $user->setExternalId(Uuid::v1());
+        $user->setExternalId(Uuid::v4());
 
         $passwordHasher = Password::autoUserHasher();
         $hashedPassword = $passwordHasher->hashPassword($user, $user->getPassword());
@@ -113,13 +113,14 @@ class UserService implements UserServiceInterface {
     }
 
     /**
-     * @param int $userId
+     * @param Uuid $userId
      * @param UserEditableDto $userEditable
      * @return UserDto
+     *
      * @throws InvalidRequestException
      * @throws UserNotFoundException
      */
-    public function updateUser(int $userId, UserEditableDto $userEditable): UserDto {
+    public function updateUser(Uuid $userId, UserEditableDto $userEditable): UserDto {
         if($userEditable->getName() == "") {
             throw new InvalidRequestException(self::ERROR_EMPTY_USER_NAME);
         }
@@ -127,7 +128,7 @@ class UserService implements UserServiceInterface {
             throw new InvalidRequestException(self::ERROR_EMPTY_USER_EMAIL);
         }
 
-        $user = $this->userRepository->find($userId);
+        $user = $this->userRepository->findOneBy(["external_id" => $userId]);
         if(empty($user)) {
             throw new UserNotFoundException($userId);
         }

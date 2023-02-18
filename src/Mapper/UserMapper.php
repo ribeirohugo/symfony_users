@@ -13,7 +13,7 @@ class UserMapper {
      */
     public static function entityToDto(User $entity): UserDto {
         return new UserDto(
-            $entity->getId(),
+            $entity->getExternalId(),
             $entity->getName(),
             $entity->getEmail(),
             $entity->getPhone(),

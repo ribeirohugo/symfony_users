@@ -3,6 +3,7 @@
 namespace App\Dto;
 
 use DateTimeInterface;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * UserDTO holds returnable data for a user.
@@ -10,9 +11,9 @@ use DateTimeInterface;
 class UserDto
 {
     /**
-     * @var int
+     * @var Uuid
      */
-    private int $id;
+    private Uuid $id;
 
     /**
      * @var string
@@ -45,7 +46,7 @@ class UserDto
     private array $roles;
 
     /**
-     * @param int $id
+     * @param Uuid $id
      * @param string $name
      * @param string $email
      * @param string $phone
@@ -54,7 +55,7 @@ class UserDto
      * @param array $roles
      */
     public function __construct(
-        int                $id,
+        Uuid               $id,
         string             $name,
         string             $email,
         string             $phone,
@@ -72,17 +73,17 @@ class UserDto
     }
 
     /**
-     * @return int
+     * @return Uuid
      */
-    public function getId(): int {
+    public function getId(): Uuid {
         return $this->id;
     }
 
     /**
-     * @param int $id
+     * @param Uuid $id
      * @return void
      */
-    public function setId(int $id): void {
+    public function setId(Uuid $id): void {
         $this->id = $id;
     }
 
