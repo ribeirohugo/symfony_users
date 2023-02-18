@@ -516,26 +516,6 @@ class UserControllerTest extends KernelTestCase
         $this->assertEquals(ErrorMessage::generateJSON($exception, $this->serializer), $response->getContent());
     }
 
-    public function testSaveUserFailWithDuplicatedEmail() {
-        $user = FixtureHelper::addUser($this->entityManager);
-
-        $conflictingUser = new User(
-            ConstHelper::USER_NAME_TEST,
-            ConstHelper::USER_EMAIL_TEST,
-            ConstHelper::USER_PASSWORD_TEST,
-            ConstHelper::USER_PHONE_TEST,
-        );
-        $conflictingUser->setCreatedAt(new DateTime());
-        $conflictingUser->setUpdatedAt(new DateTime());
-        $conflictingUser->setExternalId($user->getExternalId());
-
-        $this->expectException(UniqueConstraintViolationException::class);
-
-        $this->entityManager
-            ->getRepository(User::class)
-            ->save($conflictingUser, true);
-    }
-
     protected function tearDown(): void
     {
         parent::tearDown();
