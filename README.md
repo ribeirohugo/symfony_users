@@ -17,6 +17,10 @@ Run the following command to start the application.
 
 ``symfony server:start``
 
+You can also set a port for this service by setting a `<port number>` value.
+
+``symfony server:start --port=<port number>``
+
 Run the following command to run tests.
 
 ``./vendor/bin/phpunit``
