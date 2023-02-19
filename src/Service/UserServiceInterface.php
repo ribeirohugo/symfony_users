@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Dto\UserDto;
 use App\Dto\UserEditableDto;
+use App\Exception\EmailAlreadyInUseException;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Repository\UserRepositoryInterface;
@@ -35,8 +36,7 @@ interface UserServiceInterface
      * @param string $email
      * @return UserDto
      *
-     * @throws UserNotFoundException
-     * @throws Exception
+     * @throws UserNotFoundException|Exception
      */
     public function findUserByEmail(string $email): UserDto;
 
@@ -44,8 +44,7 @@ interface UserServiceInterface
      * @param Uuid $userId
      * @return void
      *
-     * @throws UserNotFoundException
-     * @throws Exception
+     * @throws UserNotFoundException|Exception
      */
     public function removeUser(Uuid $userId): void;
 
@@ -53,7 +52,7 @@ interface UserServiceInterface
      * @param UserEditableDto $userEditable
      * @return UserDto
      *
-     * @throws Exception
+     * @throws InvalidRequestException|EmailAlreadyInUseException|Exception
      */
     public function createUser(UserEditableDto $userEditable): UserDto;
 
@@ -62,9 +61,7 @@ interface UserServiceInterface
      * @param UserEditableDto $userEditable
      * @return UserDto
      *
-     * @throws InvalidRequestException
-     * @throws UserNotFoundException
-     * @throws Exception
+     * @throws InvalidRequestException|UserNotFoundException|EmailAlreadyInUseException|Exception
      */
     public function updateUser(Uuid $userId, UserEditableDto $userEditable): UserDto;
 }

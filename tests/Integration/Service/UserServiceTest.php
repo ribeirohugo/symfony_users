@@ -5,12 +5,14 @@ namespace App\Tests\Integration\Service;
 use App\Dto\UserEditableDto;
 use App\Entity\Roles;
 use App\Entity\User;
+use App\Exception\EmailAlreadyInUseException;
 use App\Exception\InvalidRequestException;
 use App\Exception\UserNotFoundException;
 use App\Mapper\UserMapper;
 use App\Service\UserService;
 use App\Tests\Utils\ConstHelper;
 use App\Tests\Utils\FixtureHelper;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -175,6 +177,25 @@ class UserServiceTest extends KernelTestCase
         $this->assertEquals($expectedRoles, $response->getRoles());
     }
 
+    public function testCreateUserDuplicatedEmail(): void
+    {
+        FixtureHelper::addUser($this->entityManager);
+
+        $userCreate = new UserEditableDto(
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
+        );
+
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+
+        $this->expectException(EmailAlreadyInUseException::class);
+
+        $userService->createUser($userCreate);
+    }
+
     public function testUpdateUserSuccess(): void
     {
         $existingUser = FixtureHelper::addUser($this->entityManager);
@@ -223,6 +244,26 @@ class UserServiceTest extends KernelTestCase
         $this->assertEquals($expectedRoles, $response->getRoles());
 
         FixtureHelper::removeUser($this->entityManager, $existingUser);
+    }
+
+    public function testUpdateUserDuplicatedEmail(): void
+    {
+        $existingUser = FixtureHelper::addUser($this->entityManager);
+        FixtureHelper::addUser($this->entityManager, ConstHelper::NEW_USER_EMAIL_TEST);
+
+        $userCreate = new UserEditableDto(
+            ConstHelper::NEW_USER_NAME_TEST,
+            ConstHelper::NEW_USER_EMAIL_TEST,
+            ConstHelper::NEW_USER_PASSWORD_TEST,
+            ConstHelper::NEW_USER_PHONE_TEST,
+        );
+
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $userService = new UserService($userRepository);
+
+        $this->expectException(EmailAlreadyInUseException::class);
+
+        $userService->updateUser($existingUser->getExternalId(), $userCreate);
     }
 
     public function testUpdateUserEmptyName(): void

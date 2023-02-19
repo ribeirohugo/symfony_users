@@ -11,10 +11,12 @@ use Symfony\Component\Serializer\SerializerInterface;
  * ErrorMessage is responsible for wrapping error messages generating logic.
  */
 class ErrorMessage {
-    const INVALID_JSON_FORMAT = "invalid json format request";
+    const EMAIL_ALREADY_EXIST = "email already exists";
     const EMPTY_EMAIL = "no email was found";
     const INVALID_AUTHENTICATION = "authentication failed";
     const INTERNAL_ERROR = "a unexpected error occurred";
+    const INVALID_JSON_FORMAT = "invalid json format request";
+
 
     /**
      * @param Exception $error
@@ -69,6 +71,18 @@ class ErrorMessage {
     public static function internalError(SerializerInterface $serializer): string {
         $exception = new Exception(
             self::INTERNAL_ERROR
+        );
+
+        return self::generateJSON($exception, $serializer);
+    }
+
+    /**
+     * @param SerializerInterface $serializer
+     * @return string
+     */
+    public static function duplicatedEmailJSON(SerializerInterface $serializer): string {
+        $exception = new Exception(
+            self::EMAIL_ALREADY_EXIST
         );
 
         return self::generateJSON($exception, $serializer);

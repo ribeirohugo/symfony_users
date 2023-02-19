@@ -6,6 +6,8 @@ use App\Entity\Roles;
 use App\Entity\User;
 use App\Tests\Utils\ConstHelper;
 use App\Tests\Utils\FixtureHelper;
+use DateTime;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -118,6 +120,27 @@ class UserRepositoryTest extends KernelTestCase
 
         FixtureHelper::removeUser($this->entityManager, $createdUser);
     }
+
+    public function testSaveUserFailWithDuplicatedEmail() {
+        $user = FixtureHelper::addUser($this->entityManager);
+
+        $conflictingUser = new User(
+            ConstHelper::USER_NAME_TEST,
+            ConstHelper::USER_EMAIL_TEST,
+            ConstHelper::USER_PASSWORD_TEST,
+            ConstHelper::USER_PHONE_TEST,
+        );
+        $conflictingUser->setCreatedAt(new DateTime());
+        $conflictingUser->setUpdatedAt(new DateTime());
+        $conflictingUser->setExternalId($user->getExternalId());
+
+        $this->expectException(UniqueConstraintViolationException::class);
+
+        $this->entityManager
+            ->getRepository(User::class)
+            ->save($conflictingUser, true);
+    }
+
 
     protected function tearDown(): void
     {
